@@ -27,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 public class MessageUtils {
 	public static String convertColor(String original) {
@@ -53,13 +53,13 @@ public class MessageUtils {
 		}
 	}
 	
-	public static void send(Player player, String message) {
-		send(player, ChatColor.WHITE, message);
+	public static void send(CommandSender sender, String message) {
+		send(sender, ChatColor.WHITE, message);
 	}
 	
-	public static void send(Player player, ChatColor color, String message) {
+	public static void send(CommandSender sender, ChatColor color, String message) {
 		for (String line : message.split("\n")) {
-			player.sendMessage(color + line);
+			sender.sendMessage(color + line);
 		}
 	}
 

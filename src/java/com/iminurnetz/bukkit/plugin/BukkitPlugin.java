@@ -37,6 +37,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.reader.UnicodeReader;
 import org.yaml.snakeyaml.representer.Representer;
 
+import com.iminurnetz.bukkit.plugin.util.ConfigurationService;
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.plugin.util.PluginLogger;
 
@@ -71,29 +72,25 @@ public abstract class BukkitPlugin extends JavaPlugin {
 		logger.log("loaded");
 	}
 	
-	public void onLoad() {
-		// empty
-	}
-
 	public PluginLogger getLogger() {
 		return logger;
 	}
 
 	// simple shortcut
 	public void log(String msg) {
-		logger.log(msg);
+		getLogger().log(msg);
 	}
 
 	// simple shortcut
 	public void log(Level level, String msg) {
-		logger.log(level, msg);
+		getLogger().log(level, msg);
 	}
 
 	public String getName() {
 		try {
 			return root.get("name").toString();
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, this.getClass().getSimpleName()
+			getLogger().log(Level.SEVERE, this.getClass().getSimpleName()
 					+ " has no name yet!");
 		}
 
@@ -104,7 +101,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
 		try {
 			return root.get("version").toString();
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, this.getClass().getSimpleName()
+			getLogger().log(Level.SEVERE, this.getClass().getSimpleName()
 					+ " has no version yet!");
 		}
 
@@ -139,6 +136,6 @@ public abstract class BukkitPlugin extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		logger.log("un-loaded");
+		getLogger().log("un-loaded");
 	}
 }
