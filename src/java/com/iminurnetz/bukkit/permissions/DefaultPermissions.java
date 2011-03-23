@@ -48,7 +48,7 @@ public class DefaultPermissions implements PermissionHandler {
 	}
 	
 	public boolean hasPermission(Player player, String permission) {
-		return (defaultPermission || enableOps);
+		return (defaultPermission || (enableOps && player.isOp()));
 	}
 
 }

@@ -125,7 +125,7 @@ public class StringUtils {
 	}
 	
 	public static String join(String joiner, List<String> toJoin, int start) {
-		if (isEmpty(joiner) || toJoin == null || toJoin.size() == 0 || toJoin.size() < start)
+		if (isEmpty(joiner) || toJoin == null || toJoin.size() <= start)
 			return "";
 		
 		StringBuilder result = new StringBuilder();
