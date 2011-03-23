@@ -46,7 +46,7 @@ public class GroupManagerPermissions implements PermissionHandler {
 	public boolean setGroup(String name, String newGroup) {
 	    WorldDataHolder holder = worldHolder.getWorldDataByPlayerName(name);
 	    if (holder != null) {
-	        return setGroup(holder.getUser(name), newGroup);
+	        return setGroup(holder.getUser(name), newGroup, holder.getName());
 	    }
 	    
 	    return false;
@@ -54,13 +54,15 @@ public class GroupManagerPermissions implements PermissionHandler {
 	
 	public boolean setGroup(Player player, String newGroup) {
 	    User u = worldHolder.getWorldData(player).getUser(player.getName());
-	    return setGroup(u, newGroup);
+	    return setGroup(u, newGroup, player.getWorld().getName());
 	}
 	
-	public boolean setGroup(User u, String newGroup) {
-	    Group group = u.getDataSource().getGroup(newGroup);
-	    if (group != null) {
+	public boolean setGroup(User u, String newGroup, String world) {
+	    System.err.println(u.getName() + " in " + u.getGroupName() + " on " + world + " moving to " + newGroup);
+	    Group group = worldHolder.getWorldData(world).getGroup(newGroup);
+ 	    if (group != null) {
 	        u.setGroup(group);
+	        u.flagAsChanged();
 	        return true;
 	    }
 	    
