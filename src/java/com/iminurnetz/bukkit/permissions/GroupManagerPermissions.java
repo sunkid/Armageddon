@@ -24,6 +24,8 @@
 
 package com.iminurnetz.bukkit.permissions;
 
+import java.util.Collection;
+
 import org.anjocaido.groupmanager.data.Group;
 import org.anjocaido.groupmanager.data.User;
 import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
@@ -68,4 +70,10 @@ public class GroupManagerPermissions implements PermissionHandler {
 	    
 	    return false;
 	}
+
+    @Override
+    public String getGroup(Player player) {
+        User u = worldHolder.getWorldData(player).getUser(player.getName());
+        return u.getGroup().getName();
+    }
 }

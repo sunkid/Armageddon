@@ -47,8 +47,14 @@ public class DefaultPermissions implements PermissionHandler {
 		this.enableOps = bool;
 	}
 	
+    @Override
 	public boolean hasPermission(Player player, String permission) {
 		return (defaultPermission || (enableOps && player.isOp()));
 	}
+
+    @Override
+    public String getGroup(Player player) {
+         return null;
+    }
 
 }

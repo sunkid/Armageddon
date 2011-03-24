@@ -39,4 +39,9 @@ public class NijikokunPermissions implements PermissionHandler {
 		return handler.permission(player, permission);
 	}
 
+    @Override
+    public String getGroup(Player player) {
+        return handler.getGroup(player.getWorld().getName(), player.getName());
+    }
+
 }

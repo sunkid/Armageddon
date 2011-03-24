@@ -28,7 +28,7 @@ import java.io.Serializable;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class PersistentItemStack implements Serializable {
+public class SerializableItemStack implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,7 +37,7 @@ public class PersistentItemStack implements Serializable {
 	private final int amount;
 	private final byte data;
 
-	public PersistentItemStack(ItemStack stack) {
+	public SerializableItemStack(ItemStack stack) {
 		this.material = stack.getType().name();
 		this.damage = stack.getDurability();
 		this.amount = stack.getAmount();
