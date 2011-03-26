@@ -135,7 +135,7 @@ public class ConfigurationService {
 	}
 	
 	public boolean getSettingsAsBoolean(String setting, boolean defaultBool) {
-		return getPlugin().getConfiguration().getBoolean(SETTINGS_TAG + setting, defaultBool);
+		return getPlugin().getConfiguration().getBoolean(SETTINGS_TAG + "." + setting, defaultBool);
 	}
 
 	public boolean getUserSettingsAsBoolean(String setting) {
@@ -143,7 +143,7 @@ public class ConfigurationService {
 	}
 	
 	public boolean getUserSettingsAsBoolean(String setting, boolean defaultBool) {
-		return getPlugin().getConfiguration().getBoolean(USER_SETTINGS_TAG + setting, defaultBool);
+		return getPlugin().getConfiguration().getBoolean(USER_SETTINGS_TAG + "." + setting, defaultBool);
 	}
 
 	public int getSettingsAsInt(String setting) {
@@ -151,7 +151,7 @@ public class ConfigurationService {
 	}
 	
 	public int getSettingsAsInt(String setting, int defaultInt) {
-		return getPlugin().getConfiguration().getInt(SETTINGS_TAG + setting, defaultInt);
+		return getPlugin().getConfiguration().getInt(SETTINGS_TAG + "." + setting, defaultInt);
 	}
 
 	public int getUserSettingsAsInt(String setting) {
@@ -159,7 +159,7 @@ public class ConfigurationService {
 	}
 	
 	public int getUserSettingsAsInt(String setting, int defaultInt) {
-		return getPlugin().getConfiguration().getInt(USER_SETTINGS_TAG + setting, defaultInt);
+		return getPlugin().getConfiguration().getInt(USER_SETTINGS_TAG + "." + setting, defaultInt);
 	}
 
 	public String getSettings(String setting) {
