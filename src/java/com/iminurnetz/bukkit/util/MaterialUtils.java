@@ -445,7 +445,19 @@ public class MaterialUtils {
 		return m.name().endsWith("STEP");
 	}
 	
-	/**
+	public static boolean isFlower(Material m) {
+	    return isSameMaterial(m, Material.RED_ROSE, Material.YELLOW_FLOWER);
+	}
+	
+    public static boolean isMushroom(Material m) {
+        return isSameMaterial(m, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM);
+    }
+
+    public static boolean isPressurePlate(Material m) {
+        return isSameMaterial(m, Material.WOOD_PLATE, Material.STONE_PLATE);
+    }
+
+    /**
 	 * Retrieves the items dropped when mining a block with this particular state.
 	 * @param state the state of the Block that was mined
 	 * @return a list of ItemStacks containing all items dropped
@@ -816,5 +828,12 @@ public class MaterialUtils {
 		// both are null
 		return true;
 	}
+
+    public static boolean isTraversable(Material m) {
+        return !m.isBlock() || isWater(m) || isLava(m) || isFlower(m) || isMushroom(m) || isPressurePlate(m) || isDiode(m) ||
+               isSameMaterial(m, Material.AIR, Material.CROPS, Material.SUGAR_CANE_BLOCK, Material.SAPLING,
+                       Material.REDSTONE_WIRE, Material.RAILS, Material.STONE_BUTTON, Material.PORTAL);
+               
+    }
 
 }
