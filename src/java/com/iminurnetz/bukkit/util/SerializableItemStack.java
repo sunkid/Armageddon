@@ -30,24 +30,50 @@ import org.bukkit.inventory.ItemStack;
 
 public class SerializableItemStack implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final String material;
-	private final short damage;
-	private final int amount;
-	private final byte data;
+    private final String material;
+    private final short damage;
+    private final int amount;
+    private final byte data;
 
-	public SerializableItemStack(ItemStack stack) {
-		this.material = stack.getType().name();
-		this.damage = stack.getDurability();
-		this.amount = stack.getAmount();
-		this.data = stack.getData() != null ? stack.getData().getData()
-				: (byte) 0;
-	}
+    public SerializableItemStack(ItemStack stack) {
+        this.material = stack.getType().name();
+        this.damage = stack.getDurability();
+        this.amount = stack.getAmount();
+        this.data = stack.getData() != null ? stack.getData().getData()
+                : (byte) damage;
+    }
 
-	public ItemStack getStack() {
-		return new ItemStack(Material.getMaterial(material), amount, damage,
-				data);
-	}
+    public ItemStack getStack() {
+        Material m = Material.getMaterial(material);
+        ItemStack stack = new ItemStack(m, amount);
+        stack.setDurability(damage);
+        stack.setData(m.getNewData(data == 0 ? (byte) damage : data));
+        return stack;
+    }
 
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append(amount).append(" x ").append(material).append(":")
+                .append(data).append(" (").append(damage).append(")");
+        return s.toString();
+    }
+
+    public String getMaterial() {
+        return material;
+    }
+
+    public short getDamage() {
+        return damage;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public byte getData() {
+        return data;
+    }
 }

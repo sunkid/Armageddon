@@ -32,8 +32,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.inventory.ItemStack;
 
 import com.iminurnetz.bukkit.util.MaterialUtils;

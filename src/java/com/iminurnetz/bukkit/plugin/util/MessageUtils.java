@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 
 public class MessageUtils {
@@ -68,4 +69,10 @@ public class MessageUtils {
 			return string;
 		return color + string + ChatColor.WHITE;
 	}
+
+    public static void broadcast(Server server, String message) {
+        for (String line : message.split("\n")) {
+            server.broadcastMessage(line);
+        }
+    }
 }
