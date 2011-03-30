@@ -24,8 +24,6 @@
 
 package com.iminurnetz.bukkit.permissions;
 
-import java.util.Collection;
-
 import org.anjocaido.groupmanager.data.Group;
 import org.anjocaido.groupmanager.data.User;
 import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
