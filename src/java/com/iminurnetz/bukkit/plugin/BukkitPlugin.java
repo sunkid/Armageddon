@@ -44,6 +44,9 @@ public abstract class BukkitPlugin extends JavaPlugin {
 	protected Map<String, Object> root;
 	protected PluginLogger logger;
 
+	protected int MIN_SERVER_VERSION = 400;
+	protected int MAX_SERVER_VERSION = Integer.MAX_VALUE;
+
 	public BukkitPlugin() {
 		logger = new PluginLogger(this);
 
@@ -68,7 +71,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
 			}
 		}
 
-		logger.log("loaded");
+		logger.log("initialized");
 	}
 	
 	public PluginLogger getLogger() {
@@ -85,7 +88,17 @@ public abstract class BukkitPlugin extends JavaPlugin {
 		getLogger().log(level, msg);
 	}
 
-	public String getName() {
+    // simple shortcut
+    public void log(Level level, String msg, Exception e) {
+        getLogger().log(level, msg, e);
+    }
+
+    // simple shortcut
+    public void log(String msg, Exception e) {
+        log(Level.SEVERE, msg, e);
+    }
+
+    public String getName() {
 		try {
 			return root.get("name").toString();
 		} catch (Exception e) {
@@ -105,6 +118,18 @@ public abstract class BukkitPlugin extends JavaPlugin {
 		}
 
 		return "";
+	}
+	
+	public int getServerVersion() {
+	    String[] sv = getServer().getVersion().split("-");
+	    int version = -1;
+	    try {
+	        version = Integer.valueOf(sv[3]);
+	    } catch (Exception e) {
+	        log("Unfamiliar version string " + getServer().getVersion());
+	    }
+	    
+	    return version;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -137,4 +162,37 @@ public abstract class BukkitPlugin extends JavaPlugin {
 	public void onDisable() {
 		getLogger().log("un-loaded");
 	}
+	
+	@Override
+	public final void onEnable() {
+	    int serverVersion = getServerVersion();
+        try {
+            if (serverVersion > 0 &&
+                (serverVersion < getMinimumServerVersion() || serverVersion > getMaximumServerVersion())) {
+
+                throw new UnsupportedServerVersionException(
+                        "This plugin only supports server versions "
+                                + getMinimumServerVersion() + " to "
+                                + getMaximumServerVersion());
+            }
+
+            if (serverVersion > 0) {
+                log("Server version compatibility check succeeded");
+            }
+
+            enablePlugin();
+        } catch (Exception e) {
+            log("Error enabling! ABORTED", e);
+            this.setEnabled(false);
+        }
+	}
+	
+	protected int getMinimumServerVersion() { return MIN_SERVER_VERSION; }
+    protected int getMaximumServerVersion() { return MAX_SERVER_VERSION; }
+    
+    /**
+     * This method will be called when the onEnable() method is called.
+     * @throws Exception 
+     */
+    public abstract void enablePlugin() throws Exception;
 }
