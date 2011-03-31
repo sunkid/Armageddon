@@ -58,7 +58,6 @@ public class GroupManagerPermissions implements PermissionHandler {
 	}
 	
 	public boolean setGroup(User u, String newGroup, String world) {
-	    System.err.println(u.getName() + " in " + u.getGroupName() + " on " + world + " moving to " + newGroup);
 	    Group group = worldHolder.getWorldData(world).getGroup(newGroup);
  	    if (group != null) {
 	        u.setGroup(group);
