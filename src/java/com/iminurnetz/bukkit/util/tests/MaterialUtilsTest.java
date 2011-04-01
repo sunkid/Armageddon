@@ -157,7 +157,7 @@ public class MaterialUtilsTest extends TestCase {
 			return false;
 		}
 
-		return (id != 354) && (id != 355) && (id != 356) && (id != 2256) && (id != 2257);
+		return (id != 354) && (id != 355) && (id != 356) && (id != 357) && (id != 2256) && (id != 2257);
 	}
 
 }
