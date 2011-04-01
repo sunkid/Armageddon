@@ -36,10 +36,13 @@ import java.util.Random;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
+import org.bukkit.material.Stairs;
 
 import com.iminurnetz.util.StringUtils;
 
@@ -834,6 +837,16 @@ public class MaterialUtils {
                isSameMaterial(m, Material.AIR, Material.CROPS, Material.SUGAR_CANE_BLOCK, Material.SAPLING,
                        Material.REDSTONE_WIRE, Material.RAILS, Material.STONE_BUTTON, Material.PORTAL);
                
+    }
+
+    public static boolean canHoldSign(Block block, BlockFace face) {
+        Material m = block.getType();
+        return !(face == BlockFace.UP || face == BlockFace.DOWN) &&
+               !isTraversable(m) && !isDoor(m) && !isBed(m) &&
+               !isSameMaterial(m, Material.LADDER, Material.SIGN) &&
+               !(isStairs(m) && 
+                       (face == ((Stairs) m.getNewData(block.getData())).getAscendingDirection() ||
+                        face == ((Stairs) m.getNewData(block.getData())).getDescendingDirection()));
     }
 
 }
