@@ -42,7 +42,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
-import org.bukkit.material.Stairs;
 
 import com.iminurnetz.util.StringUtils;
 
@@ -841,12 +840,12 @@ public class MaterialUtils {
 
     public static boolean canHoldSign(Block block, BlockFace face) {
         Material m = block.getType();
-        return !(face == BlockFace.UP || face == BlockFace.DOWN) &&
+        return face != BlockFace.DOWN &&
                !isTraversable(m) && !isDoor(m) && !isBed(m) &&
-               !isSameMaterial(m, Material.LADDER, Material.SIGN) &&
+               !isSameMaterial(m, Material.LADDER, Material.SIGN) /* &&
                !(isStairs(m) && 
                        (face == ((Stairs) m.getNewData(block.getData())).getAscendingDirection() ||
-                        face == ((Stairs) m.getNewData(block.getData())).getDescendingDirection()));
+                        face == ((Stairs) m.getNewData(block.getData())).getDescendingDirection())) */;
     }
 
 }

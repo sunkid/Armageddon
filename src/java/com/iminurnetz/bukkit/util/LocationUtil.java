@@ -115,4 +115,41 @@ public class LocationUtil {
 
 		return null;
 	}
+	
+	/**
+	 * Returns the direction a location's yaw is pointing toward
+	 * @param loc the location
+	 * @return a BlockFace corresponding to the Location's yaw
+	 */
+	public BlockFace getDirection(Location loc) {
+	    int degrees = Math.abs(365%((int)loc.getYaw()));
+	    int n = (int) Math.round(degrees/11.25);
+	    
+	    switch (n) {
+	    case 0:
+	    default:
+	        return BlockFace.WEST;
+	    case 1:
+	    case 2:
+	        return BlockFace.NORTH_WEST;
+	    case 3:
+	    case 4:
+	        return BlockFace.NORTH;
+	    case 5:
+	    case 6:
+	        return BlockFace.NORTH_EAST;
+	    case 7:
+	    case 8:
+	        return BlockFace.EAST;
+	    case 9:
+	    case 10:
+	        return BlockFace.SOUTH_EAST;
+	    case 11:
+	    case 12:
+	        return BlockFace.SOUTH;
+	    case 13:
+	    case 14:
+	        return BlockFace.SOUTH_WEST;
+	    }
+	}
 }
