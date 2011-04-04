@@ -25,6 +25,9 @@ package com.iminurnetz.bukkit.util;
 
 import java.io.Serializable;
 
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+
 public class BlockLocation implements Serializable {
     private static final long serialVersionUID = 1L;
     private final String world;
@@ -56,5 +59,20 @@ public class BlockLocation implements Serializable {
         this.z = z;
     }
     
+    public BlockLocation(Block block) {
+        this(block.getWorld().getName(), block.getX(), block.getY(), block.getZ());
+    }
     
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof BlockLocation) {
+            BlockLocation other = (BlockLocation) o;
+            return other.world.equals(world) &&
+                other.x == x &&
+                other.y == y &&
+                other.z == z;
+        }
+        
+        return false;
+    }
 }
