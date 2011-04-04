@@ -75,4 +75,8 @@ public class MessageUtils {
             server.broadcastMessage(line);
         }
     }
+
+    public static void broadcast(Server server, ChatColor color, String msg) {
+        broadcast(server, colorize(color, msg));
+    }
 }
