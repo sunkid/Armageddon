@@ -151,4 +151,13 @@ public class StringUtils {
 			return word.toUpperCase();
 	    return word.substring(0,1).toUpperCase() + word.substring(1).toLowerCase();
 	}
+
+    public static String toCamelCase(String name) {
+        String[] words = constantCaseToEnglish(name).split(" ");
+        StringBuilder s = new StringBuilder();
+        for (String word : words) {
+            s.append(firstToUpper(word));
+        }
+        return s.toString();
+    }
 }

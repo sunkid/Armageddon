@@ -85,7 +85,7 @@ public class ConfigurationService {
 		} else // check if there was an update to the config file/parameters
 		if (!config.getString(SETTINGS_TAG + ".version", "").equals(getLastChangedInVersion())) {
 			getPlugin().log(Level.WARNING, "Your configuration file is outdated, please read config-new.yml");
-			URL shipped = getClass().getResource(CONFIG_FILE);
+			URL shipped = getClass().getResource("/" + CONFIG_FILE);
 			byte[] buf = new byte[1024];
 			int len;
 			try {
@@ -96,7 +96,7 @@ public class ConfigurationService {
 				}
 				in.close();
 				out.close();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				getPlugin().getLogger().log(Level.SEVERE, "Cannot generate config-new.file file", e);
 			}
 		}

@@ -63,4 +63,11 @@ public class StringUtilsTest extends TestCase {
 		assertNull(StringUtils.firstToUpper(null));
 		assertEquals("", StringUtils.firstToUpper(""));
 	}
+	
+	public void testToCamelCase() {
+	    assertEquals("Test", StringUtils.toCamelCase("TeST"));
+        assertEquals("BigTest", StringUtils.toCamelCase("BIG_TEST"));
+        assertEquals("LittleTest", StringUtils.toCamelCase("little test"));
+        assertEquals("MinorTestWithSpaces", StringUtils.toCamelCase("minor_test with spaces"));
+	}
 }
