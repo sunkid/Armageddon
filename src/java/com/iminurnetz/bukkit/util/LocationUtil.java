@@ -219,4 +219,10 @@ public class LocationUtil {
         return isBlockAboveAir(block);
     }
 
+    public static double distance(Location loc, Location pLoc) {
+        return Math.sqrt(Math.pow(pLoc.getX() - loc.getX(), 2) +
+                Math.pow(pLoc.getY() - loc.getY(), 2) +
+                Math.pow(pLoc.getZ() - loc.getZ(), 2));
+    }
+
 }
