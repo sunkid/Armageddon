@@ -75,6 +75,7 @@ public class ConfigurationService {
 		File dir = getPlugin().getDataFolder();
 		
 		Configuration config = getPlugin().getConfiguration();
+		config.load();
 		
 		// we are relying on a value that is always set
 		ConfigurationNode settings = config.getNode(SETTINGS_TAG);

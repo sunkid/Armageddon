@@ -25,6 +25,7 @@ package com.iminurnetz.bukkit.util;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
 /**
@@ -91,5 +92,18 @@ public class Item {
 
 	public boolean isBlock() {
 		return getMaterial().isBlock();
+	}
+	
+	public ItemStack getStack() {
+	    return getStack(1);
+	}
+	
+	public ItemStack getStack(int n) {
+        byte d = 0;
+        if (getData() != null) {
+            d = getData().getData();
+        }
+        
+        return new ItemStack(getMaterial(), n, (short) 0, d);
 	}
 }
