@@ -102,8 +102,9 @@ public class Item {
         byte d = 0;
         if (getData() != null) {
             d = getData().getData();
+            return new ItemStack(getMaterial(), n, (short) 0, d);
         }
         
-        return new ItemStack(getMaterial(), n, (short) 0, d);
+        return new ItemStack(getMaterial(), n, (short) 0, null);
 	}
 }

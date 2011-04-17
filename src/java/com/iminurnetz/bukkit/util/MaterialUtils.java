@@ -848,4 +848,11 @@ public class MaterialUtils {
                         face == ((Stairs) m.getNewData(block.getData())).getDescendingDirection())) */;
     }
 
+    public static ItemStack getStack(Material material, int amount) {
+        return getStack(material, amount, (short) 0, (byte) 0);
+    }
+
+    public static ItemStack getStack(Material material, int amount, short durability, byte data) {
+        return new ItemStack(material, amount, durability, data);
+    }
 }
