@@ -23,12 +23,15 @@
  */
 package com.iminurnetz.bukkit.util;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 
 public class InventoryUtil {
 	public static void giveItems(Player player, List<ItemStack> items) {
@@ -92,4 +95,19 @@ public class InventoryUtil {
 		
 		switchItems(player, slot, player.getInventory().getHeldItemSlot());
 	}
+
+	/**
+	 * Check if a chest is part of a large chest and return the second part.
+	 * @param chest a {@link Chest} block to check
+	 * @return the second part of the large chest or null if there isn't one
+	 */
+    public static Chest getNeighborChest(Chest chest) {
+        for (BlockFace face : Arrays.asList(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST)) {
+            BlockState state = chest.getBlock().getRelative(face).getState();
+            if (state instanceof Chest) {
+                return (Chest) state;            
+            }
+        }
+        return null;
+    }
 }

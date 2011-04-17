@@ -26,6 +26,8 @@ package com.iminurnetz.bukkit.util;
 import java.util.Formatter;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -167,4 +169,60 @@ public class LocationUtil {
             return BlockFace.SOUTH_WEST;
         }
     }
+    
+    // inspired by Essentials
+    public static Location getSafeDestination(Location loc) throws Exception {
+        Block block = loc.getBlock();
+
+        while (isBlockAboveAir(block)) {
+            if (block.getY() == 0) {
+                throw new Exception("Hole in floor");
+            }
+            block = block.getRelative(BlockFace.DOWN);
+        }
+
+        while (isBlockUnsafe(block)) {
+            block = block.getRelative(BlockFace.UP);
+            if (block.getY() >= 110.0D) {
+                block = block.getRelative(BlockFace.EAST);
+                break;
+            }
+        }
+        
+        while (isBlockUnsafe(block)) {
+            block = block.getRelative(BlockFace.DOWN);
+            if (block.getY() <= 1.0D) {
+                block = block.getRelative(BlockFace.EAST);
+                Location l = block.getLocation();
+                l.setY(110.0D);
+                block = l.getBlock();
+            }
+        }
+        return block.getLocation();
+    }
+
+    private static boolean isBlockAboveAir(Block block) {
+        return block.getRelative(BlockFace.DOWN).getType() == Material.AIR;
+    }
+
+    public static boolean isBlockUnsafe(Block block) {
+        Block below = block.getRelative(BlockFace.DOWN);
+        if (below.getType() == Material.LAVA || below.getType() == Material.STATIONARY_LAVA)
+            return true;
+
+        if (below.getType() == Material.FIRE)
+            return true;
+
+        if ((block.getType() != Material.AIR) || block.getRelative(BlockFace.UP).getType() != Material.AIR) {
+            return true;
+        }
+        return isBlockAboveAir(block);
+    }
+
+    public static double distance(Location loc, Location pLoc) {
+        return Math.sqrt(Math.pow(pLoc.getX() - loc.getX(), 2) +
+                Math.pow(pLoc.getY() - loc.getY(), 2) +
+                Math.pow(pLoc.getZ() - loc.getZ(), 2));
+    }
+
 }

@@ -24,7 +24,10 @@
 package com.iminurnetz.bukkit.util;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.iminurnetz.util.StringUtils;
@@ -43,8 +46,14 @@ public enum KnownMob implements Serializable {
     SLIME,
     SPIDER,
     SQUID,
+    SKELETON,
     WOLF,
     ZOMBIE;
+    
+    public final static List<KnownMob> monsters = 
+        Arrays.asList(CREEPER, GHAST, GIANT, PIG_ZOMBIE, SLIME, SKELETON, SPIDER, ZOMBIE);
+    public final static List<KnownMob> animals = 
+        Arrays.asList(CHICKEN, COW, FISH, PIG, SHEEP, SQUID, WOLF);
     
     @SuppressWarnings("unchecked")
     public Class<? extends LivingEntity> getEntityClass() {
@@ -73,5 +82,21 @@ public enum KnownMob implements Serializable {
         }
         
         return null;
+    }
+
+    public static boolean isAnimal(Entity entity) {
+        if (entity instanceof LivingEntity) {
+            KnownMob mob = getMobForEntity((LivingEntity) entity);
+            return animals.contains(mob);
+        }
+        return false;
+    }
+
+    public static boolean isMonster(Entity entity) {
+        if (entity instanceof LivingEntity) {
+            KnownMob mob = getMobForEntity((LivingEntity) entity);
+            return monsters.contains(mob);
+        }
+        return false;
     }
 }
