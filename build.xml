@@ -122,6 +122,7 @@
 			<batchtest fork="yes" todir="${test.reports}">
 				<fileset dir="${build}">
 					<include name="**/tests/**" />
+					<exclude name="**/*$*.class" />
 				</fileset>
 			</batchtest>
 			<formatter type="xml" />
