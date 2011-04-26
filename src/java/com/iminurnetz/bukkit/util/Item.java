@@ -65,7 +65,7 @@ public class Item {
 		if (words.length == 2) {
 			this.data = MaterialUtils.getData(material, words[1]);
 		} else {
-			this.data = material.getNewData((byte) 0);
+			this.data = null;
 		}
 	}
 
@@ -102,9 +102,9 @@ public class Item {
         byte d = 0;
         if (getData() != null) {
             d = getData().getData();
-            return new ItemStack(getMaterial(), n, (short) 0, d);
+            return new ItemStack(getMaterial(), n, d);
         }
         
-        return new ItemStack(getMaterial(), n, (short) 0, null);
+        return new ItemStack(getMaterial(), n);
 	}
 }
