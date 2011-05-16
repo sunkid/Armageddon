@@ -57,4 +57,9 @@ public class DefaultPermissions implements PermissionHandler {
          return null;
     }
 
+    @Override
+    public boolean parentGroupsInclude(Player player, String group) {
+        return false;
+    }
+
 }
