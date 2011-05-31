@@ -29,4 +29,5 @@ import org.bukkit.entity.Player;
 public interface PermissionHandler {
 	public boolean hasPermission(Player player, String permission);
 	public String getGroup(Player player);
+    public boolean parentGroupsInclude(Player player, String group);
 }

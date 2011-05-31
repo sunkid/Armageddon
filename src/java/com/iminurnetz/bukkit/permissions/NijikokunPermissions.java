@@ -44,4 +44,9 @@ public class NijikokunPermissions implements PermissionHandler {
         return handler.getGroup(player.getWorld().getName(), player.getName());
     }
 
+    @Override
+    public boolean parentGroupsInclude(Player player, String group) {
+        return handler.inGroup(player.getWorld().getName(), player.getName(), group);
+    }
+
 }
