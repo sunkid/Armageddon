@@ -76,7 +76,9 @@ public class GroupManagerPermissions implements PermissionHandler {
 
     @Override
     public boolean parentGroupsInclude(Player player, String group) {
-        User u = worldHolder.getWorldData(player).getUser(player.getName());
-        return u.getGroup().getName().equals(group) || u.getGroup().getInherits().contains(group);
+        Group g = worldHolder.getWorldData(player).getUser(player.getName()).getGroup();
+        return g.getName().equalsIgnoreCase(group) ||
+               g.getInherits().contains(group.toLowerCase()) ||
+               g.getInherits().contains(group);
     }
 }

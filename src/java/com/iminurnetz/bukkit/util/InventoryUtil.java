@@ -137,6 +137,9 @@ public class InventoryUtil {
      */
     public static List<ItemStack> remove(Player player, HashMap<Material, Integer> items) {
         ArrayList<ItemStack> stuff = new ArrayList<ItemStack>();
+        if (items == null) {
+            return stuff;
+        }
         for (Material m : items.keySet()) {
             ItemStack stack = MaterialUtils.getStack(m, items.get(m));
             stuff.add(stack);
@@ -151,8 +154,12 @@ public class InventoryUtil {
      * @param items a list of ItemStacks to be removed
      * @return a list of items that were not removed
      */    
-    public static List<ItemStack> remove(Player player, List<ItemStack> items) {
+    public static List<ItemStack> remove(Player player, List<ItemStack> items) {        
         ArrayList<ItemStack> notRemoved = new ArrayList<ItemStack>();
+        if (items == null) {
+            return notRemoved;
+        }
+        
         HashMap<Material, Integer> tmp = new HashMap<Material, Integer>();
         int slot, toBeRemoved, n;
         PlayerInventory inventory = player.getInventory();
