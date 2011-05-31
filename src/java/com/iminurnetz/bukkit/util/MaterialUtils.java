@@ -666,16 +666,17 @@ public class MaterialUtils {
 	}
 
 	public static List<Material> getList(String item) {
+	    String theItem = item.trim();
 		int id;
 		List<Material> results = new ArrayList<Material>();
 		Material m;
 		try {
-			id = Integer.valueOf(item).intValue();
+			id = Integer.valueOf(theItem).intValue();
 			m = Material.getMaterial(id);
 		} catch (NumberFormatException e) {
-			m = Material.getMaterial(item.toUpperCase());
+			m = Material.getMaterial(theItem.toUpperCase());
 			if (m == null) {
-				results = getMatchingMaterials(item);
+				results = getMatchingMaterials(theItem);
 			}
 		}
 
@@ -764,7 +765,8 @@ public class MaterialUtils {
 		return getFormattedNameList(materials);
 	}
 
-	public static MaterialData getData(Material material, String string) {
+	public static MaterialData getData(Material material, String input) {
+	    String string = input.trim();
 		byte data = (byte) 0;
 		try {
 			data = Byte.parseByte(string);
