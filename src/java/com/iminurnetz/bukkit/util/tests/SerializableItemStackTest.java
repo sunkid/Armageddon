@@ -33,18 +33,14 @@ import junit.framework.TestCase;
 
 public class SerializableItemStackTest extends TestCase {
     public void testConversion() {
-        ItemStack s = new ItemStack(Material.WOOL, 10);
-        s.setData(Material.WOOL.getNewData(DyeColor.BLUE.getData()));
-        s.setDurability((short)10);
+        ItemStack s = new ItemStack(Material.WOOL, 10, (short) 0, DyeColor.BLUE.getData());
         
         SerializableItemStack ss = new SerializableItemStack(s);
         
         assertEquals("Serialization succeeded", s.getData().getData(), DyeColor.BLUE.getData());
-        assertEquals("Serialization succeeded completely", s.getDurability(), (short) 10);
 
         ItemStack s2 = ss.getStack();
         assertEquals("Conversion succeeded", s, s2);
         assertEquals("Data is retained", s.getData().getData(), s2.getData().getData());
-        assertEquals("Damage is retained", s.getDurability(), s2.getDurability());
     }
 }
