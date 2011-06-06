@@ -458,6 +458,10 @@ public class MaterialUtils {
     public static boolean isPressurePlate(Material m) {
         return isSameMaterial(m, Material.WOOD_PLATE, Material.STONE_PLATE);
     }
+    
+    public static boolean canDropSeeds(Material m) {
+        return isSameMaterial(m, Material.LONG_GRASS, Material.DEAD_BUSH, Material.CROPS);
+    }
 
     /**
 	 * Retrieves the items dropped when mining a block with this particular state.
@@ -535,7 +539,12 @@ public class MaterialUtils {
 			
 			dm = Material.WHEAT;
 			n = 1;
-		} else if (isFurnace(m)) {
+		} else if (canDropSeeds(m)) {
+            if (generator.nextInt(8) == 0) {
+                n = 1;
+                dm = Material.SEEDS;
+            }
+        } else if (isFurnace(m)) {
 			dm = Material.FURNACE;
 			n = 1;
 		} else if (isSign(m) && m.isBlock()) {
@@ -836,7 +845,8 @@ public class MaterialUtils {
     public static boolean isTraversable(Material m) {
         return !m.isBlock() || isWater(m) || isLava(m) || isFlower(m) || isMushroom(m) || isPressurePlate(m) || isDiode(m) ||
                isSameMaterial(m, Material.AIR, Material.CROPS, Material.SUGAR_CANE_BLOCK, Material.SAPLING,
-                       Material.REDSTONE_WIRE, Material.RAILS, Material.STONE_BUTTON, Material.PORTAL);
+                       Material.REDSTONE_WIRE, Material.RAILS, Material.STONE_BUTTON, Material.PORTAL, Material.LONG_GRASS,
+                       Material.DEAD_BUSH);
                
     }
 
@@ -856,5 +866,14 @@ public class MaterialUtils {
 
     public static ItemStack getStack(Material material, int amount, short durability, byte data) {
         return new ItemStack(material, amount, durability, data);
+    }
+
+    public static boolean isSameMaterial(Material material, ArrayList<Item> items) {
+        for (Item i : items) {
+            if (isSameMaterial(material, i.getMaterial())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
