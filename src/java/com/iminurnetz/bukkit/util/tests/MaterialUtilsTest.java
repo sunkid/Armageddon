@@ -153,7 +153,7 @@ public class MaterialUtilsTest extends TestCase {
 		if ((id == 319) || (id == 320) || (id == 349) || (id == 350)) {
 			return false;
 		}
-		if ((id == 333) || (id == 335) || (id == 343) || (id == 342)) {
+		if ((id == 333) || (id == 335) || (id == 343) || (id == 342) || (id == 358)) {
 			return false;
 		}
 
