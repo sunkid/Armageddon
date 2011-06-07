@@ -30,8 +30,8 @@ LICENSE_TXT
 my @dirs = ();
 my $dir = $0;
 $dir =~ s/\/[^\/]*//;
-push @dirs, $dir . "/../../src/java/com/iminurnetz";
-push @dirs, $dir . "/../src/java/com/iminurnetz";
+push @dirs, $dir . "/../../src/main/java/com/iminurnetz";
+push @dirs, $dir . "/../src/main/java/com/iminurnetz";
 
 
 find(\&wanted, @dirs);

@@ -107,4 +107,9 @@ public class Item {
         
         return new ItemStack(getMaterial(), n);
 	}
+	
+	@Override
+	public String toString() {
+	    return getMaterial().name() + ( getData() != null ? ": " + getData().getData() : "" );
+	}
 }
