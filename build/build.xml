@@ -1,0 +1,138 @@
+<project name="Versioned Build" default="compile" basedir=".">
+	<description>
+		Project build file
+    </description>
+	<property name="src" location="../src/java" />
+	<property name="srcbp" location="src/java" />
+	<property name="build" location="bin" />
+	<property name="dist" location="../dist" />
+	<property name="release" location="../release" />
+	<property name="resources" location="../src/resources" />
+	<property name="test.reports" value="reports" />
+	<property file="${resources}/version.properties" />
+
+	<path id="classpath">
+		<pathelement location="${build}" />
+		<fileset dir="lib" includes="*.jar" />
+		<fileset dir="../lib" includes="*.jar" erroronmissingdir="false" />
+	</path>
+
+	<target name="init">
+		<tstamp />
+		<mkdir dir="${build}" />
+		<copy file="${resources}/plugin.template" tofile="${resources}/plugin.yml" overwrite="true">
+			<filterset>
+				<filtersfile file="${resources}/version.properties" />
+			</filterset>
+		</copy>
+	</target>
+
+	<target name="compile" depends="init" description="compile the source ">
+		<echo>Compiling ${project} v${version}.${minor_version}</echo>
+		<javac srcdir="${srcbp}" destdir="${build}">
+			<classpath refid="classpath" />
+		</javac>
+		<javac srcdir="${src}" destdir="${build}">
+			<classpath refid="classpath" />
+		</javac>
+
+	</target>
+
+	<target name="debug-compile" depends="clean, init" description="compile the source with debug">
+		<echo>Compiling ${project} v${version}.${minor_version} DEBUG</echo>
+		<javac srcdir="${srcbp}" destdir="${build}" debug="on">
+			<classpath refid="classpath" />
+		</javac>
+		<javac srcdir="${src}" destdir="${build}" debug="on">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+	<target name="clean" description="clean up">
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="minor-version" depends="clean, compile">
+		<copy file="${resources}/README.template" tofile="${release}/README.txt" overwrite="true">
+			<filterset>
+				<filtersfile file="${resources}/version.properties" />
+			</filterset>
+		</copy>
+		<copy file="${resources}/CHANGELOG.template" tofile="${release}/CHANGELOG.txt" overwrite="true">
+			<filterset>
+				<filtersfile file="${resources}/version.properties" />
+			</filterset>
+		</copy>
+		<propertyfile file="${resources}/version.properties" comment="Build version info">
+			<entry key="build_date" type="date" value="now" />
+			<entry key="minor_version" default="0" type="int" operation="+" value="1" />
+		</propertyfile>
+	</target>
+
+	<target name="dist" depends="minor-version" description="generate the distribution">
+		<antcall target="jarfile" />
+	</target>
+	
+	<target name="debug-dist" depends="debug-compile" description="generate a debug distribution">
+		<antcall target="jarfile" />
+	</target>
+		
+	<target name="jarfile" description="create the jar file">
+		<echo>Building jar for ${project} v${version}.${minor_version}</echo>
+		<mkdir dir="${dist}" />
+
+		<jar jarfile="${dist}/${project}-${DSTAMP}.jar">
+			<fileset dir="${build}">
+				<exclude name="**/tests/**" />
+				<exclude name="**/playground/**"/>
+			</fileset>
+			<fileset dir="${release}">
+				<include name="license.txt" />
+			</fileset>
+			<fileset dir="${resources}">
+				<include name="*" />
+				<exclude name="*.template" />
+				<exclude name="version.properties" />
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="release" depends="test,jarfile" description="generate a releaseable jar file">
+		<copy file="${dist}/${project}-${DSTAMP}.jar" tofile="${release}/${project}-DEBUG.jar" />
+		<exec executable="util/addLicense.pl" />
+		<antcall target="clean" />
+		<antcall target="dist" />
+		<copy file="${dist}/${project}-${DSTAMP}.jar" tofile="${release}/${project}.jar" />
+		<zip destfile="${release}/${project}-${version}.${minor_version}.zip"
+		     basedir="${release}/" excludes="**/*.zip" />
+		<exec executable="github-upload">
+		  <arg line="${release}/${project}-${version}.${minor_version}.zip ${github.repository}" />
+		</exec>
+	</target>
+
+	<target name="test" depends="debug-compile" description="run all tests and generate a report">
+		<echo>Testing ${project} v${version}.${minor_version}</echo>
+		<copy todir="${build}">
+			<fileset dir="${src}" excludes="**/*.java" />
+		</copy>
+		<mkdir dir="${test.reports}" />
+		<junit printsummary="yes" haltonfailure="no" fork="yes" failureProperty="test.failure">
+			<classpath refid="classpath" />
+			<batchtest fork="yes" todir="${test.reports}">
+				<fileset dir="${build}">
+					<include name="**/tests/**" />
+					<exclude name="**/*$*.class" />
+				</fileset>
+			</batchtest>
+			<formatter type="xml" />
+		</junit>
+		<junitreport todir="${test.reports}">
+			<fileset dir="${test.reports}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report todir="${test.reports}" />
+		</junitreport>
+		<fail message="One or more tests failed" if="test.failure" />
+	</target>
+</project>
