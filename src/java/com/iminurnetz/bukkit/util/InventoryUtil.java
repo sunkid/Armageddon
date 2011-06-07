@@ -148,6 +148,10 @@ public class InventoryUtil {
         return remove(player, stuff);
     }
 
+    public static List<ItemStack> remove(Player player, ItemStack stack) {
+        return remove(player, Arrays.asList(stack));
+    }
+
     /**
      * Remove a set of materials from a player's inventory.
      * @param player the player
@@ -212,5 +216,23 @@ public class InventoryUtil {
             }
         }
         return contents;
+    }
+
+    public static boolean hasItem(Player player, Item item) {
+        if (item == null) {
+            return true;
+        }
+        
+        for (ItemStack stack : player.getInventory().getContents()) {
+            if (stack != null &&
+                    item.getMaterial() == stack.getType() &&
+                    ((item.getData() != null && stack.getData() != null &&
+                            item.getData().getData() == stack.getData().getData()) ||
+                            item.getData() == item.getData())) {
+                return true;                
+            }
+        }
+        
+        return false;
     }
 }
