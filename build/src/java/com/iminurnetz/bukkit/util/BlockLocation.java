@@ -75,4 +75,9 @@ public class BlockLocation implements Serializable {
         
         return false;
     }
+    
+    @Override
+    public int hashCode() {
+        return (((37 * x) + y) * 31 + z) * 17 + world.hashCode();
+    }
 }
