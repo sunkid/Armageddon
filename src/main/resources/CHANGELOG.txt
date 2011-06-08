@@ -1,3 +1,12 @@
 Listed below are released versions and cumulative changes between them
 
 ${project.version}
+
+* first release with the following functionality:
+  * dispensers configured as cannons will shoot live TNT when dispensing TNT
+  * cannon configuration include angle, velocity, and a fuse length (not yet implemented)
+  * dispensers can be turned into cannons by left-clicking with torches or redstone dust
+  * cannons can be turned into dispensers by left-clicking with redstone dust
+  * the '/cb' command allows for the display and configuration of user-specific cannon settings
+  * user-specific cannon settings can be applied to a dispenser or cannon by left-clicking with a torch
+  * cannon settings can be displayed by left-clicking a dispenser bare-handed
