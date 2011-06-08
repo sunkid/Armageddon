@@ -93,7 +93,7 @@ public class CBBlockListener extends BlockListener {
         
             Vector initialVelocity = new Vector(x, y, z);
             
-            plugin.log("Setting velocity to " + initialVelocity);
+            // plugin.log("Setting velocity to " + initialVelocity);
             
             Location location = block.getRelative(dispenser.getFacing()).getLocation();           
             

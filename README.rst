@@ -17,6 +17,10 @@ Functionality:
 #) the '/cb' command allows for the display and configuration of user-specific cannon settings
 #) user-specific cannon settings can be applied to a dispenser or cannon by left-clicking with a torch
 #) cannon settings can be displayed by left-clicking a dispenser bare-handed
+#) supports Permissions and Groupmanager
+   *) cannonball.display allows players to display cannon/dispenser settings
+   *) cannonball.configure allows players to change settings
+   *) cannonball.toggle allows players to turn cannons on and off
 
 INSTALLATION:
 -------------
@@ -33,6 +37,7 @@ UPGRADING FROM PREVIOUS VERSIONS OF CannonBall
 #) if you see a warning message about an outdated config.yml file, simply follow the instructions
    in plugins/CannonBall/config-new.yml
 #) if there is no warning message, you are good to go
+
 
 Licensing
 _________

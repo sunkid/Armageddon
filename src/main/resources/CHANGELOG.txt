@@ -2,6 +2,13 @@ Listed below are released versions and cumulative changes between them
 
 ${project.version}
 
+0.2
+
+* added support for Permissions and GroupManager
+* fixed a bug that caused a NullPointerException in a new install
+
+0.1
+
 * first release with the following functionality:
   * dispensers configured as cannons will shoot live TNT when dispensing TNT
   * cannon configuration include angle, velocity, and a fuse length (not yet implemented)

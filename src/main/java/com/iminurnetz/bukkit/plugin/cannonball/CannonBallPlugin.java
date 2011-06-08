@@ -50,10 +50,13 @@ public class CannonBallPlugin extends BukkitPlugin {
     private Hashtable<String, Cannon> playerSettings;
     
     private CBConfiguration config;
+    private CBPermissionHandler permissionHandler;
     
     @Override
     public void enablePlugin() throws Exception {        
         config = new CBConfiguration(this);
+        permissionHandler = new CBPermissionHandler(this);
+        
         loadCannonsFile();       
         
         CBPlayerListener playerListener = new CBPlayerListener(this);
@@ -83,7 +86,12 @@ public class CannonBallPlugin extends BukkitPlugin {
             return false;
         }
         
-        if (command.getName().equals("cb")) {            
+        if (command.getName().equals("cb")) {
+            if (!permissionHandler.canConfigure(player)) {
+                MessageUtils.send(player, ChatColor.RED, "You are not allowed to use this command!");
+                return true;
+            }
+            
             if (args.length == 0) {
                 showCannonData(player);
                 return true;
@@ -135,6 +143,7 @@ public class CannonBallPlugin extends BukkitPlugin {
         File cache = getCannonsFile();
         if (!cache.exists()) {
             cannons = new Hashtable<BlockLocation, Cannon>();
+            playerSettings = new Hashtable<String, Cannon>();
             return;
         }
         
@@ -220,6 +229,10 @@ public class CannonBallPlugin extends BukkitPlugin {
         return config;
     }
 
+    protected CBPermissionHandler getPermissionHandler() {
+        return permissionHandler;
+    }
+    
     public void removeCannon(Block block) {
         BlockLocation location = new BlockLocation(block);
         cannons.remove(location);

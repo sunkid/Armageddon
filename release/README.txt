@@ -1,4 +1,4 @@
-CannonBall v0.1 build 40.20110608
+CannonBall v0.2 build 45.20110608
 
 INSTALL and UPGRADE
 

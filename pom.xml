@@ -4,7 +4,7 @@
   <groupId>com.iminurnetz</groupId>
   <artifactId>bukkit.cannonball-plugin</artifactId>
   <name>CannonBall</name>
-  <version>0.1</version>
+  <version>0.2</version>
   <packaging>jar</packaging>
   <description>CannonBall plugin for Bukkit servers</description>
   <properties>
@@ -14,7 +14,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>craftbukkit</artifactId>
-      <version>0.0.1-SPAWN</version>
+      <version>0.0.1-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>

@@ -47,35 +47,56 @@ public class CBPlayerListener extends PlayerListener {
         if (event.getAction() == Action.LEFT_CLICK_BLOCK && 
                 block.getType() == Material.DISPENSER) {
             
-            if (player.getItemInHand().getType() == Material.AIR) {
-                Cannon cannon = plugin.getCannon(block, false);
-                if (cannon == null) {
-                    MessageUtils.send(player, "This is a normal dispenser not configured as a cannon");
-                    MessageUtils.send(player, ChatColor.GREEN, plugin.getHelpText());
-                } else {
-                    MessageUtils.send(player, cannon.toString());
+            switch (player.getItemInHand().getType()) {
+            
+            case AIR:
+                if (plugin.getPermissionHandler().canDisplay(player)) {
+                    Cannon cannon = plugin.getCannon(block, false);
+                    if (cannon == null) {
+                        MessageUtils.send(player, "This is a normal dispenser not configured as a cannon");
+                        if (plugin.getPermissionHandler().canConfigure(player)) {
+                            MessageUtils.send(player, ChatColor.GREEN, plugin.getHelpText());
+                        }
+                    } else {
+                        MessageUtils.send(player, cannon.toString());
+                    }
+                    event.setCancelled(true);
                 }
-                event.setCancelled(true);
-            } else if (player.getItemInHand().getType() == Material.TORCH) {
-                Cannon cannon = plugin.getCannon(block, true);
-                if (cannon.equals(plugin.getCannon(player))) {
-                    MessageUtils.send(player, ChatColor.RED, "Settings were not changed!");
-                } else {
-                    cannon.copy(plugin.getCannon(player));
-                    MessageUtils.send(player, ChatColor.GREEN, "Settings changed!");
+                break;
+                
+            case TORCH:
+                if (plugin.getPermissionHandler().canConfigure(player)) {
+                    Cannon cannon = plugin.getCannon(block, true);
+                    if (cannon.equals(plugin.getCannon(player))) {
+                        MessageUtils.send(player, ChatColor.RED, "Settings were not changed!");
+                    } else {
+                        cannon.copy(plugin.getCannon(player));
+                        MessageUtils.send(player, ChatColor.GREEN, "Settings changed!");
+                    }
+
+                    MessageUtils.send(player, ChatColor.GREEN, cannon.toString());
+                    event.setCancelled(true);
+                } 
+                break;
+            
+            case REDSTONE:
+                if (!plugin.getPermissionHandler().canToggle(player)) {
+                    break;
                 }
                 
-                MessageUtils.send(player, ChatColor.GREEN, cannon.toString());
-                event.setCancelled(true);
-            } else if (player.getItemInHand().getType() == Material.REDSTONE && plugin.isCannon(block)) {
-                plugin.removeCannon(block);
-                MessageUtils.send(player, ChatColor.GREEN, "This dispenser no longer is a cannon!");
-                event.setCancelled(true);
-            } else if (player.getItemInHand().getType() == Material.REDSTONE) {
-                Cannon cannon = plugin.getCannon(block, true);
-                MessageUtils.send(player, ChatColor.GREEN, "This dispenser is now a cannon!");
-                MessageUtils.send(player, ChatColor.GREEN, cannon.toString());
-                event.setCancelled(true);
+                if (plugin.isCannon(block)) {
+                    plugin.removeCannon(block);
+                    MessageUtils.send(player, ChatColor.GREEN, "This dispenser no longer is a cannon!");
+                    event.setCancelled(true);
+                } else {
+                    Cannon cannon = plugin.getCannon(block, true);
+                    MessageUtils.send(player, ChatColor.GREEN, "This dispenser is now a cannon!");
+                    if (plugin.getPermissionHandler().canDisplay(player)) {
+                        MessageUtils.send(player, ChatColor.GREEN, cannon.toString());
+                    }
+                    event.setCancelled(true);
+                }
+                break;
             }
         }
     }
