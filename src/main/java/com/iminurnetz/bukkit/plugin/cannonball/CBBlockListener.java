@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.inventory.Inventory;
@@ -23,6 +24,14 @@ public class CBBlockListener extends BlockListener {
         this.plugin = plugin;
     }
 
+    @Override
+    public void onBlockBreak(BlockBreakEvent event) {
+        Block block = event.getBlock();
+        if (block.getType() == Material.DISPENSER) {
+            plugin.removeCannon(block);
+        }
+    }
+    
     @Override
     public void onBlockDispense(BlockDispenseEvent event) {        
         Block block = event.getBlock();

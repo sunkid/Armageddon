@@ -26,15 +26,19 @@ public class CannonBallPlugin extends BukkitPlugin {
     private Hashtable<BlockLocation, Cannon> cannons;
     private Hashtable<String, Cannon> playerSettings;
     
+    private CBConfiguration config;
+    
     @Override
     public void enablePlugin() throws Exception {        
+        config = new CBConfiguration(this);
         loadCannonsFile();       
         
         CBPlayerListener playerListener = new CBPlayerListener(this);
         CBBlockListener blockListener = new CBBlockListener(this);
         
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvent(Event.Type.BLOCK_DISPENSE, blockListener, Priority.Lowest, this);
+        pm.registerEvent(Event.Type.BLOCK_DISPENSE, blockListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Monitor, this);
 
         log("enabled.");
@@ -173,26 +177,15 @@ public class CannonBallPlugin extends BukkitPlugin {
         }
     }
 
-    private String getHelpText() {
+    public String getHelpText() {
         return "Use '/cb [angle [velocity [fuse]]]' to configure your settings!\n" +
-            "Set a cannon to these settings by left-clicking it with a torch\n" +
-            "Display a cannons settings by left-clicking it bare handed";
+            "Display a cannon's settings by left-clicking it bare handed\n" +
+            "Toggle dispensers/cannons by left-clicking with red stone dust\n" +
+            "Set a cannon to your settings by left-clicking it with a torch\n";
     }
 
-    public void setCannon(Player player, Block block) {
-        Cannon cannon = getCannon(block, true);
-        if (cannon.equals(getCannon(player))) {
-            MessageUtils.send(player, ChatColor.RED, "Settings were not changed!");
-        } else {
-            cannon.copy(getCannon(player));
-            MessageUtils.send(player, ChatColor.RED, "Settings changed!");
-        }
-        
-        MessageUtils.send(player, ChatColor.RED, cannon.toString());
-    }
-    
     public Cannon getDefaultCannon() {
-        return new Cannon(30, 2, 80);
+        return new Cannon(getConfig().getAngle(), getConfig().getVelocity(), getConfig().getFuse());
     }
 
     public void showCannonData(Player player) {
@@ -200,13 +193,17 @@ public class CannonBallPlugin extends BukkitPlugin {
         MessageUtils.send(player, cannon.toString());
     }
     
-    public void showCannonData(Player player, Block block) {
-        Cannon cannon = getCannon(block, false);
-        if (cannon == null) {
-            MessageUtils.send(player, "This is a normal dispenser not configured as a cannon");
-            MessageUtils.send(player, ChatColor.GREEN, getHelpText());
-        } else {
-            MessageUtils.send(player, cannon.toString());
-        }
+    protected CBConfiguration getConfig() {
+        return config;
+    }
+
+    public void removeCannon(Block block) {
+        BlockLocation location = new BlockLocation(block);
+        cannons.remove(location);
+    }
+
+    public boolean isCannon(Block block) {
+        BlockLocation location = new BlockLocation(block);
+        return cannons.containsKey(location);
     }
 }

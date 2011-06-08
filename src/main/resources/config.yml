@@ -6,3 +6,12 @@
 settings:
     # version of the last update of the config file
     version: 0.0
+    
+    # the default angle to use [degrees]
+    angle: 35
+    
+    # the default velocity of a cannon [m/s]
+    velocity: 2
+    
+    # the default fuse length [ticks] (not yet implemented)
+    fuse: 80
