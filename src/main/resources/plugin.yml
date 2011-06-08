@@ -20,9 +20,9 @@
 # Commercial Use:
 #   Please contact sunkid@iminurnetz.com
 #
-name: ${project}
+name: ${project.name}
 main: com.iminurnetz.bukkit.plugin.cannonball.CannonBallPlugin
 version: ${project.version}
 authors: [sunkid <sunkid@iminurnetz.com>]
-website: https://github.com/sunkid/${project}
+website: https://github.com/sunkid/${project.name}
 commands:
