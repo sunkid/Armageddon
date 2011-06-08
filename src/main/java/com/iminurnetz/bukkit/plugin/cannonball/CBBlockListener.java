@@ -27,15 +27,19 @@ public class CBBlockListener extends BlockListener {
     public void onBlockDispense(BlockDispenseEvent event) {        
         Block block = event.getBlock();
         if (block.getType() == Material.DISPENSER && event.getItem().getType() == Material.TNT) {
+            
+            Cannon cannon = plugin.getCannon(block, false);
+            if (cannon == null) {
+                return;
+            }
+            
             Dispenser dispenser = (Dispenser) block.getType().getNewData(block.getData());
-            
-            double x = 0;
-            double z = 0;
-            
-            Cannon cannon = plugin.getCannon(block);
             
             double vx = cannon.getVelocity() * Math.cos((double) (Math.PI * cannon.getAngle() / 180));            
             double y = cannon.getVelocity() * Math.sin((double) (Math.PI * cannon.getAngle() / 180));
+            
+            double x = 0;
+            double z = 0;
             
             switch (dispenser.getFacing()) {
             case NORTH:

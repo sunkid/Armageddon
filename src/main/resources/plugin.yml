@@ -26,3 +26,7 @@ version: ${project.version}
 authors: [sunkid <sunkid@iminurnetz.com>]
 website: https://github.com/sunkid/${project.name}
 commands:
+    cb:
+        description: Display or change your cannon settings
+        usage: /cb [angle [velocity [fuse]]]
+        

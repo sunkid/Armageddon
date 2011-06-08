@@ -38,4 +38,36 @@ public class Cannon implements Serializable {
     public void setFuse(int fuse) {
         this.fuse = fuse;
     }
+    
+    public void copy(Cannon cannon) {
+        setAngle(cannon.getAngle());
+        setVelocity(cannon.getVelocity());
+        setFuse(cannon.getFuse());
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (! (o instanceof Cannon)) {
+            return false;
+        }
+        
+        Cannon that = (Cannon) o;
+        return (that.getAngle() == this.getAngle() &&
+                that.getVelocity() == this.getVelocity() &&
+                that.getFuse() == this.getFuse());
+    }
+    
+    @Override
+    public int hashCode() {
+        return (int) ((Double.doubleToLongBits(this.getAngle()) * 37) +
+                Double.doubleToLongBits(this.getVelocity())) * 31 +
+                this.getFuse();
+    }
+    
+    @Override
+    public String toString() {
+        return "Cannon set to " + String.format("%.1f", getAngle()) +
+            " deg. at " + String.format("%.1f", getVelocity()) +
+            "m/s, with a " + getFuse() + " tick fuse";
+    }
 }
