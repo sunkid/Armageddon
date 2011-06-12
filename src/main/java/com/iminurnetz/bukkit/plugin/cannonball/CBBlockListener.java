@@ -116,7 +116,8 @@ public class CBBlockListener extends BlockListener {
             
             ItemStack ashes = new ItemStack(Material.INK_SACK, 1, (short) 0, (byte) 7);
             event.setItem(ashes);
-            event.setVelocity(new Vector(0,0,0));
+            event.setVelocity(initialVelocity.multiply(.1));
+            world.createExplosion(location, 0);
             
             Inventory inventory = ((org.bukkit.block.Dispenser) block.getState()).getInventory();
             inventory.removeItem(new ItemStack(Material.TNT, 1));

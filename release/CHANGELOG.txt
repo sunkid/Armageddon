@@ -1,6 +1,6 @@
 Listed below are released versions and cumulative changes between them
 
-0.2
+0.3
 
 0.2
 
