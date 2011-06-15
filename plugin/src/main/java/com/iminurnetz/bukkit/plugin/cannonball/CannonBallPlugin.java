@@ -28,44 +28,83 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
+import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginManager;
 
 import com.iminurnetz.bukkit.plugin.BukkitPlugin;
+import com.iminurnetz.bukkit.plugin.cannonball.ArsenalAction.Type;
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.util.BlockLocation;
 
 public class CannonBallPlugin extends BukkitPlugin {
 
     private Hashtable<BlockLocation, Cannon> cannons;
-    private Hashtable<String, Cannon> playerSettings;
+    private Hashtable<String, PlayerSettings> playerSettings;
+    private List<StunnedLivingEntity> theStunned;
+    private int stunnerTaskId = -1;
     
     private CBConfiguration config;
     private CBPermissionHandler permissionHandler;
     
+    private Hashtable<Integer, ArsenalAction> shotsFired;
+    
     @Override
-    public void enablePlugin() throws Exception {        
+    public void enablePlugin() throws Exception { 
+        
+        shotsFired = new Hashtable<Integer, ArsenalAction>();
+        theStunned = new ArrayList<StunnedLivingEntity>();
+        
         config = new CBConfiguration(this);
         permissionHandler = new CBPermissionHandler(this);
         
         loadCannonsFile();       
         
-        CBPlayerListener playerListener = new CBPlayerListener(this);
+        PluginManager pm = getServer().getPluginManager();
+        
         CBBlockListener blockListener = new CBBlockListener(this);
         
-        PluginManager pm = getServer().getPluginManager();
         pm.registerEvent(Event.Type.BLOCK_DISPENSE, blockListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
+        
+        CBPlayerListener playerListener = new CBPlayerListener(this);
+        
+        pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, playerListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Monitor, this);
+        pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.PLAYER_PICKUP_ITEM, playerListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.PLAYER_PORTAL, playerListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Priority.Highest, this);
+        
+        CBEntityListener entityListener = new CBEntityListener(this);
+        
+        pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.ENTITY_INTERACT, entityListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.EXPLOSION_PRIME, entityListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.PROJECTILE_HIT, entityListener, Priority.Monitor, this);
+        pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.CREEPER_POWER, entityListener, Priority.Highest, this);
 
         log("enabled.");
     }
@@ -99,7 +138,11 @@ public class CannonBallPlugin extends BukkitPlugin {
                 return false;
             }
             
-            Cannon cannon = getDefaultCannon();
+            if (playerSettings.get(player.getName()) == null) {
+                playerSettings.put(player.getName(), new PlayerSettings(getDefaultCannon()));
+            }
+            
+            Cannon cannon = playerSettings.get(player.getName()).getCannon();
             boolean success = true;
             
             if (args.length == 3) {
@@ -128,7 +171,6 @@ public class CannonBallPlugin extends BukkitPlugin {
                 return false;
             }
             
-            playerSettings.put(player.getName(), cannon);
             MessageUtils.send(player, ChatColor.RED, "Your settings were changed:");
             MessageUtils.send(player, ChatColor.RED, cannon.toString());
             return true;
@@ -140,10 +182,11 @@ public class CannonBallPlugin extends BukkitPlugin {
     @SuppressWarnings("unchecked")
     private void loadCannonsFile() {
         
+        cannons = new Hashtable<BlockLocation, Cannon>();
+        playerSettings = new Hashtable<String, PlayerSettings>();
+        
         File cache = getCannonsFile();
         if (!cache.exists()) {
-            cannons = new Hashtable<BlockLocation, Cannon>();
-            playerSettings = new Hashtable<String, Cannon>();
             return;
         }
         
@@ -151,13 +194,13 @@ public class CannonBallPlugin extends BukkitPlugin {
             FileInputStream fis = new FileInputStream(cache);
             ObjectInputStream in = new ObjectInputStream(fis);
             cannons = (Hashtable<BlockLocation, Cannon>) in.readObject();
-            playerSettings = (Hashtable<String, Cannon>) in.readObject();
+            playerSettings = (Hashtable<String, PlayerSettings>) in.readObject();
             in.close();
             fis.close();
         } catch (Exception e) {
             log(Level.SEVERE, "Cannot load cached cannons and settings, starting from scratch", e);
             cannons = new Hashtable<BlockLocation, Cannon>();
-            playerSettings = new Hashtable<String, Cannon>();
+            playerSettings = new Hashtable<String, PlayerSettings>();
         }
     }
     
@@ -198,13 +241,19 @@ public class CannonBallPlugin extends BukkitPlugin {
     }
     
     public Cannon getCannon(Player player) {
+        PlayerSettings settings = getPlayerSettings(player, true);
+        return settings.getCannon();
+    }
+
+    public PlayerSettings getPlayerSettings(Player player, boolean alertPlayer) {
         synchronized (playerSettings) {
             String name = player.getName();
-            if (! playerSettings.containsKey(name)) {
-                playerSettings.put(name, getDefaultCannon());
-                MessageUtils.send(player, ChatColor.RED, "Default cannon settings used!\n" + getHelpText());
+            if (!playerSettings.containsKey(name)) {
+                playerSettings.put(name, new PlayerSettings(getDefaultCannon()));
+                if (alertPlayer) {
+                    MessageUtils.send(player, ChatColor.RED, "Default cannon settings used!\n" + getHelpText());
+                }
             }
-            
             return playerSettings.get(name);
         }
     }
@@ -241,5 +290,106 @@ public class CannonBallPlugin extends BukkitPlugin {
     public boolean isCannon(Block block) {
         BlockLocation location = new BlockLocation(block);
         return cannons.containsKey(location);
+    }
+
+    public void registerShot(Entity projectile, ArsenalAction action) {
+        shotsFired.put(projectile.getEntityId(), action);
+    }
+
+    public boolean wasFired(Entity projectile) {
+        return projectile != null && shotsFired.containsKey(projectile.getEntityId());
+    }
+
+    public void stun(Entity entity, double yield) {
+        synchronized (theStunned) {
+            for (Entity e : entity.getNearbyEntities(yield, yield, yield)) {
+                if (!(e instanceof LivingEntity)) {
+                    continue;
+                }
+                
+                StunnedLivingEntity stunnee = new StunnedLivingEntity((LivingEntity) e);
+                if (theStunned.contains(stunnee)) {
+                    log("Now with more stunning!");
+                    stunnee = theStunned.get(theStunned.indexOf(stunnee));
+                } else {
+                    theStunned.add(stunnee);
+                }
+
+                stunnee.stun(config.getStunTime());
+                log("Stunning " + stunnee.getEntity() + "(" + stunnee.getEntity().getEntityId() + ") until " + stunnee.getReleaseDate());
+            }
+
+            if (theStunned.size() != 0 && 
+                    (stunnerTaskId == -1 ||
+                    !(getServer().getScheduler().isCurrentlyRunning(stunnerTaskId)) || getServer().getScheduler().isQueued(stunnerTaskId)
+                            )) {
+                stunnerTaskId = getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Stunner(this), 1, 1);
+                log("Scheduled new task " + stunnerTaskId);
+            }
+        }
+    }
+
+    public List<StunnedLivingEntity> getTheStunned() {
+        return theStunned;
+    }
+
+    protected void cancelStunnerTask() {
+        getServer().getScheduler().cancelTask(stunnerTaskId);
+        stunnerTaskId = -1;
+    }
+
+    public boolean isStunned(LivingEntity entity) {
+        StunnedLivingEntity stunnee = new StunnedLivingEntity(entity);
+        return theStunned.contains(stunnee);
+    }
+
+    protected boolean doCancelIfNeccessary(Event event) {
+        if (theStunned.size() == 0 || !(event instanceof Cancellable)) {
+            return false;
+        }
+        
+        LivingEntity entity = null;
+        if (event instanceof PlayerEvent) {
+            entity = ((PlayerEvent) event).getPlayer();    
+        } else if (event instanceof EntityEvent 
+                && ((EntityEvent) event).getEntity() instanceof LivingEntity) {
+            entity = (LivingEntity) ((EntityEvent) event).getEntity();
+        } else {
+            return false;
+        }
+        
+        if (isStunned(entity)) {
+            ((Cancellable) event).setCancelled(true);
+            if (entity instanceof Player) {
+                MessageUtils.send((Player) entity, ChatColor.RED, "No can do, you're stunned!");
+            }
+            return true;
+        }
+        
+        return false;
+    }
+
+    public ArsenalAction getAction(Entity projectile) {
+        if (!wasFired(projectile)) {
+            return CBConfiguration.DEFAULT_ACTION;
+        } 
+        
+        return shotsFired.get(projectile);
+    }
+
+    public void adjustInventoryAndUsage(Inventory inventory, UsageTracker settings, Material material, int uses) {
+        if (settings.getUsage(material) <= 0) {
+            settings.setUsage(material, uses);
+        }
+        
+        settings.use(material);
+        
+        if (settings.getUsage(material) == 0) {
+            inventory.removeItem(new ItemStack(material, 1));
+        }
+    }
+
+    public void removeShot(Entity entity) {
+        shotsFired.remove(entity);
     }
 }
