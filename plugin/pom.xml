@@ -5,7 +5,7 @@
 	<groupId>com.iminurnetz</groupId>
 	<artifactId>bukkit.cannonball-plugin</artifactId>
 	<name>CannonBall</name>
-	<version>0.3</version>
+	<version>0.4</version>
 	<packaging>jar</packaging>
 	<description>CannonBall plugin for Bukkit servers</description>
 	<parent>
@@ -126,4 +126,5 @@
 		<url>scm:git:github.com:sunkid/CannonBall.git</url>
 		<connection>scm:git:github.com:sunkid/CannonBall.git</connection>
 	</scm>
+	<url>http://forums.bukkit.org/threads/20502/</url>
 </project>
