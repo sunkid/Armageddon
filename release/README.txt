@@ -1,4 +1,4 @@
-CannonBall v0.4 build 61.20110615
+CannonBall v0.3-FIREBALL build 64.20110615
 
 INSTALL and UPGRADE
 
