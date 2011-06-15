@@ -24,6 +24,8 @@
 
 package com.iminurnetz.bukkit.permissions;
 
+import java.util.List;
+
 import org.anjocaido.groupmanager.data.Group;
 import org.anjocaido.groupmanager.data.User;
 import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
@@ -77,8 +79,19 @@ public class GroupManagerPermissions implements PermissionHandler {
     @Override
     public boolean parentGroupsInclude(Player player, String group) {
         Group g = worldHolder.getWorldData(player).getUser(player.getName()).getGroup();
-        return g.getName().equalsIgnoreCase(group) ||
-               g.getInherits().contains(group.toLowerCase()) ||
-               g.getInherits().contains(group);
+        return g.getName().equalsIgnoreCase(group) || inheritsInclude(player, g.getName(), group);
+        
+    }
+    
+    private boolean inheritsInclude(Player player, String group, String name) {
+        Group theGroup = worldHolder.getWorldData(player).getGroup(group);
+        
+        for (String g : theGroup.getInherits()) {
+            if (g.equalsIgnoreCase(name) || inheritsInclude(player, g, name)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
