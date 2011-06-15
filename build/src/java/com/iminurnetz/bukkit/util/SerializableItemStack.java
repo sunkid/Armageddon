@@ -28,8 +28,6 @@ import java.io.Serializable;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import flexjson.JSON;
-
 public class SerializableItemStack implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,7 +48,6 @@ public class SerializableItemStack implements Serializable {
                 : (byte) damage;
     }
 
-    @JSON(include=false)
     public ItemStack getStack() {
         Material m = Material.getMaterial(material);
         ItemStack stack = new ItemStack(m, amount);
