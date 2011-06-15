@@ -1,8 +1,8 @@
-CannonBall v0.3 build 56.20110615
+CannonBall v0.4 build 61.20110615
 
 INSTALL and UPGRADE
 
-1. Copy the included jar file to your server's plugin directory
+1. Copy the included jar files to your server's plugin directory
 2. Reload your server
 3. Change any configuration in plugins/@project@/config.yml as neccessary
 4. Reload your server
