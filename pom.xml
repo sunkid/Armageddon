@@ -95,7 +95,7 @@
 						</manifestEntries>
 					</archive>
 					<descriptors>
-						<descriptor>src/assembly/release.xml</descriptor>
+						<descriptor>src/assembly/base_release.xml</descriptor>
 					</descriptors>
 					<outputDirectory>../release</outputDirectory>
 					<finalName>${project.name}</finalName>
