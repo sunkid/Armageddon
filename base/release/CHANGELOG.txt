@@ -1,5 +1,0 @@
-Listed below are released versions and cumulative changes between them
-
-1.0
-
-* first standalone release
