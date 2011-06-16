@@ -1,4 +1,4 @@
-BaseBukkitPlugin v1.0 build 17.20110615
+BaseBukkitPlugin v1.0 build 30.20110616
 
 INSTALL and UPGRADE
 

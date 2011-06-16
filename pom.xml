@@ -8,7 +8,7 @@
 	<version>1.0</version>
 	<parent>
 		<groupId>com.iminurnetz</groupId>
-		<artifactId>bukkit.plugin</artifactId>
+		<artifactId>bukkit.plugin-parent</artifactId>
 		<version>1.0</version>
 	</parent>
 	<packaging>jar</packaging>
