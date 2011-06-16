@@ -8,7 +8,7 @@
 	<version>1.0</version>
 	<parent>
 		<groupId>com.iminurnetz</groupId>
-		<artifactId>bukkit.plugin</artifactId>
+		<artifactId>bukkit.plugin-parent</artifactId>
 		<version>1.0</version>
 	</parent>
 	<packaging>jar</packaging>
@@ -141,7 +141,7 @@
 		</plugins>
 	</build>
 	<scm>
-		<url>scm:git:github.com:sunkid/BaseBukkitPlugin.git</url>
-		<connection>scm:git:github.com:sunkid/BaseBukkitPlugin.git</connection>
+		<url>scm:git:github.com:sunkid/${project.name}.git</url>
+		<connection>scm:git:github.com:sunkid/${project.name}.git</connection>
 	</scm>
 </project>
