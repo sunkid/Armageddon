@@ -1,0 +1,5 @@
+Listed below are released versions and cumulative changes between them
+
+${project.version}
+
+* first standalone release
