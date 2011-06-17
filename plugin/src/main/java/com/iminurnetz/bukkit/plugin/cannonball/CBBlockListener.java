@@ -23,13 +23,9 @@
  */
 package com.iminurnetz.bukkit.plugin.cannonball;
 
-import net.minecraft.server.EntityTNTPrimed;
-import net.minecraft.server.NBTTagCompound;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
@@ -97,27 +93,14 @@ public class CBBlockListener extends BlockListener {
             
             Location location = block.getRelative(dispenser.getFacing()).getLocation();           
             
-            // TNTPrimed tnt = event.getBlock().getWorld().spawn(location, TNTPrimed.class);
-            
-            CraftWorld world = (CraftWorld) block.getWorld();
-            EntityTNTPrimed tntEntity = new EntityTNTPrimed(world.getHandle(), location.getX(), location.getY(), location.getZ());
-            
-            /*
-            NBTTagCompound tag = new NBTTagCompound();
-            tag.a("Fuse", cannon.getFuse());            
-            tntEntity.a(tag);
-            */
-            
-            world.getHandle().addEntity(tntEntity);
-            
-            TNTPrimed tnt = (TNTPrimed) tntEntity.getBukkitEntity();
+            TNTPrimed tnt = event.getBlock().getWorld().spawn(location, TNTPrimed.class);
             
             tnt.setVelocity(initialVelocity);
             
             ItemStack ashes = new ItemStack(Material.INK_SACK, 1, (short) 0, (byte) 7);
             event.setItem(ashes);
             event.setVelocity(initialVelocity.multiply(.1));
-            world.createExplosion(location, 0);
+            event.getBlock().getWorld().createExplosion(location, 0);
             
             Inventory inventory = ((org.bukkit.block.Dispenser) block.getState()).getInventory();
             inventory.removeItem(new ItemStack(Material.TNT, 1));
