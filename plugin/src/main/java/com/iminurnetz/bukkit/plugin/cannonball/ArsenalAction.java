@@ -27,17 +27,19 @@ public class ArsenalAction {
     
     public enum Type {
         NOTHING,
+        FISH,
         COW,
         PIG,
         SHEEP,
         STUN,
         GRENADE,
+        CLUSTER,
         NUCLEAR,
         MOLOTOV,
         FLAME_THROWER,
         WATER_BALLOON,
         SPIDER_WEB, 
-        LIGHTENING;
+        LIGHTNING;
     }
 
     private final Type type;

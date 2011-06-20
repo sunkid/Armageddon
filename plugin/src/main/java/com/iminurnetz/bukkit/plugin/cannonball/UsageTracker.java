@@ -37,6 +37,9 @@ public abstract class UsageTracker implements Serializable {
     }
 
     public int getUsage(Material material) {
+        if (!usage.containsKey(material.name())) {
+            return -1;
+        }
         return usage.get(material.name());
     }
     

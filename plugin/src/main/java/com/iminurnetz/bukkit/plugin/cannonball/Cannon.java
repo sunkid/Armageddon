@@ -25,14 +25,15 @@ package com.iminurnetz.bukkit.plugin.cannonball;
 
 import java.io.Serializable;
 
-public class Cannon implements Serializable {
+public class Cannon extends UsageTracker implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private double angle;
     private double velocity;
     private int fuse;
-
+    
     public Cannon(double angle, double velocity, int fuse) {
+        super();
         this.angle = angle;
         this.velocity = velocity;
         this.fuse = fuse;

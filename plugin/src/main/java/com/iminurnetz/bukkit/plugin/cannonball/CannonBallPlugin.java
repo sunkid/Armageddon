@@ -34,7 +34,10 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -372,7 +375,7 @@ public class CannonBallPlugin extends BukkitPlugin {
             return CBConfiguration.DEFAULT_ACTION;
         } 
         
-        return shotsFired.get(projectile);
+        return shotsFired.get(projectile.getEntityId());
     }
 
     public void adjustInventoryAndUsage(Inventory inventory, UsageTracker settings, Material material, int uses) {
@@ -389,5 +392,71 @@ public class CannonBallPlugin extends BukkitPlugin {
 
     public void removeShot(Entity entity) {
         shotsFired.remove(entity);
+    }
+
+    protected void goBoom(Entity entity) {
+        if (!wasFired(entity)) {
+            return;
+        }
+    
+        float yield = 0;
+        boolean setFire = false;
+    
+        ArsenalAction action = getAction(entity);
+        Location loc = entity.getLocation();
+        // log("Action: " + action.getType() + ", " + action.getYield());
+        removeShot(entity);
+    
+        World world = entity.getWorld();
+    
+        switch (action.getType()) {
+            case STUN:
+                stun(entity, action.getYield());
+                break;
+    
+            case GRENADE:
+                yield = action.getYield();
+                break;
+
+            case CLUSTER:
+                // TODO: create some jumping beans
+                break;
+    
+            case MOLOTOV:
+                yield = action.getYield();
+                setFire = true;
+                break;
+    
+            case NUCLEAR:
+                yield = action.getYield();
+                // TODO: add some lava to spice it up
+                break;
+    
+            case LIGHTNING:
+                // TODO add yield
+                world.strikeLightning(loc);
+                break;
+    
+            case SPIDER_WEB:
+                world.playEffect(loc, Effect.EXTINGUISH, 0);
+                // TODO: turn all air blocks around impact area to webs
+                break;
+    
+            case FLAME_THROWER:
+                world.playEffect(loc, Effect.EXTINGUISH, 0);
+                // TODO: light'er up!
+                break;
+    
+            case WATER_BALLOON:
+                world.playEffect(loc, Effect.EXTINGUISH, 0);
+                // TODO: splash!
+                break;
+    
+            case NOTHING:
+            default:
+                return;
+        }
+    
+        world.createExplosion(entity.getLocation(), yield, setFire);
     }
 }

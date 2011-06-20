@@ -23,14 +23,8 @@
  */
 package com.iminurnetz.bukkit.plugin.cannonball;
 
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityDamageByProjectileEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -55,7 +49,7 @@ public class CBEntityListener extends EntityListener {
             EntityDamageByProjectileEvent event = (EntityDamageByProjectileEvent) e;
             Projectile projectile = event.getProjectile();
             if (plugin.wasFired(projectile)) {
-                ((CraftWorld) projectile.getWorld()).getHandle().createExplosion(((CraftEntity) projectile).getHandle(), projectile.getLocation().getX(), projectile.getLocation().getY(), projectile.getLocation().getZ(), 0, false);
+                plugin.goBoom(projectile);
                 event.setCancelled(true);
             }
         }
@@ -68,65 +62,10 @@ public class CBEntityListener extends EntityListener {
         }
 
         Entity entity = event.getEntity();
-        ArsenalAction action = plugin.getAction(entity);
-        Location loc = entity.getLocation();
-
-        plugin.removeShot(entity);
-
-        switch (action.getType()) {
-        case STUN:
-            plugin.stun(entity, action.getYield());
-            event.setYield(0);
-            break;
-
-        case GRENADE:
-            if (entity instanceof TNTPrimed) {
-                event.setYield(action.getYield());
-            } else {
-                event.setCancelled(true);
-                ((CraftWorld) entity.getWorld()).getHandle().createExplosion(((CraftEntity) entity).getHandle(), loc.getX(), loc.getY(), loc.getZ(), action.getYield(), false);
-            }
-            break;
-
-        case MOLOTOV:
-            if (entity instanceof Fireball) {
-                event.setYield(action.getYield());
-            } else {
-                event.setCancelled(true);
-                ((CraftWorld) entity.getWorld()).getHandle().createExplosion(((CraftEntity) entity).getHandle(), loc.getX(), loc.getY(), loc.getZ(), action.getYield(), true);
-            }
-            break;
-
-        case NUCLEAR:
-            event.setYield(action.getYield());
-            break;
-
-        case LIGHTENING:
+        if (plugin.wasFired(entity)) {
+            plugin.goBoom(entity);
             event.setCancelled(true);
-            // TODO add yield
-            entity.getWorld().strikeLightning(loc);
-            break;
-
-        case SPIDER_WEB:
-            event.setCancelled(true);
-            entity.getWorld().playEffect(loc, Effect.EXTINGUISH, 0);
-            // TODO: turn all air blocks around impact area to webs
-            break;
-
-        case FLAME_THROWER:
-            event.setCancelled(true);
-            entity.getWorld().playEffect(loc, Effect.EXTINGUISH, 0);
-            // TODO: light'er up!
-            break;
-
-        case WATER_BALLOON:
-            event.setCancelled(true);
-            entity.getWorld().playEffect(loc, Effect.EXTINGUISH, 0);
-            // TODO: splash!
-            break;
-
-        case NOTHING:
-        default:
+        } else {
             return;
         }
     }
@@ -135,7 +74,7 @@ public class CBEntityListener extends EntityListener {
     public void onProjectileHit(ProjectileHitEvent event) {
         if (plugin.wasFired(event.getEntity())) {
             Projectile projectile = (Projectile) event.getEntity();
-            ((CraftWorld) projectile.getWorld()).getHandle().createExplosion(((CraftEntity) projectile).getHandle(), projectile.getLocation().getX(), projectile.getLocation().getY(), projectile.getLocation().getZ(), 0, false);
+            plugin.goBoom(projectile);
         }
     }
 

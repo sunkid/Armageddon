@@ -25,7 +25,6 @@ package com.iminurnetz.bukkit.util;
 
 import java.io.Serializable;
 
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 public class BlockLocation implements Serializable {

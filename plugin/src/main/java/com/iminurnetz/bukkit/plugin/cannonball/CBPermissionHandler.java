@@ -32,6 +32,8 @@ public class CBPermissionHandler extends BukkitPermissionHandler {
     private static final String CAN_CONFIGURE = "cannonball.configure";
     private static final String CAN_DISPLAY = "cannonball.display";
     private static final String CAN_TOGGLE = "cannonball.toggle";
+    
+    private static final String ARSENAL_NODE = "cannonball.arsenal.";
 
     protected CBPermissionHandler(CannonBallPlugin plugin) {
         super(plugin);
@@ -47,5 +49,10 @@ public class CBPermissionHandler extends BukkitPermissionHandler {
     
     public boolean canToggle(Player player) {
         return hasPermission(player, CAN_TOGGLE) || canConfigure(player);
+    }
+    
+    public boolean canEffect(Player player, ArsenalAction action) {
+        String node = action.getType().toString().toLowerCase();
+        return hasPermission(player, ARSENAL_NODE + "*") || hasPermission(player, ARSENAL_NODE + node);
     }
 }

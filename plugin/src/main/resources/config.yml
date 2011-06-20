@@ -5,7 +5,7 @@
 # CHANGE THE VERSION IN YOUR config.yml TO THE ONE BELOW.
 settings:
     # version of the last update of the config file
-    version: 0.0
+    version: 1.0
     
     # the default angle to use [degrees]
     angle: 35
@@ -15,3 +15,87 @@ settings:
     
     # the default fuse length [ticks] (not yet implemented)
     fuse: 80
+    
+    # the factor by which the yield of a thrown and cannon-shot grenade's yield differ
+    cannon-factor: 8
+    
+    # the time in seconds that certain actions should last
+    stun-time: 10
+    
+    # The arsenal (one of stun, grenade, cluster, nuclear, molotov, flame_thrower, water_balloon,
+    # or spider_web, lightning!).
+    #
+    # Each arsenal type has a material and a yield associated with it, as well as a 
+    # number of uses, after which they are removed from a player's or cannon's inventory.
+    #
+    # To disable any of them completely, simply set their uses to 0.
+    #
+    # To disable them for use by either players or cannons just set player or 
+    # cannon to 'false'.
+    #
+    # Players have to have the cannonball.arsenal.<type> permission as well to use any
+    # of these (e.g. 'cannonball.arsenal.grenade' or 'cannonball.arsenal.*')
+    arsenal:
+        stun: # freezes all entities within the yield's radius
+            material: clay ball
+            yield:    2
+            uses:      2
+            player:   true
+            cannon:   true
+            
+        grenade: # your basic TNT
+            material: TNT
+            yield:    4
+            uses:     1
+            player:   true
+            cannon:   true
+            
+        cluster: # like TNT, only more so
+            material: slime ball
+            yield:    4 # this is per single explosion!
+            uses:     1
+            player:   true
+            cannon:   true
+        
+        nuclear: # creates an explosion
+            material: golden apple
+            yield:    8 # that's big, stand back!
+            uses:      1
+            player:   true
+            cannon:   true
+        
+        molotov: # creates and explosion and causes fire
+            material: lava bucket
+            yield:    1 # this is a fireball's yield
+            uses:      10
+            player:   true
+            cannon:   true
+        
+        flame_thrower: # sets all blocks within yield's radius on fire
+            material: flint and steel
+            yield:    2
+            uses:      5
+            player:   true
+            cannon:   true
+        
+        water_balloon: # douses all entities within yield's radius with water
+            material: water bucket
+            yield:    1
+            uses:      10
+            player:   true
+            cannon:   true
+        
+        spider_web: # places webs within yield's radius of the impact
+            material: string
+            yield:    2
+            uses:      10
+            player:   true
+            cannon:   true
+        
+        lightning: # causes lightning strikes around the target's area
+            material: gold sword
+            yield:    1
+            uses:      2            
+            player:   true
+            cannon:   true
+        
