@@ -23,13 +23,13 @@
  */
 package com.iminurnetz.bukkit.util.tests;
 
+import junit.framework.TestCase;
+
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import com.iminurnetz.bukkit.util.SerializableItemStack;
-
-import junit.framework.TestCase;
 
 public class SerializableItemStackTest extends TestCase {
     public void testConversion() {

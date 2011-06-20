@@ -27,10 +27,10 @@ import java.util.Formatter;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 public class LocationUtil {
     public static String getSimpleLocation(Location loc) {
@@ -223,6 +223,19 @@ public class LocationUtil {
         return Math.sqrt(Math.pow(pLoc.getX() - loc.getX(), 2) +
                 Math.pow(pLoc.getY() - loc.getY(), 2) +
                 Math.pow(pLoc.getZ() - loc.getZ(), 2));
+    }
+
+    public static Vector getHandLocation(Player player) {
+        Location loc = player.getLocation();
+        
+        double a = loc.getYaw() / 180D * Math.PI + Math.PI / 2;
+        double l = Math.sqrt(0.8D * 0.8D + 0.4D * 0.4D);
+        
+        double x = loc.getX() + l * Math.cos(a) - 0.8D * Math.sin(a);
+        double y = loc.getY() + player.getEyeHeight() - 0.2D;
+        double z = loc.getZ() + l * Math.sin(a) + 0.8D * Math.cos(a);
+        
+        return new Vector(x, y, z);
     }
 
 }
