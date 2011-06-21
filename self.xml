@@ -5,12 +5,7 @@
 	<groupId>com.iminurnetz</groupId>
 	<artifactId>bukkit.basebukkitplugin</artifactId>
 	<name>BaseBukkitPlugin</name>
-	<version>1.0</version>
-	<parent>
-		<groupId>com.iminurnetz</groupId>
-		<artifactId>bukkit.plugin-parent</artifactId>
-		<version>1.1</version>
-	</parent>
+	<version>1.1</version>
 	<packaging>jar</packaging>
 	<description>Basic classes for use with plugins for bukkit servers</description>
 	<properties>
@@ -97,8 +92,8 @@
 					<descriptors>
 						<descriptor>src/assembly/base_release.xml</descriptor>
 					</descriptors>
-					<outputDirectory>../release</outputDirectory>
-					<finalName>${project.name}</finalName>
+					<outputDirectory>release</outputDirectory>
+					<finalName>${project.name}-${project.version}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 					<attach>false</attach>
 				</configuration>

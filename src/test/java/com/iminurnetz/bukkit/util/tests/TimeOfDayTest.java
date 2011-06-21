@@ -26,9 +26,9 @@ package com.iminurnetz.bukkit.util.tests;
 import java.util.Arrays;
 import java.util.List;
 
-import com.iminurnetz.bukkit.util.TimeOfDay;
-
 import junit.framework.TestCase;
+
+import com.iminurnetz.bukkit.util.TimeOfDay;
 
 public class TimeOfDayTest extends TestCase {
     public void testTimeOfDayByString() {

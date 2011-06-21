@@ -24,13 +24,14 @@
 package com.iminurnetz.bukkit.util;
 
 import java.util.Formatter;
+import java.util.Random;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 public class LocationUtil {
     public static String getSimpleLocation(Location loc) {
@@ -223,6 +224,46 @@ public class LocationUtil {
         return Math.sqrt(Math.pow(pLoc.getX() - loc.getX(), 2) +
                 Math.pow(pLoc.getY() - loc.getY(), 2) +
                 Math.pow(pLoc.getZ() - loc.getZ(), 2));
+    }
+
+    public static Vector getHandLocation(Player player) {
+        Location loc = player.getLocation();
+        
+        double a = loc.getYaw() / 180D * Math.PI + Math.PI / 2;
+        double l = Math.sqrt(0.8D * 0.8D + 0.4D * 0.4D);
+        
+        double x = loc.getX() + l * Math.cos(a) - 0.8D * Math.sin(a);
+        double y = loc.getY() + player.getEyeHeight() - 0.2D;
+        double z = loc.getZ() + l * Math.sin(a) + 0.8D * Math.cos(a);
+        
+        return new Vector(x, y, z);
+    }
+
+    /**
+     * Return a random block within a given distance of a target block.
+     * 
+     * @param target
+     *            the target block
+     * @param range
+     *            the maximum distance from the target block
+     * @return a random block within the given distance of the target block
+     */
+    public static Block getRandomNeighbor(Block target, double range) {
+        Random random = new Random((long) target.getLocation().lengthSquared());
+        double dist = random.nextDouble() * range;
+
+        BlockFace direction = BlockFace.SELF;
+        int n;
+        while (direction == BlockFace.SELF) {
+            n = random.nextInt(BlockFace.values().length);
+            direction = BlockFace.values()[n];
+        }
+
+        Block neighbor = target;
+        while (target.getLocation().distance(neighbor.getLocation()) < dist) {
+            neighbor = neighbor.getRelative(direction);
+        }
+        return neighbor;
     }
 
 }
