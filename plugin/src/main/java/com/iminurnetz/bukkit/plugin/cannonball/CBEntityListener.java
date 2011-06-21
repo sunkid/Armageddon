@@ -61,12 +61,12 @@ public class CBEntityListener extends EntityListener {
             return;
         }
 
+        plugin.goNuclear(event.getLocation(), event.blockList());
+
         Entity entity = event.getEntity();
         if (plugin.wasFired(entity)) {
             plugin.goBoom(entity);
             event.setCancelled(true);
-        } else {
-            return;
         }
     }
 

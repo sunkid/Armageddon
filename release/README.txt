@@ -1,10 +1,10 @@
-CannonBall v0.3-FIREBALL build 114.20110620
+CannonBall vb1.0 build 150.20110621
 
 INSTALL and UPGRADE
 
 1. Copy the included jar files to your server's plugin directory
 2. Reload your server
-3. Change any configuration in plugins/@project@/config.yml as neccessary
+3. Change any configuration in plugins/CannonBall/config.yml as neccessary
 4. Reload your server
 
 LICENSING

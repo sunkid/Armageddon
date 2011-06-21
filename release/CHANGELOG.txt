@@ -1,6 +1,6 @@
 Listed below are released versions and cumulative changes between them
 
-0.3-FIREBALL
+b1.0
 
 * reworked the project directories and added BaseBukkitPlugin dependency
 

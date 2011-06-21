@@ -30,27 +30,26 @@ import org.bukkit.entity.LivingEntity;
 
 public class StunnedLivingEntity {
     private Date releaseDate;
-    
+
     private final Location location;
     private final LivingEntity entity;
-    
+
     public StunnedLivingEntity(LivingEntity entity) {
         this.entity = entity;
         this.location = entity.getLocation().clone();
-        
+
         releaseDate = new Date();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof StunnedLivingEntity) {
             return ((StunnedLivingEntity) o).entity.getUniqueId().equals(entity.getUniqueId());
         }
-        
+
         return false;
     }
-    
-    
+
     @Override
     public int hashCode() {
         return entity.getUniqueId().hashCode();
@@ -63,7 +62,7 @@ public class StunnedLivingEntity {
 
         releaseDate.setTime(releaseDate.getTime() + 1000 * stunTime);
     }
-    
+
     public boolean isStunned() {
         return releaseDate.after(new Date());
     }
@@ -71,7 +70,7 @@ public class StunnedLivingEntity {
     public Location getLocation() {
         return location;
     }
-    
+
     public LivingEntity getEntity() {
         return entity;
     }

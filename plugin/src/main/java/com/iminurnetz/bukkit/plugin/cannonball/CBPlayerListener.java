@@ -23,18 +23,17 @@
  */
 package com.iminurnetz.bukkit.plugin.cannonball;
 
-import net.minecraft.server.EntityFish;
+import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Fish;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
@@ -153,10 +152,23 @@ public class CBPlayerListener extends PlayerListener {
                     entity = world.spawn(handLocation, Fireball.class);
                     break;
 
+                case LIGHTNING:
+                    List<Block> targetBlocks = player.getLastTwoTargetBlocks(null, 500);
+                    if (targetBlocks.size() == 2) {
+                        Block target = targetBlocks.get(1);
+                        for (int n = 0; n < action.getYield(); n++) {
+                            Block neighbor = LocationUtil.getRandomNeighbor(target, action.getYield());
+                            world.strikeLightning(neighbor.getLocation());
+                        }
+
+                        updateInventory(player, material, action);
+                    }
+                    break;
+
+                case CLUSTER:
                 case NUCLEAR:
                 case WATER_BALLOON:
                 case SPIDER_WEB:
-                case LIGHTNING:
                 case STUN:
                     entity = world.spawn(handLocation, Snowball.class);
                     entity.setVelocity(direction.multiply(speedFactor));
@@ -168,12 +180,7 @@ public class CBPlayerListener extends PlayerListener {
                     break;
 
                 case FISH:
-                    EntityFish e = new EntityFish(((CraftWorld) world).getHandle());
-                    e.setPosition(v.getX(), v.getY(), v.getZ());
-                    ((CraftWorld) world).getHandle().addEntity(e);
-                    entity = e.getBukkitEntity();
-                    entity.setVelocity(direction.multiply(speedFactor));
-                    ((Fish) entity).setShooter(player);
+
                     break;
 
                 case PIG:
@@ -199,17 +206,21 @@ public class CBPlayerListener extends PlayerListener {
 
             if (entity != null) {
                 plugin.registerShot(entity, action);
-                PlayerSettings settings = plugin.getPlayerSettings(player, false);
-                plugin.adjustInventoryAndUsage(player.getInventory(), settings, material, action.getUses());
+                updateInventory(player, material, action);
             }
+        }
+    }
+
+    private void updateInventory(Player player, Material material, ArsenalAction action) {
+        PlayerSettings settings = plugin.getPlayerSettings(player, false);
+        if (plugin.adjustInventoryAndUsage(player.getInventory(), settings, material, action.getUses())) {
+            player.updateInventory();
         }
     }
 
     @Override
     public void onPlayerChat(PlayerChatEvent event) {
-        if (plugin.doCancelIfNeccessary(event)) {
-            event.setMessage("arrrgggghhhhhhhhh!");
-        }
+        plugin.doCancelIfNeccessary(event);
     }
 
     @Override

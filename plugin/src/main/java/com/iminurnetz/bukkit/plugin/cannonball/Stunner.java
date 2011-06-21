@@ -26,6 +26,7 @@ package com.iminurnetz.bukkit.plugin.cannonball;
 import java.util.Iterator;
 import java.util.List;
 
+import org.bukkit.entity.Player;
 
 public class Stunner implements Runnable {
 
@@ -39,18 +40,16 @@ public class Stunner implements Runnable {
     public void run() {
         List<StunnedLivingEntity> stunnees = plugin.getTheStunned();
         synchronized (stunnees) {
-            for (Iterator<StunnedLivingEntity> i = stunnees.iterator(); i.hasNext();) {
-                StunnedLivingEntity e = i.next();
-                if (e.isStunned()) {
+            Iterator<StunnedLivingEntity> i = stunnees.iterator();
+            StunnedLivingEntity e;
+            while (i.hasNext()) {
+                e = i.next();
+                if (e.isStunned() && !(e.getEntity() instanceof Player)) {
                     e.getEntity().teleport(e.getLocation());
-                } else {
+                } else if (!e.isStunned()) {
                     i.remove();
                 }
             }
-        
-            if (stunnees.size() == 0) {
-                plugin.cancelStunnerTask();
-            }        
         }
     }
 }

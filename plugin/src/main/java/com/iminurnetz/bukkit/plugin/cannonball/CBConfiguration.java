@@ -23,7 +23,6 @@
  */
 package com.iminurnetz.bukkit.plugin.cannonball;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
@@ -44,10 +43,8 @@ public class CBConfiguration extends ConfigurationService {
     private static final double DEFAULT_VELOCITY = 2;
     private static final int DEFAULT_FUSE = 80;
     private static final int DEFAULT_STUN_TIME = 10;
-    private static final int DEFAULT_CANNON_FACTOR = 5;
+    private static final int DEFAULT_CANNON_FACTOR = 2;
     private static final String ARSENAL_NODE = SETTINGS_NODE + ".arsenal";
-
-    private static final List<Material> DEFAULT_MATERIALS = Arrays.asList(Material.MILK_BUCKET, Material.PORK, Material.WOOL, Material.CLAY_BALL, Material.TNT, Material.GOLDEN_APPLE, Material.LAVA_BUCKET, Material.FLINT_AND_STEEL, Material.WATER_BUCKET, Material.STRING, Material.GOLD_SWORD);
 
     protected static final ArsenalAction DEFAULT_ACTION = new ArsenalAction(Type.NOTHING, 0, 0, false, false);
 
@@ -65,7 +62,7 @@ public class CBConfiguration extends ConfigurationService {
 
         List<String> arsenalList = plugin.getConfiguration().getKeys(ARSENAL_NODE);
         if (arsenalList == null) {
-            arsenalList = Collections.EMPTY_LIST;
+            arsenalList = Collections.emptyList();
         }
 
         for (String type : arsenalList) {
@@ -104,18 +101,20 @@ public class CBConfiguration extends ConfigurationService {
 
     private int getDefaultUses(Type type) {
         switch (type) {
-            case FISH:
+            case FISH: // Fish are not fish
+                return 0;
+
             case COW:
             case PIG:
             case SHEEP:
             case GRENADE:
             case CLUSTER:
             case NUCLEAR:
+            case STUN:
                 return 1;
 
-            case STUN:
             case LIGHTNING:
-                return 2;
+                return 20;
 
             case MOLOTOV:
             case WATER_BALLOON:
@@ -131,7 +130,7 @@ public class CBConfiguration extends ConfigurationService {
         }
     }
 
-    private float getDefaultYield(Type type) {
+    protected float getDefaultYield(Type type) {
         switch (type) {
             case STUN:
             case FLAME_THROWER:
@@ -140,6 +139,7 @@ public class CBConfiguration extends ConfigurationService {
 
             case GRENADE:
             case CLUSTER:
+            case LIGHTNING:
                 return 4;
 
             case NUCLEAR:
@@ -147,7 +147,6 @@ public class CBConfiguration extends ConfigurationService {
 
             case MOLOTOV:
             case WATER_BALLOON:
-            case LIGHTNING:
                 return 1;
 
             case NOTHING:
@@ -233,5 +232,14 @@ public class CBConfiguration extends ConfigurationService {
 
     public Hashtable<Material, ArsenalAction> getArsenal() {
         return arsenal;
+    }
+
+    public ArsenalAction getAction(Type type) {
+        for (Material m : arsenal.keySet()) {
+            if (arsenal.get(m).getType() == type) {
+                return arsenal.get(m);
+            }
+        }
+        return DEFAULT_ACTION;
     }
 }
