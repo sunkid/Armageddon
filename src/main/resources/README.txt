@@ -1,4 +1,4 @@
-${project.name} v${project.version} build ${buildNumber}
+${project.name} v${project.version}
 
 INSTALL and UPGRADE
 
