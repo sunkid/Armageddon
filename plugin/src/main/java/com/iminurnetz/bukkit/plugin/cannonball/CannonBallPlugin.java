@@ -61,6 +61,7 @@ import org.bukkit.plugin.PluginManager;
 import com.iminurnetz.bukkit.plugin.BukkitPlugin;
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.util.BlockLocation;
+import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class CannonBallPlugin extends BukkitPlugin {
 
@@ -507,8 +508,12 @@ public class CannonBallPlugin extends BukkitPlugin {
             for (Block target : blocks) {
                 for (BlockFace dir : Arrays.asList(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.DOWN)) {
                     Block neighbor = target.getRelative(dir);
-                    if (!blocks.contains(neighbor) && neighbor.getType() != Material.AIR) {
-                        neighbor.setType(Material.LAVA);
+                    if (!blocks.contains(neighbor)) {
+                        if (CBConfiguration.MELTABLE.contains(neighbor.getType())) {
+                            neighbor.setType(Material.LAVA);
+                        } else if (CBConfiguration.BURNABLE.contains(neighbor.getType())) {
+                            neighbor.setType(Material.FIRE);
+                        }
                     }
                 }
             }

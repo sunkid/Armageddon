@@ -23,6 +23,7 @@
  */
 package com.iminurnetz.bukkit.plugin.cannonball;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
@@ -51,6 +52,95 @@ public class CBConfiguration extends ConfigurationService {
     private final CannonBallPlugin plugin;
 
     private final Hashtable<Material, ArsenalAction> arsenal;
+    
+    public static List<Material> MELTABLE = Arrays.asList(
+            Material.STONE,
+            Material.GRASS,
+            Material.DIRT,
+            Material.COBBLESTONE,
+            Material.SAPLING,
+            Material.WATER,
+            Material.SAND,
+            Material.GRAVEL,
+            Material.GOLD_ORE,
+            Material.IRON_ORE,
+            Material.COAL_ORE,
+            Material.LAPIS_ORE,
+            Material.LAPIS_BLOCK,
+            Material.DISPENSER,
+            Material.SANDSTONE,
+            Material.NOTE_BLOCK,
+            Material.GOLD_BLOCK,
+            Material.IRON_BLOCK,
+            Material.DOUBLE_STEP,
+            Material.STEP,
+            Material.BRICK,
+            Material.MOSSY_COBBLESTONE,
+            Material.OBSIDIAN,
+            Material.DIAMOND_ORE,
+            Material.DIAMOND_BLOCK,
+            Material.SOIL,
+            Material.COBBLESTONE_STAIRS,
+            Material.STONE_PLATE,
+            Material.IRON_DOOR_BLOCK,
+            Material.REDSTONE_ORE,
+            Material.GLOWING_REDSTONE_ORE,
+            Material.CLAY,
+            Material.NETHERRACK,
+            Material.SOUL_SAND,
+            Material.GLOWSTONE
+    );
+    
+    public static List<Material> BURNABLE = Arrays.asList(
+            Material.WOOD,
+            Material.SAPLING,
+            Material.LOG,
+            Material.LEAVES,
+            Material.SPONGE,
+            Material.GLASS,
+            Material.DISPENSER,
+            Material.NOTE_BLOCK,
+            Material.BED_BLOCK,
+            Material.POWERED_RAIL,
+            Material.DETECTOR_RAIL,
+            Material.WEB,
+            Material.LONG_GRASS,
+            Material.DEAD_BUSH,
+            Material.WOOL,
+            Material.YELLOW_FLOWER,
+            Material.RED_ROSE,
+            Material.BROWN_MUSHROOM,
+            Material.RED_MUSHROOM,
+            Material.TNT,
+            Material.BOOKSHELF,
+            Material.TORCH,
+            Material.MOB_SPAWNER,
+            Material.WOOD_STAIRS,
+            Material.CHEST,
+            Material.WORKBENCH,
+            Material.CROPS,
+            Material.FURNACE,
+            Material.BURNING_FURNACE,
+            Material.SIGN_POST,
+            Material.WOODEN_DOOR,
+            Material.LADDER,
+            Material.RAILS,
+            Material.WALL_SIGN,
+            Material.LEVER,
+            Material.IRON_DOOR_BLOCK,
+            Material.WOOD_PLATE,
+            Material.CACTUS,
+            Material.SUGAR_CANE_BLOCK,
+            Material.JUKEBOX,
+            Material.FENCE,
+            Material.PUMPKIN,
+            Material.JACK_O_LANTERN,
+            Material.CAKE_BLOCK,
+            Material.DIODE_BLOCK_OFF,
+            Material.DIODE_BLOCK_ON,
+            Material.LOCKED_CHEST,
+            Material.TRAP_DOOR
+    );
 
     public CBConfiguration(CannonBallPlugin plugin) {
         super(plugin, LAST_CHANGED_IN_VERSION);

@@ -1,4 +1,4 @@
-CannonBall vb1.0 build 150.20110621
+CannonBall vb1.1 build 153.20110621
 
 INSTALL and UPGRADE
 

@@ -1,6 +1,10 @@
 Listed below are released versions and cumulative changes between them
 
-b1.0
+b1.1
+
+* addition of the major arsenal elements
+
+0.4
 
 * reworked the project directories and added BaseBukkitPlugin dependency
 
