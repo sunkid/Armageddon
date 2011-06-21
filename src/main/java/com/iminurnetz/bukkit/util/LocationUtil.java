@@ -24,6 +24,7 @@
 package com.iminurnetz.bukkit.util;
 
 import java.util.Formatter;
+import java.util.Random;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -236,6 +237,33 @@ public class LocationUtil {
         double z = loc.getZ() + l * Math.sin(a) + 0.8D * Math.cos(a);
         
         return new Vector(x, y, z);
+    }
+
+    /**
+     * Return a random block within a given distance of a target block.
+     * 
+     * @param target
+     *            the target block
+     * @param range
+     *            the maximum distance from the target block
+     * @return a random block within the given distance of the target block
+     */
+    public static Block getRandomNeighbor(Block target, double range) {
+        Random random = new Random((long) target.getLocation().lengthSquared());
+        double dist = random.nextDouble() * range;
+
+        BlockFace direction = BlockFace.SELF;
+        int n;
+        while (direction == BlockFace.SELF) {
+            n = random.nextInt(BlockFace.values().length);
+            direction = BlockFace.values()[n];
+        }
+
+        Block neighbor = target;
+        while (target.getLocation().distance(neighbor.getLocation()) < dist) {
+            neighbor = neighbor.getRelative(direction);
+        }
+        return neighbor;
     }
 
 }
