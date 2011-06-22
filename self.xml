@@ -93,7 +93,7 @@
 						<descriptor>src/assembly/base_release.xml</descriptor>
 					</descriptors>
 					<outputDirectory>release</outputDirectory>
-					<finalName>${project.name}-${project.version}</finalName>
+					<finalName>${project.name}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 					<attach>false</attach>
 				</configuration>
