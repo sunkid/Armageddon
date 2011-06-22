@@ -61,7 +61,6 @@ import org.bukkit.plugin.PluginManager;
 import com.iminurnetz.bukkit.plugin.BukkitPlugin;
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.util.BlockLocation;
-import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class CannonBallPlugin extends BukkitPlugin {
 
@@ -263,6 +262,11 @@ public class CannonBallPlugin extends BukkitPlugin {
     }
 
     public PlayerSettings getPlayerSettings(Player player, boolean alertPlayer) {
+        if (playerSettings == null) {
+            log(Level.SEVERE, "player settings corrupted, starting over");
+            playerSettings = new Hashtable<String, PlayerSettings>();
+        }
+
         synchronized (playerSettings) {
             String name = player.getName();
             if (!playerSettings.containsKey(name)) {
