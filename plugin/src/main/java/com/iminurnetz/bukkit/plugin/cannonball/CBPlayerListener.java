@@ -133,6 +133,8 @@ public class CBPlayerListener extends PlayerListener {
                 return;
             }
 
+            action.setCannon(false);
+
             Vector v = LocationUtil.getHandLocation(player);
             World world = player.getWorld();
 

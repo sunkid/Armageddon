@@ -4,7 +4,7 @@
   <groupId>com.iminurnetz</groupId>
   <artifactId>bukkit.cannonball-plugin</artifactId>
   <name>CannonBall</name>
-  <version>b1.1</version>
+  <version>b1.2</version>
   <packaging>jar</packaging>
   <description>CannonBall plugin for Bukkit servers</description>
   <parent>

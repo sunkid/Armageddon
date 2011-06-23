@@ -26,6 +26,7 @@ package com.iminurnetz.bukkit.plugin.cannonball;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -75,11 +76,7 @@ public class CannonBallPlugin extends BukkitPlugin {
     private Hashtable<Integer, ArsenalAction> shotsFired;
     private List<Location> nuclearExplosions;
 
-    public int MIN_SERVER_VERSION = 875;
-
-    public int getMinimumServerVersion() {
-        return this.MIN_SERVER_VERSION;
-    }
+    public static final int CANNON_FILE_VERSION = 1;
 
     @Override
     public void enablePlugin() throws Exception {
@@ -201,23 +198,67 @@ public class CannonBallPlugin extends BukkitPlugin {
         cannons = new Hashtable<BlockLocation, Cannon>();
         playerSettings = new Hashtable<String, PlayerSettings>();
 
+        int fileVersion;
+
         File cache = getCannonsFile();
         if (!cache.exists()) {
             return;
         }
 
+        FileInputStream fis;
+        ObjectInputStream in;
         try {
-            FileInputStream fis = new FileInputStream(cache);
-            ObjectInputStream in = new ObjectInputStream(fis);
-            cannons = (Hashtable<BlockLocation, Cannon>) in.readObject();
-            playerSettings = (Hashtable<String, PlayerSettings>) in.readObject();
-            in.close();
-            fis.close();
-        } catch (Exception e) {
+            fis = new FileInputStream(cache);
+            in = new ObjectInputStream(fis);
+        } catch (IOException e) {
             log(Level.SEVERE, "Cannot load cached cannons and settings, starting from scratch", e);
+            return;
+        }
+
+        try {
+            fileVersion = in.readInt();
+        } catch (IOException e) {
+            log("Unknown cannon file version. Upgrading!");
+            fileVersion = 0;
+        }
+
+        try {
+            cannons = (Hashtable<BlockLocation, Cannon>) in.readObject();
+            if (fileVersion < CANNON_FILE_VERSION) {
+                for (BlockLocation location : cannons.keySet()) {
+                    Cannon c = safeClone(cannons.get(location));
+                    cannons.put(location, c);
+                }
+            }
+        } catch (Exception e) {
+            log(Level.SEVERE, "Cannon file corrupted; using default cannon settings");
             cannons = new Hashtable<BlockLocation, Cannon>();
+        }
+
+        try {
+            playerSettings = (Hashtable<String, PlayerSettings>) in.readObject();
+            if (fileVersion < CANNON_FILE_VERSION) {
+                for (String player : playerSettings.keySet()) {
+                    PlayerSettings s = playerSettings.get(player);
+                    Cannon c = safeClone(s.getCannon());
+                    playerSettings.put(player, new PlayerSettings(c));
+                }
+            }
+        } catch (Exception e) {
+            log(Level.SEVERE, "Cannon file corrupted; using default player settings");
             playerSettings = new Hashtable<String, PlayerSettings>();
         }
+
+        try {
+            in.close();
+            fis.close();
+        } catch (IOException e) {
+            log(Level.SEVERE, "Cannot properly close cannons file", e);
+        }
+    }
+
+    private Cannon safeClone(Cannon cannon) {
+        return new Cannon(cannon.getAngle(), cannon.getVelocity(), cannon.getFuse());
     }
 
     private File getCannonsFile() {
@@ -235,6 +276,7 @@ public class CannonBallPlugin extends BukkitPlugin {
         try {
             FileOutputStream fos = new FileOutputStream(cache);
             ObjectOutputStream out = new ObjectOutputStream(fos);
+            out.write(CANNON_FILE_VERSION);
             out.writeObject(cannons);
             out.writeObject(playerSettings);
             out.close();
@@ -460,9 +502,11 @@ public class CannonBallPlugin extends BukkitPlugin {
                 if (cbAction.getType() == ArsenalAction.Type.NOTHING) {
                     cbAction = new ArsenalAction(ArsenalAction.Type.GRENADE, config.getDefaultYield(ArsenalAction.Type.GRENADE), 1);
                 }
-
+                
                 locClone.setPitch(-45);
-                for (int n = 0; n < action.getYield(); n++) {
+                int y = (int) action.getYield() * (action.isCannon() ? config.getCannonFactor() : 1);
+
+                for (int n = 0; n < y; n++) {
                     locClone.setYaw(random.nextFloat() * 360);
                     cb = world.spawn(loc, Snowball.class);
                     cb.setVelocity(locClone.getDirection().multiply(random.nextDouble()));
@@ -502,6 +546,10 @@ public class CannonBallPlugin extends BukkitPlugin {
             case NOTHING:
             default:
                 return;
+        }
+
+        if (action.isCannon()) {
+            yield *= config.getCannonFactor();
         }
 
         world.createExplosion(entity.getLocation(), yield, setFire);

@@ -63,6 +63,12 @@ public class Cannon extends UsageTracker implements Serializable {
         this.fuse = fuse;
     }
     
+    @Override
+    public Cannon clone() {
+        Cannon c = new Cannon(angle, velocity, fuse);
+        return c;
+    }
+
     public void copy(Cannon cannon) {
         setAngle(cannon.getAngle());
         setVelocity(cannon.getVelocity());

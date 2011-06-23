@@ -48,6 +48,7 @@ public class ArsenalAction {
     private final boolean canCannonUse;
     
     private float yield;
+    private boolean isCannon;
     
     public ArsenalAction(Type type, float yield, int uses) {
         this(type, yield, uses, true, true);
@@ -59,6 +60,8 @@ public class ArsenalAction {
         this.uses = uses;
         this.canPlayerUse = canPlayerUse;
         this.canCannonUse = canCannonUse;
+
+        this.isCannon = false;
     }
 
     public Type getType() {
@@ -83,5 +86,13 @@ public class ArsenalAction {
 
     public boolean canCannonUse() {
         return uses > 0 && canCannonUse;
+    }
+
+    public boolean isCannon() {
+        return isCannon;
+    }
+
+    public void setCannon(boolean isCannon) {
+        this.isCannon = isCannon;
     }
 }

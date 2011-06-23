@@ -77,7 +77,7 @@ public class CBBlockListener extends BlockListener {
                 return;
             }
 
-            action.setYield(action.getYield() * plugin.getConfig().getCannonFactor());
+            action.setCannon(true);
 
             Dispenser dispenser = (Dispenser) block.getType().getNewData(block.getData());
 
