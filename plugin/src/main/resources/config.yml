@@ -48,8 +48,8 @@ settings:
     #    water_balloon: douses any hit entities with water (3, 10)
     #    spider_web:    entangles any hit entity with a spiderweb (4, 10)
     #
-    # Players have to have the cannonball.grenades.<action> permission as well to use any
-    # of these (e.g. 'cannonball.grenades.stun' or 'cannonball.grenades.*')
+    # Players have to have the armageddon.grenades.<action> permission as well to use any
+    # of these (e.g. 'armageddon.grenades.stun' or 'armageddon.grenades.*')
     grenades:
         soul sand:
             action: snare
@@ -95,8 +95,8 @@ settings:
     #     sniper:        semi-automatic, long range rifle (3)
     #     gatlin:        will rapidly shoot bullets until a second left-click or "reload" (3)
     #
-    # Players have to have the cannonball.guns.<action> permission to use any of these (e.g. 'cannonball.guns.crossbow'
-    # or 'cannonball.grenades.*')
+    # Players have to have the armageddon.guns.<action> permission to use any of these (e.g. 'armageddon.guns.crossbow'
+    # or 'armageddon.grenades.*')
     gun-item: bow   # this cannot be configured as a grenade above!
     guns:
         flame_thrower:
