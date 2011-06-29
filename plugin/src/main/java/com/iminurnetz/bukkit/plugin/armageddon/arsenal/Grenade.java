@@ -21,7 +21,7 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball.arsenal;
+package com.iminurnetz.bukkit.plugin.armageddon.arsenal;
 
 public class Grenade {
 

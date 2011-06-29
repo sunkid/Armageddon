@@ -21,7 +21,7 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball.listeners;
+package com.iminurnetz.bukkit.plugin.armageddon.listeners;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -43,14 +43,14 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Attachable;
 
-import com.iminurnetz.bukkit.plugin.cannonball.CannonBallPlugin;
+import com.iminurnetz.bukkit.plugin.armageddon.ArmageddonPlugin;
 import com.iminurnetz.bukkit.util.MaterialUtils;
 
-public class CBEntityListener extends EntityListener {
+public class ArmageddonEntityListener extends EntityListener {
 
-    private final CannonBallPlugin plugin;
+    private final ArmageddonPlugin plugin;
 
-    public CBEntityListener(CannonBallPlugin plugin) {
+    public ArmageddonEntityListener(ArmageddonPlugin plugin) {
         this.plugin = plugin;
     }
 

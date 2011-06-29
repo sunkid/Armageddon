@@ -1,10 +1,10 @@
-CannonBall v2.0 build 274.20110628
+Armageddon v2.0 build 276.20110628
 
 INSTALL and UPGRADE
 
 1. Copy the included jar files to your server's plugin directory
 2. Reload your server
-3. Change any configuration in plugins/CannonBall/config.yml as neccessary
+3. Change any configuration in plugins/Armageddon/config.yml as neccessary
 4. Reload your server
 
 LICENSING

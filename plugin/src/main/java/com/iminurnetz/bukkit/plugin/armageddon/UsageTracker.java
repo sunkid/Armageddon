@@ -21,34 +21,34 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball;
+package com.iminurnetz.bukkit.plugin.armageddon;
 
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
+import java.io.Serializable;
+import java.util.Hashtable;
 
-public class PlayerSettings extends UsageTracker {
+import org.bukkit.Material;
+
+public abstract class UsageTracker implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Cannon cannon;
-    private Gun gun;
+    private Hashtable<String, Integer> usage;
+
+    public UsageTracker() {
+        usage = new Hashtable<String, Integer>();
+    }
+
+    public int getUsage(Material material) {
+        if (!usage.containsKey(material.name())) {
+            return -1;
+        }
+        return usage.get(material.name());
+    }
     
-    public PlayerSettings(Cannon cannon, Gun gun) {
-        super();
-        this.cannon = cannon;
-        this.gun = gun;
+    public void setUsage(Material material, int uses) {
+        usage.put(material.name(), uses);
     }
-
-    public void setCannon(Cannon cannon) {
-        this.cannon = cannon;
+    
+    public void use(Material material) {
+        setUsage(material, getUsage(material) - 1);
     }
-
-    public Cannon getCannon() {
-        return cannon;
-    }
-
-    public void setGun(Gun gun) {
-        this.gun = gun;
-    }
-
-    public Gun getGun() {
-        return gun;
-    }
+    
 }

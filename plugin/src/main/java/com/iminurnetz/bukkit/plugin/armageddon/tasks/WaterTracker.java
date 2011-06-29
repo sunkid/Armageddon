@@ -21,7 +21,7 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball.tasks;
+package com.iminurnetz.bukkit.plugin.armageddon.tasks;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -29,16 +29,16 @@ import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
-import com.iminurnetz.bukkit.plugin.cannonball.CannonBallPlugin;
+import com.iminurnetz.bukkit.plugin.armageddon.ArmageddonPlugin;
 import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class WaterTracker implements Runnable {
 
     private final Set<Block> blocks;
-    private final CannonBallPlugin plugin;
+    private final ArmageddonPlugin plugin;
     private int id;
 
-    public WaterTracker(CannonBallPlugin plugin, Set<Block> blocks) {
+    public WaterTracker(ArmageddonPlugin plugin, Set<Block> blocks) {
         this.plugin = plugin;
         this.blocks = blocks;
     }

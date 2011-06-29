@@ -21,15 +21,15 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball;
+package com.iminurnetz.bukkit.plugin.armageddon;
 
 import org.bukkit.entity.Player;
 
 import com.iminurnetz.bukkit.plugin.BukkitPermissionHandler;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Gun;
 
-public class CBPermissionHandler extends BukkitPermissionHandler {
+public class ArmageddonPermissionHandler extends BukkitPermissionHandler {
 
     private static final String CAN_CONFIGURE = "cannonball.configure";
     private static final String CAN_DISPLAY = "cannonball.display";
@@ -38,7 +38,7 @@ public class CBPermissionHandler extends BukkitPermissionHandler {
     private static final String GRENADE_NODE = "cannonball.grenades.";
     private static final String GUN_NODE = "cannonball.guns.";
 
-    protected CBPermissionHandler(CannonBallPlugin plugin) {
+    protected ArmageddonPermissionHandler(ArmageddonPlugin plugin) {
         super(plugin);
     }
     

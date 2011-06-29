@@ -21,34 +21,20 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball;
+package com.iminurnetz.bukkit.plugin.armageddon.listeners;
 
-import java.io.Serializable;
-import java.util.Hashtable;
+import org.bukkit.event.CustomEventListener;
+import org.bukkit.event.Event;
 
-import org.bukkit.Material;
+import com.sycoprime.movecraft.events.MoveCraftMoveEvent;
+import com.sycoprime.movecraft.events.MoveCraftTurnEvent;
 
-public abstract class UsageTracker implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private Hashtable<String, Integer> usage;
+public class MoveCraftListener extends CustomEventListener {
+    public void onCustomEvent(Event event) {
+        if (event instanceof MoveCraftMoveEvent) {
 
-    public UsageTracker() {
-        usage = new Hashtable<String, Integer>();
-    }
+        } else if (event instanceof MoveCraftTurnEvent) {
 
-    public int getUsage(Material material) {
-        if (!usage.containsKey(material.name())) {
-            return -1;
         }
-        return usage.get(material.name());
     }
-    
-    public void setUsage(Material material, int uses) {
-        usage.put(material.name(), uses);
-    }
-    
-    public void use(Material material) {
-        setUsage(material, getUsage(material) - 1);
-    }
-    
 }

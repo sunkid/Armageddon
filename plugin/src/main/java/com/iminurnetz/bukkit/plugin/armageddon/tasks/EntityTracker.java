@@ -21,7 +21,7 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball.tasks;
+package com.iminurnetz.bukkit.plugin.armageddon.tasks;
 
 import java.util.Iterator;
 import java.util.List;
@@ -30,14 +30,14 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import com.iminurnetz.bukkit.plugin.cannonball.CannonBallPlugin;
-import com.iminurnetz.bukkit.plugin.cannonball.TrackedLivingEntity;
+import com.iminurnetz.bukkit.plugin.armageddon.ArmageddonPlugin;
+import com.iminurnetz.bukkit.plugin.armageddon.TrackedLivingEntity;
 
 public class EntityTracker implements Runnable {
 
-    private final CannonBallPlugin plugin;
+    private final ArmageddonPlugin plugin;
 
-    public EntityTracker(CannonBallPlugin plugin) {
+    public EntityTracker(ArmageddonPlugin plugin) {
         this.plugin = plugin;
     }
 

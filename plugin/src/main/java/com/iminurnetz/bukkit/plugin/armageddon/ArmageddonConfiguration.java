@@ -21,7 +21,7 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball;
+package com.iminurnetz.bukkit.plugin.armageddon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,12 +32,12 @@ import java.util.logging.Level;
 
 import org.bukkit.Material;
 
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Gun;
 import com.iminurnetz.bukkit.plugin.util.ConfigurationService;
 import com.iminurnetz.bukkit.util.MaterialUtils;
 
-public class CBConfiguration extends ConfigurationService {
+public class ArmageddonConfiguration extends ConfigurationService {
 
     private static final String LAST_CHANGED_IN_VERSION = "1.3";
     private static final String SETTINGS_NODE = "settings";
@@ -57,7 +57,7 @@ public class CBConfiguration extends ConfigurationService {
     protected static final Grenade DEFAULT_GRENADE = new Grenade(Grenade.Type.DUD, 0, 0);
     protected static final Gun DEFAULT_GUN = new Gun(Gun.Type.TOY, Material.AIR, 0);
 
-    private final CannonBallPlugin plugin;
+    private final ArmageddonPlugin plugin;
 
     private final Hashtable<Material, Grenade> grenades;
     private final Hashtable<Material, Gun> guns;
@@ -76,7 +76,7 @@ public class CBConfiguration extends ConfigurationService {
         }
     }
 
-    public CBConfiguration(CannonBallPlugin plugin) {
+    public ArmageddonConfiguration(ArmageddonPlugin plugin) {
         super(plugin, LAST_CHANGED_IN_VERSION);
         this.plugin = plugin;
         grenades = new Hashtable<Material, Grenade>();

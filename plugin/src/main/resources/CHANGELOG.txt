@@ -2,6 +2,7 @@ Listed below are released versions and cumulative changes between them
 
 ${project.version}
 
+* added support for fuse length of TNT
 * added the concept of grenades that can be both thrown and shot from cannons
 * added the concept of guns
 * renamed to Armageddon

@@ -21,7 +21,7 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball;
+package com.iminurnetz.bukkit.plugin.armageddon;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,21 +65,21 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginManager;
 
 import com.iminurnetz.bukkit.plugin.BukkitPlugin;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade.Type;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
-import com.iminurnetz.bukkit.plugin.cannonball.listeners.CBBlockListener;
-import com.iminurnetz.bukkit.plugin.cannonball.listeners.CBEntityListener;
-import com.iminurnetz.bukkit.plugin.cannonball.listeners.CBPlayerListener;
-import com.iminurnetz.bukkit.plugin.cannonball.listeners.MoveCraftListener;
-import com.iminurnetz.bukkit.plugin.cannonball.tasks.EntityTracker;
-import com.iminurnetz.bukkit.plugin.cannonball.tasks.WaterTracker;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Gun;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade.Type;
+import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonBlockListener;
+import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonEntityListener;
+import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonPlayerListener;
+import com.iminurnetz.bukkit.plugin.armageddon.listeners.MoveCraftListener;
+import com.iminurnetz.bukkit.plugin.armageddon.tasks.EntityTracker;
+import com.iminurnetz.bukkit.plugin.armageddon.tasks.WaterTracker;
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.util.BlockLocation;
 import com.iminurnetz.bukkit.util.InventoryUtil;
 import com.iminurnetz.bukkit.util.MaterialUtils;
 
-public class CannonBallPlugin extends BukkitPlugin {
+public class ArmageddonPlugin extends BukkitPlugin {
 
     private Hashtable<BlockLocation, Cannon> cannons;
     private Hashtable<String, PlayerSettings> playerSettings;
@@ -88,8 +88,8 @@ public class CannonBallPlugin extends BukkitPlugin {
 
     private int stunnerTaskId = -1;
 
-    private CBConfiguration config;
-    private CBPermissionHandler permissionHandler;
+    private ArmageddonConfiguration config;
+    private ArmageddonPermissionHandler permissionHandler;
 
     private Hashtable<Integer, Grenade> grenadesFired;
     private List<Location> nuclearExplosions;
@@ -111,20 +111,20 @@ public class CannonBallPlugin extends BukkitPlugin {
         bulletsFired = new Hashtable<Integer, Integer>();
         blockShotAt = new Hashtable<Integer, Block>();
 
-        config = new CBConfiguration(this);
-        permissionHandler = new CBPermissionHandler(this);
+        config = new ArmageddonConfiguration(this);
+        permissionHandler = new ArmageddonPermissionHandler(this);
 
         loadCannonsFile();
 
         PluginManager pm = getServer().getPluginManager();
 
-        CBBlockListener blockListener = new CBBlockListener(this);
+        ArmageddonBlockListener blockListener = new ArmageddonBlockListener(this);
 
         pm.registerEvent(Event.Type.BLOCK_DISPENSE, blockListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
         pm.registerEvent(Event.Type.BLOCK_FROMTO, blockListener, Priority.Monitor, this);
 
-        CBPlayerListener playerListener = new CBPlayerListener(this);
+        ArmageddonPlayerListener playerListener = new ArmageddonPlayerListener(this);
 
         pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, playerListener, Priority.Highest, this);
@@ -135,7 +135,7 @@ public class CannonBallPlugin extends BukkitPlugin {
         pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Priority.Monitor, this);
 
-        CBEntityListener entityListener = new CBEntityListener(this);
+        ArmageddonEntityListener entityListener = new ArmageddonEntityListener(this);
 
         pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Priority.Highest, this);
@@ -371,7 +371,7 @@ public class CannonBallPlugin extends BukkitPlugin {
     }
 
     public Gun getDefaultGun() {
-        return CBConfiguration.DEFAULT_GUN;
+        return ArmageddonConfiguration.DEFAULT_GUN;
     }
 
     public void showCannonData(Player player) {
@@ -379,11 +379,11 @@ public class CannonBallPlugin extends BukkitPlugin {
         MessageUtils.send(player, cannon.toString());
     }
 
-    public CBConfiguration getConfig() {
+    public ArmageddonConfiguration getConfig() {
         return config;
     }
 
-    public CBPermissionHandler getPermissionHandler() {
+    public ArmageddonPermissionHandler getPermissionHandler() {
         return permissionHandler;
     }
 
@@ -466,7 +466,7 @@ public class CannonBallPlugin extends BukkitPlugin {
 
     public Grenade getGrenade(Entity projectile) {
         if (!isGrenade(projectile)) {
-            return CBConfiguration.DEFAULT_GRENADE;
+            return ArmageddonConfiguration.DEFAULT_GRENADE;
         }
 
         return grenadesFired.get(projectile.getEntityId());
@@ -692,9 +692,9 @@ public class CannonBallPlugin extends BukkitPlugin {
                 for (BlockFace dir : Arrays.asList(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.DOWN)) {
                     Block neighbor = target.getRelative(dir);
                     if (!blocks.contains(neighbor)) {
-                        if (CBConfiguration.MELTABLE.contains(neighbor.getType())) {
+                        if (ArmageddonConfiguration.MELTABLE.contains(neighbor.getType())) {
                             neighbor.setType(Material.LAVA);
-                        } else if (CBConfiguration.BURNABLE.contains(neighbor.getType())) {
+                        } else if (ArmageddonConfiguration.BURNABLE.contains(neighbor.getType())) {
                             neighbor.setType(Material.FIRE);
                         }
                     }

@@ -21,28 +21,27 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball.tasks;
+package com.iminurnetz.bukkit.plugin.armageddon.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 
-import com.iminurnetz.bukkit.plugin.cannonball.CannonBallPlugin;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
+import com.iminurnetz.bukkit.plugin.armageddon.ArmageddonPlugin;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Gun;
 import com.iminurnetz.bukkit.util.InventoryUtil;
 import com.iminurnetz.bukkit.util.LocationUtil;
 
 public class GatlinBurst implements Runnable {
 
     private final Player player;
-    private final CannonBallPlugin plugin;
+    private final ArmageddonPlugin plugin;
 
-    public GatlinBurst(Player player, CannonBallPlugin plugin) {
+    public GatlinBurst(Player player, ArmageddonPlugin plugin) {
         this.player = player;
         this.plugin = plugin;
     }

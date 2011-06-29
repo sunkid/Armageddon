@@ -21,7 +21,7 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball.listeners;
+package com.iminurnetz.bukkit.plugin.armageddon.listeners;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -42,18 +42,17 @@ import org.bukkit.event.block.BlockListener;
 import org.bukkit.material.Dispenser;
 import org.bukkit.util.Vector;
 
-import com.iminurnetz.bukkit.plugin.cannonball.CBConfiguration;
-import com.iminurnetz.bukkit.plugin.cannonball.Cannon;
-import com.iminurnetz.bukkit.plugin.cannonball.CannonBallPlugin;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade.Type;
+import com.iminurnetz.bukkit.plugin.armageddon.ArmageddonPlugin;
+import com.iminurnetz.bukkit.plugin.armageddon.Cannon;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade.Type;
 import com.iminurnetz.bukkit.util.MaterialUtils;
 
-public class CBBlockListener extends BlockListener {
+public class ArmageddonBlockListener extends BlockListener {
 
-    private final CannonBallPlugin plugin;
+    private final ArmageddonPlugin plugin;
 
-    public CBBlockListener(CannonBallPlugin plugin) {
+    public ArmageddonBlockListener(ArmageddonPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -144,6 +143,7 @@ public class CBBlockListener extends BlockListener {
 
                 case TNT:
                     entity = world.spawn(location, TNTPrimed.class);
+                    ((TNTPrimed) entity).setFuseTicks(cannon.getFuse());
                     break;
 
                 case EXPLOSIVE:

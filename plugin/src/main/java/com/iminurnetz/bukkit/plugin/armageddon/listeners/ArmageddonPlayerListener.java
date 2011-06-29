@@ -21,7 +21,7 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball.listeners;
+package com.iminurnetz.bukkit.plugin.armageddon.listeners;
 
 import java.util.Date;
 import java.util.List;
@@ -54,28 +54,26 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
-import com.iminurnetz.bukkit.plugin.cannonball.CBConfiguration;
-import com.iminurnetz.bukkit.plugin.cannonball.Cannon;
-import com.iminurnetz.bukkit.plugin.cannonball.CannonBallPlugin;
-import com.iminurnetz.bukkit.plugin.cannonball.PlayerSettings;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade.Type;
-import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
-import com.iminurnetz.bukkit.plugin.cannonball.tasks.GatlinBurst;
+import com.iminurnetz.bukkit.plugin.armageddon.ArmageddonConfiguration;
+import com.iminurnetz.bukkit.plugin.armageddon.ArmageddonPlugin;
+import com.iminurnetz.bukkit.plugin.armageddon.Cannon;
+import com.iminurnetz.bukkit.plugin.armageddon.PlayerSettings;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade.Type;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Gun;
+import com.iminurnetz.bukkit.plugin.armageddon.tasks.GatlinBurst;
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.util.InventoryUtil;
 import com.iminurnetz.bukkit.util.LocationUtil;
 
-public class CBPlayerListener extends PlayerListener {
+public class ArmageddonPlayerListener extends PlayerListener {
 
-    private final CannonBallPlugin plugin;
-    private final CBConfiguration config;
+    private final ArmageddonPlugin plugin;
+    private final ArmageddonConfiguration config;
 
-    public CBPlayerListener(CannonBallPlugin plugin) {
+    public ArmageddonPlayerListener(ArmageddonPlugin plugin) {
         this.plugin = plugin;
         config = plugin.getConfig();
     }
@@ -109,7 +107,7 @@ public class CBPlayerListener extends PlayerListener {
             switch (material) {
 
                 case AIR:
-                    if (plugin.getPermissionHandler().canDisplay(player)) {
+                    if (plugin.getPermissionHandler().canDisplay(player)) {                        
                         Cannon cannon = plugin.getCannon(block, false);
                         if (cannon == null) {
                             MessageUtils.send(player, "This is a normal dispenser not configured as a cannon");
@@ -148,7 +146,7 @@ public class CBPlayerListener extends PlayerListener {
                         MessageUtils.send(player, ChatColor.GREEN, "This dispenser no longer is a cannon!");
                         event.setCancelled(true);
                     } else {
-                        Cannon cannon = plugin.getCannon(block, true);
+                        Cannon cannon = plugin.getCannon(block, false);
                         MessageUtils.send(player, ChatColor.GREEN, "This dispenser is now a cannon!");
                         if (plugin.getPermissionHandler().canDisplay(player)) {
                             MessageUtils.send(player, ChatColor.GREEN, cannon.toString());
@@ -278,6 +276,7 @@ public class CBPlayerListener extends PlayerListener {
                 case TNT:
                     entity = world.spawn(handLocation, TNTPrimed.class);
                     entity.setVelocity(direction.multiply(speedFactor));
+                    ((TNTPrimed) entity).setFuseTicks(plugin.getCannon(player).getFuse());
                     break;
 
                 case PIG:

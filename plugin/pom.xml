@@ -3,10 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.iminurnetz</groupId>
   <artifactId>bukkit.cannonball-plugin</artifactId>
-  <name>CannonBall</name>
+  <name>Armageddon</name>
   <version>2.0</version>
   <packaging>jar</packaging>
-  <description>CannonBall plugin for Bukkit servers</description>
+  <description>Armageddon plugin for Bukkit servers</description>
   <parent>
         <groupId>com.iminurnetz</groupId>
         <artifactId>bukkit.plugin-parent</artifactId>
@@ -122,7 +122,7 @@
     </plugins>
   </build>
   <scm>
-    <url>scm:git:github.com:sunkid/CannonBall.git</url>
-    <connection>scm:git:github.com:sunkid/CannonBall.git</connection>
+    <url>scm:git:github.com:sunkid/Armageddon.git</url>
+    <connection>scm:git:github.com:sunkid/Armageddon.git</connection>
   </scm>
 </project>

@@ -21,20 +21,34 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball.listeners;
+package com.iminurnetz.bukkit.plugin.armageddon;
 
-import org.bukkit.event.CustomEventListener;
-import org.bukkit.event.Event;
+import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Gun;
 
-import com.sycoprime.movecraft.events.MoveCraftMoveEvent;
-import com.sycoprime.movecraft.events.MoveCraftTurnEvent;
+public class PlayerSettings extends UsageTracker {
+    private static final long serialVersionUID = 1L;
+    private Cannon cannon;
+    private Gun gun;
+    
+    public PlayerSettings(Cannon cannon, Gun gun) {
+        super();
+        this.cannon = cannon;
+        this.gun = gun;
+    }
 
-public class MoveCraftListener extends CustomEventListener {
-    public void onCustomEvent(Event event) {
-        if (event instanceof MoveCraftMoveEvent) {
+    public void setCannon(Cannon cannon) {
+        this.cannon = cannon;
+    }
 
-        } else if (event instanceof MoveCraftTurnEvent) {
+    public Cannon getCannon() {
+        return cannon;
+    }
 
-        }
+    public void setGun(Gun gun) {
+        this.gun = gun;
+    }
+
+    public Gun getGun() {
+        return gun;
     }
 }
