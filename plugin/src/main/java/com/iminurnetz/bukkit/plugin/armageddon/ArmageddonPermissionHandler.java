@@ -23,8 +23,6 @@
  */
 package com.iminurnetz.bukkit.plugin.armageddon;
 
-import java.util.logging.Level;
-
 import org.bukkit.entity.Player;
 
 import com.iminurnetz.bukkit.plugin.BukkitPermissionHandler;
@@ -40,11 +38,8 @@ public class ArmageddonPermissionHandler extends BukkitPermissionHandler {
     private static final String GRENADE_NODE = "armageddon.grenades.";
     private static final String GUN_NODE = "armageddon.guns.";
 
-    private final ArmageddonPlugin plugin;
-
     protected ArmageddonPermissionHandler(ArmageddonPlugin plugin) {
         super(plugin);
-        this.plugin = plugin;
     }
     
     public boolean canConfigure(Player player) {
@@ -67,16 +62,5 @@ public class ArmageddonPermissionHandler extends BukkitPermissionHandler {
     public boolean canShoot(Player player, Gun action) {
         String node = action.getType().toString().toLowerCase();
         return hasPermission(player, GUN_NODE + "*") || hasPermission(player, GUN_NODE + node);
-    }
-
-    @Override
-    public boolean hasPermission(Player player, String node) {
-        String oldNode = node.replace("armageddon", "cannonball");
-        if (super.hasPermission(player, oldNode) && !super.hasPermission(player, "*")) {
-            plugin.log(Level.SEVERE, "old permission node found, please change to " + node);
-            return true;
-        }
-
-        return super.hasPermission(player, node);
     }
 }
