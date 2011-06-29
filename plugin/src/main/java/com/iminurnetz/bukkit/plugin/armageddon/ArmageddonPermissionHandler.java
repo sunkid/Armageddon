@@ -72,7 +72,7 @@ public class ArmageddonPermissionHandler extends BukkitPermissionHandler {
     @Override
     public boolean hasPermission(Player player, String node) {
         String oldNode = node.replace("armageddon", "cannonball");
-        if (super.hasPermission(player, oldNode)) {
+        if (super.hasPermission(player, oldNode) && !super.hasPermission(player, "*")) {
             plugin.log(Level.SEVERE, "old permission node found, please change to " + node);
             return true;
         }
