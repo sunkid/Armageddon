@@ -6,37 +6,37 @@
 settings:
     # version of the last update of the config file
     version: 1.3
-    
+
     # the default angle to use [degrees]
     angle: 35
-    
+
     # the default velocity of a cannon [m/s]
     velocity: 2
-    
+
     # the default fuse length [ticks] (not yet implemented)
     fuse: 80
-    
+
     # the time in seconds that certain actions should last (currently applies to
     # snare, stun, and water_balloon)
     stun-time: 10
-    
+
     # The grenades - configure any material to act like a grenade
     #
     # The format is (mandatory parameters marked with a *):
     #    <material>*:
-    #       action*:  one of snare, stun, explosive, tnt, nuclear, molotov, water_balloon,
-    #                 or spider_web (see below)
-    #       yield:    the extent of the grenade's effect (see below for defaults)
-    #       cluster:  when set to a value > 1, this grenade will spawn as many grenades
-    #                 of the same type at the impact location (default 1)
-    #       uses:     how many times can the material be used before it's used up (see
-    #                 below for defaults)
-    #       player:   can be used by a player (default true)
-    #       cannon:   can be used in a cannon (default true)
-    #       cannon-factor: multiplication factor for the yield when shot from a cannon
+    #      action*:  one of snare, stun, explosive, tnt, nuclear, molotov, water_balloon,
+    #                or spider_web (see below)
+    #      yield:    the extent of the grenade's effect (see below for defaults)
+    #      cluster:  when set to a value > 1, this grenade will spawn as many grenades
+    #                of the same type at the impact location (default 1)
+    #      uses:     how many times can the material be used before it's used up (see
+    #                below for defaults)
+    #      player:   can be used by a player (default true)
+    #      cannon:   can be used in a cannon (default true)
+    #      cannon-factor: multiplication factor for the yield when shot from a cannon
     #                      (default 2)
-    #        
-    # Actions and there default parameters listed in parenthesis (yield, uses):
+    #
+    # Actions and their default parameters listed in parenthesis (yield, uses):
     #    snare:     slows down a hit entity as if they were stuck in soul sand and
     #               disables teleporting for players (2, 1)
     #    stun:      completely disables a player or entity for an amount of time (2, 1)
@@ -46,75 +46,75 @@ settings:
     #               lava, and sets nearby vegetation and crafted blocks on fire (8, 1)
     #    molotov:   is basically a fireball (1, 10)
     #    water_balloon: douses any hit entities with water (3, 10)
-    #    spider_web:    entangles any hit entity with a spiderweb (4, 10)
+    #    spider_web: entangles any hit entity with a spiderweb (4, 10)
     #
     # Players have to have the armageddon.grenades.<action> permission as well to use any
     # of these (e.g. 'armageddon.grenades.stun' or 'armageddon.grenades.*')
     grenades:
         soul sand:
             action: snare
-            
+
         clay ball:
             action: stun
-            
+
         slime ball:
             action:  explosive
             cluster: 4 # this determines the number of spawned bombs!
-            
+
         tnt:
             action: tnt
-        
+
         golden apple:
             action:        nuclear
             yield:         8 # that's big!!! make backups and stand back! you have been warned!
             cannon:        false # enable at your own peril!
             cannon-factor: 2 # probably want to be conservative with this!
-        
+
         lava bucket:
             action: molotov
-        
+
         water bucket:
             action: water_balloon
-        
+
         string:
             action: spider_web
 
     # The guns - the material held next to the gun item determines the type of gun.
     #
     # The format is (mandatory parameters marked with a *):
-    #     <type>*:       one of flame_thrower, crossbow, revolver, shotgun, gatlin (see below)
-    #         material*: the material that turns the gun-item defined below into a gun; it is checked from
-    #                    right to left and you have to "reload" (switch item held in hand) to switch guns
-    #         damage:    how much damage this gun's bullets cause
+    #    <type>*:       one of flame_thrower, crossbow, revolver, shotgun, gatlin (see below)
+    #        material*: the material that turns the gun-item defined below into a gun; it is checked from
+    #                   right to left and you have to "reload" (switch item held in hand) to switch guns
+    #        damage:    how much damage this gun's bullets cause
     #
     # where type is one of the following (default damage in hearts listed in parenthesis):
-    #     flame_thrower: spits fire (not applicable)
-    #     crossbow:      shoots arrows, but faster than a bow (2)
-    #     revolver:      your basic six-shooter, need to reload after six shots (3)
-    #     shotgun:       shoots a spray of pellets, need to reload after each shot (1)
-    #     sniper:        semi-automatic, long range rifle (3)
-    #     gatlin:        will rapidly shoot bullets until a second left-click or "reload" (3)
+    #    flame_thrower: spits fire (not yet implemented; damage not applicable)
+    #    crossbow:      shoots arrows, but faster than a bow (2)
+    #    revolver:      your basic six-shooter, need to reload after six shots (3)
+    #    shotgun:       shoots a spray of pellets, need to reload after each shot (1)
+    #    sniper:        semi-automatic, long range rifle (3)
+    #    gatlin:        will rapidly shoot bullets until a second left-click or "reload" (3)
     #
     # Players have to have the armageddon.guns.<action> permission to use any of these (e.g. 'armageddon.guns.crossbow'
     # or 'armageddon.grenades.*')
-    gun-item: bow   # this cannot be configured as a grenade above!
+    gun-item: bow  # this cannot be configured as a grenade above!
     guns:
         flame_thrower:
             material: flint_and_steel
 
         crossbow:
             material: arrow
-            damage:   2 # this is the default damage of an arrow 
+            damage:  2 # this is the default damage of an arrow
 
         revolver:
             material: snow_ball
 
         shotgun:
             material: seeds
-            damage:   0.5 # this is per bullet!
+            damage:  0.5 # this is per bullet!
 
         sniper:
-            material: apple 
+            material: apple
 
         gatlin:
             material: glowstone_dust

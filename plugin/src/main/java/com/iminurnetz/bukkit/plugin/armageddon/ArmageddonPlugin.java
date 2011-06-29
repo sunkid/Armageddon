@@ -733,13 +733,13 @@ public class ArmageddonPlugin extends BukkitPlugin {
                 }
             }
 
+            PlayerSettings settings = getPlayerSettings(player, false);
+
             // out of ammo
             if (gun.getType() == getDefaultGun().getType()) {
-                playerSettings.get(player.getName()).setGun(gun);
+                settings.setGun(gun);
                 return gun;
             }
-
-            PlayerSettings settings = getPlayerSettings(player, false);
 
             // see if we reloaded
             Gun playerGun = settings.getGun();
