@@ -21,35 +21,20 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball;
+package com.iminurnetz.bukkit.plugin.cannonball.listeners;
 
-import java.util.Iterator;
-import java.util.List;
+import org.bukkit.event.CustomEventListener;
+import org.bukkit.event.Event;
 
-import org.bukkit.entity.Player;
+import com.sycoprime.movecraft.events.MoveCraftMoveEvent;
+import com.sycoprime.movecraft.events.MoveCraftTurnEvent;
 
-public class Stunner implements Runnable {
+public class MoveCraftListener extends CustomEventListener {
+    public void onCustomEvent(Event event) {
+        if (event instanceof MoveCraftMoveEvent) {
 
-    private final CannonBallPlugin plugin;
-    
-    public Stunner(CannonBallPlugin plugin) {
-        this.plugin = plugin;
-    }
+        } else if (event instanceof MoveCraftTurnEvent) {
 
-    @Override
-    public void run() {
-        List<StunnedLivingEntity> stunnees = plugin.getTheStunned();
-        synchronized (stunnees) {
-            Iterator<StunnedLivingEntity> i = stunnees.iterator();
-            StunnedLivingEntity e;
-            while (i.hasNext()) {
-                e = i.next();
-                if (e.isStunned() && !(e.getEntity() instanceof Player)) {
-                    e.getEntity().teleport(e.getLocation());
-                } else if (!e.isStunned()) {
-                    i.remove();
-                }
-            }
         }
     }
 }

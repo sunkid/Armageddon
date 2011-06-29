@@ -28,23 +28,27 @@ import java.util.Date;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
-public class StunnedLivingEntity {
-    private Date releaseDate;
+public class TrackedLivingEntity {
+    private Date stunReleaseDate;
+    private Date snareReleaseDate;
+    private Date douseReleaseDate;
 
-    private final Location location;
+    private Location location;
     private final LivingEntity entity;
 
-    public StunnedLivingEntity(LivingEntity entity) {
+    public TrackedLivingEntity(LivingEntity entity) {
         this.entity = entity;
         this.location = entity.getLocation().clone();
 
-        releaseDate = new Date();
+        stunReleaseDate = new Date();
+        snareReleaseDate = new Date();
+        douseReleaseDate = new Date();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof StunnedLivingEntity) {
-            return ((StunnedLivingEntity) o).entity.getUniqueId().equals(entity.getUniqueId());
+        if (o instanceof TrackedLivingEntity) {
+            return ((TrackedLivingEntity) o).entity.getUniqueId().equals(entity.getUniqueId());
         }
 
         return false;
@@ -56,19 +60,43 @@ public class StunnedLivingEntity {
     }
 
     public void stun(int stunTime) {
-        if (!isStunned()) {
-            releaseDate = new Date();
+        hit(stunReleaseDate, stunTime, isStunned());
+    }
+
+    public void snare(int snareTime) {
+        hit(snareReleaseDate, snareTime, isSnared());
+    }
+
+    public void douse(int douseTime) {
+        hit(douseReleaseDate, douseTime, isDoused());
+    }
+
+    private void hit(final Date date, int time, boolean additive) {
+        if (!additive) {
+            date.setTime(new Date().getTime());
         }
 
-        releaseDate.setTime(releaseDate.getTime() + 1000 * stunTime);
+        date.setTime(date.getTime() + 1000 * time);
     }
 
     public boolean isStunned() {
-        return releaseDate.after(new Date());
+        return stunReleaseDate.after(new Date());
+    }
+
+    public boolean isSnared() {
+        return snareReleaseDate.after(new Date());
+    }
+
+    public boolean isDoused() {
+        return douseReleaseDate.after(new Date());
     }
 
     public Location getLocation() {
         return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     public LivingEntity getEntity() {
@@ -76,10 +104,10 @@ public class StunnedLivingEntity {
     }
 
     public Date getReleaseDate() {
-        return releaseDate;
+        return stunReleaseDate;
     }
 
     public void setReleaseDate(Date releaseDate) {
-        this.releaseDate = releaseDate;
+        this.stunReleaseDate = releaseDate;
     }
 }

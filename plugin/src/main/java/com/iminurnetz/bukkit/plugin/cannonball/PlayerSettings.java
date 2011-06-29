@@ -23,13 +23,17 @@
  */
 package com.iminurnetz.bukkit.plugin.cannonball;
 
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
+
 public class PlayerSettings extends UsageTracker {
     private static final long serialVersionUID = 1L;
     private Cannon cannon;
+    private Gun gun;
     
-    public PlayerSettings(Cannon cannon) {
+    public PlayerSettings(Cannon cannon, Gun gun) {
         super();
         this.cannon = cannon;
+        this.gun = gun;
     }
 
     public void setCannon(Cannon cannon) {
@@ -38,5 +42,13 @@ public class PlayerSettings extends UsageTracker {
 
     public Cannon getCannon() {
         return cannon;
+    }
+
+    public void setGun(Gun gun) {
+        this.gun = gun;
+    }
+
+    public Gun getGun() {
+        return gun;
     }
 }

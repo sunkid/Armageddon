@@ -21,78 +21,72 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball;
+package com.iminurnetz.bukkit.plugin.cannonball.arsenal;
 
-public class ArsenalAction {
-    
+public class Grenade {
+
     public enum Type {
-        NOTHING,
-        FISH,
         COW,
         PIG,
         SHEEP,
-        STUN,
-        GRENADE,
-        CLUSTER,
+        DUD,
+        STUN, 
+        SNARE,
+        EXPLOSIVE,
+        TNT,
         NUCLEAR,
         MOLOTOV,
-        FLAME_THROWER,
         WATER_BALLOON,
-        SPIDER_WEB, 
-        LIGHTNING;
+        SPIDER_WEB;
     }
 
     private final Type type;
+    private final int clusterSize;
+    private final float yield;
     private final int uses;
-    private final boolean canPlayerUse;
-    private final boolean canCannonUse;
-    
-    private float yield;
-    private boolean isCannon;
-    
-    public ArsenalAction(Type type, float yield, int uses) {
-        this(type, yield, uses, true, true);
+    private final boolean isPlayerUse;
+    private final boolean isCannonUse;
+    private final int cannonFactor;
+
+    public Grenade(Type type, int clusterSize, float yield) {
+        this(type, clusterSize, yield, 1, true, true, 2);
     }
 
-    public ArsenalAction(Type type, float yield, int uses, boolean canPlayerUse, boolean canCannonUse) {
+    public Grenade(Type type, int clusterSize, float yield, int uses, boolean isPlayerUse, boolean isCannonUse, int cannonFactor) {
         this.type = type;
+        this.clusterSize = clusterSize;
         this.yield = yield;
         this.uses = uses;
-        this.canPlayerUse = canPlayerUse;
-        this.canCannonUse = canCannonUse;
-
-        this.isCannon = false;
+        this.isPlayerUse = isPlayerUse;
+        this.isCannonUse = isCannonUse;
+        this.cannonFactor = cannonFactor;
     }
 
     public Type getType() {
         return type;
     }
 
-    public int getUses() {
-        return uses;
+    public int getClusterSize() {
+        return clusterSize;
     }
 
     public float getYield() {
         return yield;
     }
 
-    public void setYield(float yield) {
-        this.yield = yield;
+    public int getUses() {
+        return uses;
     }
 
-    public boolean canPlayerUse() {
-        return uses > 0 && canPlayerUse;
+    public boolean isPlayerUse() {
+        return isPlayerUse;
     }
 
-    public boolean canCannonUse() {
-        return uses > 0 && canCannonUse;
+    public boolean isCannonUse() {
+        return isCannonUse;
     }
 
-    public boolean isCannon() {
-        return isCannon;
-    }
-
-    public void setCannon(boolean isCannon) {
-        this.isCannon = isCannon;
+    public int getCannonFactor() {
+        return cannonFactor;
     }
 }

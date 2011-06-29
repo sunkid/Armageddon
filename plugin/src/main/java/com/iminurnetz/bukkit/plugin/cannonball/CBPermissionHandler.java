@@ -26,6 +26,8 @@ package com.iminurnetz.bukkit.plugin.cannonball;
 import org.bukkit.entity.Player;
 
 import com.iminurnetz.bukkit.plugin.BukkitPermissionHandler;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade;
 
 public class CBPermissionHandler extends BukkitPermissionHandler {
 
@@ -33,7 +35,8 @@ public class CBPermissionHandler extends BukkitPermissionHandler {
     private static final String CAN_DISPLAY = "cannonball.display";
     private static final String CAN_TOGGLE = "cannonball.toggle";
     
-    private static final String ARSENAL_NODE = "cannonball.arsenal.";
+    private static final String GRENADE_NODE = "cannonball.grenades.";
+    private static final String GUN_NODE = "cannonball.guns.";
 
     protected CBPermissionHandler(CannonBallPlugin plugin) {
         super(plugin);
@@ -51,8 +54,13 @@ public class CBPermissionHandler extends BukkitPermissionHandler {
         return hasPermission(player, CAN_TOGGLE) || canConfigure(player);
     }
     
-    public boolean canEffect(Player player, ArsenalAction action) {
+    public boolean canEffect(Player player, Grenade action) {
         String node = action.getType().toString().toLowerCase();
-        return hasPermission(player, ARSENAL_NODE + "*") || hasPermission(player, ARSENAL_NODE + node);
+        return hasPermission(player, GRENADE_NODE + "*") || hasPermission(player, GRENADE_NODE + node);
+    }
+
+    public boolean canShoot(Player player, Gun action) {
+        String node = action.getType().toString().toLowerCase();
+        return hasPermission(player, GUN_NODE + "*") || hasPermission(player, GUN_NODE + node);
     }
 }

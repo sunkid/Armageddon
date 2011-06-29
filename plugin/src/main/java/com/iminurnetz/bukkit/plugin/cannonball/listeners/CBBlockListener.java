@@ -21,7 +21,7 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball;
+package com.iminurnetz.bukkit.plugin.cannonball.listeners;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,17 +30,24 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.material.Dispenser;
 import org.bukkit.util.Vector;
 
-import com.iminurnetz.bukkit.plugin.cannonball.ArsenalAction.Type;
+import com.iminurnetz.bukkit.plugin.cannonball.CBConfiguration;
+import com.iminurnetz.bukkit.plugin.cannonball.Cannon;
+import com.iminurnetz.bukkit.plugin.cannonball.CannonBallPlugin;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade.Type;
+import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class CBBlockListener extends BlockListener {
 
@@ -69,15 +76,14 @@ public class CBBlockListener extends BlockListener {
             }
 
             Material material = event.getItem().getType();
-            ArsenalAction action = plugin.getConfig().getAction(material);
 
-            plugin.log("Material: " + material + ", action: " + action.getType() + ", " + action.canCannonUse());
+            Grenade grenade = plugin.getConfig().getGrenade(material);
 
-            if (action.getType() == Type.NOTHING || !action.canCannonUse()) {
+            plugin.log("Material: " + material + ", action: " + grenade.getType() + ", " + grenade.isCannonUse());
+
+            if (grenade.getType() == Type.DUD || !grenade.isCannonUse()) {
                 return;
             }
-
-            action.setCannon(true);
 
             Dispenser dispenser = (Dispenser) block.getType().getNewData(block.getData());
 
@@ -123,31 +129,30 @@ public class CBBlockListener extends BlockListener {
 
             Location locClone = location.clone();
 
-            switch (action.getType()) {
-
-                case GRENADE:
-                    entity = world.spawn(location, TNTPrimed.class);
-                    break;
-
-                case CLUSTER:
-                case NUCLEAR:
-                case WATER_BALLOON:
-                case SPIDER_WEB:
-                case LIGHTNING:
-                case STUN:
-                    entity = world.spawn(location, Snowball.class);
-                    break;
-
+            switch (grenade.getType()) {
                 case PIG:
                     entity = world.spawn(location, Pig.class);
+                    break;
+
+                case COW:
+                    entity = world.spawn(location, Cow.class);
                     break;
 
                 case SHEEP:
                     entity = world.spawn(location, Sheep.class);
                     break;
 
-                case COW:
-                    entity = world.spawn(location, Cow.class);
+                case TNT:
+                    entity = world.spawn(location, TNTPrimed.class);
+                    break;
+
+                case EXPLOSIVE:
+                case NUCLEAR:
+                case WATER_BALLOON:
+                case SPIDER_WEB:
+                case SNARE:
+                case STUN:
+                    entity = world.spawn(location, Snowball.class);
                     break;
 
                 case MOLOTOV:
@@ -156,9 +161,8 @@ public class CBBlockListener extends BlockListener {
                     entity = world.spawn(locClone, Fireball.class);
                     break;
 
-                case FLAME_THROWER: // TODO do something
                 default:
-
+                    return;
             }
 
             plugin.log("projectile: " + entity);
@@ -168,12 +172,22 @@ public class CBBlockListener extends BlockListener {
                     entity.setVelocity(initialVelocity);
                 }
 
-                plugin.registerShot(entity, action);
-                plugin.adjustInventoryAndUsage(((org.bukkit.block.Dispenser) block.getState()).getInventory(), cannon, material, action.getUses());
+                if (!(entity instanceof LivingEntity)) {
+                    plugin.registerGrenade(entity, grenade);
+                }
+
+                plugin.adjustInventoryAndUsage(((org.bukkit.block.Dispenser) block.getState()).getInventory(), cannon, material, grenade.getUses());
 
                 event.setCancelled(true);
                 world.createExplosion(location, 0);
             }
+        }
+    }
+
+    @Override
+    public void onBlockFromTo(BlockFromToEvent event) {
+        if (MaterialUtils.isWater(event.getBlock().getType())) {
+            plugin.addBlockFlow(event.getBlock(), event.getToBlock());
         }
     }
 }

@@ -1,4 +1,4 @@
-CannonBall vb1.2 build 179.20110622
+CannonBall v2.0 build 274.20110628
 
 INSTALL and UPGRADE
 

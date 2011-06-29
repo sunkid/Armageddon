@@ -21,21 +21,26 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball;
+package com.iminurnetz.bukkit.plugin.cannonball.listeners;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.TNTPrimed;
@@ -43,23 +48,36 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
-import com.iminurnetz.bukkit.plugin.cannonball.ArsenalAction.Type;
+import com.iminurnetz.bukkit.plugin.cannonball.CBConfiguration;
+import com.iminurnetz.bukkit.plugin.cannonball.Cannon;
+import com.iminurnetz.bukkit.plugin.cannonball.CannonBallPlugin;
+import com.iminurnetz.bukkit.plugin.cannonball.PlayerSettings;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade.Type;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
+import com.iminurnetz.bukkit.plugin.cannonball.tasks.GatlinBurst;
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
+import com.iminurnetz.bukkit.util.InventoryUtil;
 import com.iminurnetz.bukkit.util.LocationUtil;
 
 public class CBPlayerListener extends PlayerListener {
 
     private final CannonBallPlugin plugin;
+    private final CBConfiguration config;
 
     public CBPlayerListener(CannonBallPlugin plugin) {
         this.plugin = plugin;
+        config = plugin.getConfig();
     }
 
     @Override
@@ -68,11 +86,27 @@ public class CBPlayerListener extends PlayerListener {
             return;
         }
 
-        Player player = event.getPlayer();
+        final Player player = event.getPlayer();
         Block block = event.getClickedBlock();
+        Material material = player.getItemInHand().getType();
+
+        World world = player.getWorld();
+
+        float pitch = player.getLocation().getPitch();
+        float yaw = player.getLocation().getYaw();
+
+        Location handLocation = LocationUtil.getHandLocation(player);
+        Vector direction = handLocation.getDirection();
+
+        Block blockShotAt = null;
+        List<Block> blockList = player.getLastTwoTargetBlocks(null, 1000);
+        if (blockList.size() == 2) {
+            blockShotAt = blockList.get(1);
+        }
+
         if (event.getAction() == Action.LEFT_CLICK_BLOCK && block.getType() == Material.DISPENSER) {
 
-            switch (player.getItemInHand().getType()) {
+            switch (material) {
 
                 case AIR:
                     if (plugin.getPermissionHandler().canDisplay(player)) {
@@ -124,36 +158,99 @@ public class CBPlayerListener extends PlayerListener {
                     break;
 
             }
-        } else if (event.getAction() == Action.LEFT_CLICK_AIR) {
-            Material material = player.getItemInHand().getType();
-            ArsenalAction action = plugin.getConfig().getAction(material);
-
-            if (action.getType() == Type.NOTHING || 
-                    !action.canPlayerUse() || !plugin.getPermissionHandler().canEffect(player, action)) {
+        } else if (event.getAction() == Action.LEFT_CLICK_AIR && config.isGunItem(material)) {
+            Gun gun = plugin.getGun(player);
+            
+            if (gun.getType() == Gun.Type.TOY || !plugin.getPermissionHandler().canShoot(player, gun)) {
                 return;
             }
 
-            action.setCannon(false);
+            Entity entity = null;
+            switch (gun.getType()) {
+                case CROSSBOW:
+                    entity = world.spawn(handLocation, Arrow.class);
+                    entity.setVelocity(direction.multiply(3));
+                    world.playEffect(handLocation, Effect.BOW_FIRE, 0);
+                    break;
 
-            Vector v = LocationUtil.getHandLocation(player);
-            World world = player.getWorld();
+                case REVOLVER:
+                    if (gun.getShotsFired() < 6) {
+                        gun.fire();
+                        entity = world.spawn(handLocation, Snowball.class);
+                        entity.setVelocity(direction.multiply(3));
+                    }
+                    break;
+                    
+                case SHOTGUN:
+                    if (gun.getShotsFired() < 1) {
+                        gun.fire();
 
-            float pitch = player.getLocation().getPitch();
-            float yaw = player.getLocation().getYaw();
+                        Location loc = handLocation.clone();
+                        Random random = new Random((long) loc.lengthSquared() * new Date().getTime());
 
-            Location handLocation = new Location(world, v.getX(), v.getY(), v.getZ(), yaw, pitch);
-            Vector direction = handLocation.getDirection();
+                        for (int n = 0; n < 20; n++) {
+                            Snowball pellet = world.spawn(handLocation, Snowball.class);
+                            pellet.setShooter(player);
+                            loc.setPitch((float) (pitch + nextRandom(random)));
+                            loc.setYaw((float) (yaw + nextRandom(random)));
+                            Vector d = loc.getDirection();
+                            pellet.setVelocity(d.multiply(4));
+                            plugin.registerGunShot(pellet, gun, blockShotAt);
+                        }
+                        world.createExplosion(handLocation, 0);
+                        InventoryUtil.removeItemNearItemHeldInHand(player, gun.getBulletMaterial());
+                    }
+                    break;
+
+                case SNIPER:
+                    entity = world.spawn(handLocation, Snowball.class);
+                    entity.setVelocity(direction.multiply(8));
+                    break;
+
+                case GATLIN:
+                    if (gun.getShotsFired() > 0) {
+                        gun.setShotsFired(0);
+                        return;
+                    }
+
+                    gun.fire();
+                    new Thread(new GatlinBurst(player, plugin)).start();
+                    break;
+
+                case FLAME_THROWER:
+                default:
+                    plugin.log(Level.SEVERE, "Gun not implemented: " + gun.getType());
+                    return;
+            }
+
+            if (entity != null) {
+                ((Projectile) entity).setShooter(player);
+                plugin.registerGunShot(entity, gun, blockShotAt);
+                if (entity instanceof Snowball) {
+                    world.createExplosion(handLocation, 0);
+                }
+
+                InventoryUtil.removeItemNearItemHeldInHand(player, gun.getBulletMaterial());
+            }
+
+        } else if (event.getAction() == Action.LEFT_CLICK_AIR) {
+            Grenade grenade = config.getGrenade(material);
+
+            if (grenade.getType() == Type.DUD || !grenade.isPlayerUse() || !plugin.getPermissionHandler().canEffect(player, grenade)) {
+                return;
+            }
 
             Entity entity = null;
 
             double speedFactor = 1.5;
 
-            switch (action.getType()) {
+            switch (grenade.getType()) {
 
                 case MOLOTOV:
                     entity = world.spawn(handLocation, Fireball.class);
                     break;
 
+                /*
                 case LIGHTNING:
                     List<Block> targetBlocks = player.getLastTwoTargetBlocks(null, 500);
                     if (targetBlocks.size() == 2) {
@@ -165,24 +262,22 @@ public class CBPlayerListener extends PlayerListener {
 
                         updateInventory(player, material, action);
                     }
-                    break;
-
-                case CLUSTER:
+                    break; 
+                */
+                
+                case SNARE:
+                case STUN:
+                case EXPLOSIVE:
                 case NUCLEAR:
                 case WATER_BALLOON:
                 case SPIDER_WEB:
-                case STUN:
                     entity = world.spawn(handLocation, Snowball.class);
                     entity.setVelocity(direction.multiply(speedFactor));
                     break;
 
-                case GRENADE:
+                case TNT:
                     entity = world.spawn(handLocation, TNTPrimed.class);
                     entity.setVelocity(direction.multiply(speedFactor));
-                    break;
-
-                case FISH:
-
                     break;
 
                 case PIG:
@@ -200,22 +295,26 @@ public class CBPlayerListener extends PlayerListener {
                     entity.setVelocity(direction.multiply(speedFactor));
                     break;
 
-                case FLAME_THROWER: // TODO
-                case NOTHING:
+                case DUD:
                 default:
                     return;
             }
 
             if (entity != null) {
-                plugin.registerShot(entity, action);
-                updateInventory(player, material, action);
+                plugin.registerGrenade(entity, grenade);
+                updateInventory(player, material, grenade.getUses());
             }
         }
     }
 
-    private void updateInventory(Player player, Material material, ArsenalAction action) {
+    private double nextRandom(Random random) {
+        double factor = 3;
+        return random.nextDouble() * factor - random.nextDouble() * factor;
+    }
+
+    private void updateInventory(Player player, Material material, int uses) {
         PlayerSettings settings = plugin.getPlayerSettings(player, false);
-        if (plugin.adjustInventoryAndUsage(player.getInventory(), settings, material, action.getUses())) {
+        if (plugin.adjustInventoryAndUsage(player.getInventory(), settings, material, uses)) {
             player.updateInventory();
         }
     }
@@ -248,5 +347,14 @@ public class CBPlayerListener extends PlayerListener {
     @Override
     public void onPlayerPortal(PlayerPortalEvent event) {
         plugin.doCancelIfNeccessary(event);
+    }
+
+    @Override
+    public void onItemHeldChange(PlayerItemHeldEvent event) {
+        Gun gun = plugin.getGun(event.getPlayer());
+        gun.setShotsFired(0);
+        if (gun.getType() != Gun.Type.TOY) {
+            MessageUtils.send(event.getPlayer(), ChatColor.GREEN, "locked and loaded");
+        }
     }
 }

@@ -21,10 +21,16 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.cannonball;
+package com.iminurnetz.bukkit.plugin.cannonball.listeners;
 
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityDamageByProjectileEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -34,6 +40,11 @@ import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Attachable;
+
+import com.iminurnetz.bukkit.plugin.cannonball.CannonBallPlugin;
+import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class CBEntityListener extends EntityListener {
 
@@ -48,9 +59,25 @@ public class CBEntityListener extends EntityListener {
         if (e instanceof EntityDamageByProjectileEvent) {
             EntityDamageByProjectileEvent event = (EntityDamageByProjectileEvent) e;
             Projectile projectile = event.getProjectile();
-            if (plugin.wasFired(projectile)) {
-                plugin.goBoom(projectile);
+            if (e.isCancelled()) {
+                plugin.removeGrenade(projectile);
+                plugin.removeBullet(projectile);
+                return;
+            }
+
+            if (plugin.isGrenade(projectile)) {
+                plugin.explodeGrenade(projectile);
                 event.setCancelled(true);
+            } else if (plugin.isBullet(projectile)) {
+                int damage = plugin.getBulletDamage(projectile);
+                // plugin.log("Damaged " + event.getEntity() + " (" + damage + ")");
+                if (event.getEntity() instanceof LivingEntity) {
+                    LivingEntity le = (LivingEntity) event.getEntity();
+                    le.setNoDamageTicks(le.getMaximumNoDamageTicks());
+                    le.setLastDamage(0);
+                }
+                event.setDamage(damage);
+                plugin.removeBullet(projectile);
             }
         }
     }
@@ -64,17 +91,34 @@ public class CBEntityListener extends EntityListener {
         plugin.goNuclear(event.getLocation(), event.blockList());
 
         Entity entity = event.getEntity();
-        if (plugin.wasFired(entity)) {
-            plugin.goBoom(entity);
+        if (plugin.isGrenade(entity)) {
+            plugin.explodeGrenade(entity);
             event.setCancelled(true);
         }
     }
 
     @Override
     public void onProjectileHit(ProjectileHitEvent event) {
-        if (plugin.wasFired(event.getEntity())) {
-            Projectile projectile = (Projectile) event.getEntity();
-            plugin.goBoom(projectile);
+        Projectile projectile = (Projectile) event.getEntity();
+        if (plugin.isGrenade(projectile)) {
+            plugin.explodeGrenade(projectile);
+        } else if (plugin.isBullet(projectile)) {
+            Block block = plugin.getBlockShotAt(projectile);
+            if (block != null) {
+                Material material = block.getType();
+                if (MaterialUtils.isHarvestablePlant(material) || (material.getData() != null && Attachable.class.isAssignableFrom(material.getData())) || material == Material.GLASS) {
+                    BlockBreakEvent e = new BlockBreakEvent(block, (Player) projectile.getShooter());
+                    plugin.getServer().getPluginManager().callEvent(e);
+                    if (!e.isCancelled()) {
+                        BlockState state = block.getState();
+                        block.setType(Material.AIR);
+                        for (ItemStack stack : MaterialUtils.getDroppedMaterial(state)) {
+                            block.getWorld().dropItemNaturally(block.getLocation(), stack);
+                        }
+                    }
+                }
+            }
+            plugin.removeBullet(projectile);
         }
     }
 

@@ -31,13 +31,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -52,39 +53,63 @@ import org.bukkit.entity.Snowball;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginManager;
 
 import com.iminurnetz.bukkit.plugin.BukkitPlugin;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade.Type;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
+import com.iminurnetz.bukkit.plugin.cannonball.listeners.CBBlockListener;
+import com.iminurnetz.bukkit.plugin.cannonball.listeners.CBEntityListener;
+import com.iminurnetz.bukkit.plugin.cannonball.listeners.CBPlayerListener;
+import com.iminurnetz.bukkit.plugin.cannonball.listeners.MoveCraftListener;
+import com.iminurnetz.bukkit.plugin.cannonball.tasks.EntityTracker;
+import com.iminurnetz.bukkit.plugin.cannonball.tasks.WaterTracker;
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.util.BlockLocation;
+import com.iminurnetz.bukkit.util.InventoryUtil;
+import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class CannonBallPlugin extends BukkitPlugin {
 
     private Hashtable<BlockLocation, Cannon> cannons;
     private Hashtable<String, PlayerSettings> playerSettings;
-    private List<StunnedLivingEntity> theStunned;
+    private List<TrackedLivingEntity> trackedEntities;
+    private Hashtable<Integer, WaterTracker> waterTrackers;
+
     private int stunnerTaskId = -1;
 
     private CBConfiguration config;
     private CBPermissionHandler permissionHandler;
 
-    private Hashtable<Integer, ArsenalAction> shotsFired;
+    private Hashtable<Integer, Grenade> grenadesFired;
     private List<Location> nuclearExplosions;
 
-    public static final int CANNON_FILE_VERSION = 1;
+    private Hashtable<Integer, Integer> bulletsFired;
+    private Hashtable<Integer, Block> blockShotAt;
+
+    public static final int CANNON_FILE_VERSION = 2;
 
     @Override
     public void enablePlugin() throws Exception {
 
-        shotsFired = new Hashtable<Integer, ArsenalAction>();
-        theStunned = new ArrayList<StunnedLivingEntity>();
+        grenadesFired = new Hashtable<Integer, Grenade>();
+        trackedEntities = new ArrayList<TrackedLivingEntity>();
+        waterTrackers = new Hashtable<Integer, WaterTracker>();
 
         nuclearExplosions = new ArrayList<Location>();
+
+        bulletsFired = new Hashtable<Integer, Integer>();
+        blockShotAt = new Hashtable<Integer, Block>();
 
         config = new CBConfiguration(this);
         permissionHandler = new CBPermissionHandler(this);
@@ -97,6 +122,7 @@ public class CannonBallPlugin extends BukkitPlugin {
 
         pm.registerEvent(Event.Type.BLOCK_DISPENSE, blockListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
+        pm.registerEvent(Event.Type.BLOCK_FROMTO, blockListener, Priority.Monitor, this);
 
         CBPlayerListener playerListener = new CBPlayerListener(this);
 
@@ -107,6 +133,7 @@ public class CannonBallPlugin extends BukkitPlugin {
         pm.registerEvent(Event.Type.PLAYER_PICKUP_ITEM, playerListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.PLAYER_PORTAL, playerListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Priority.Monitor, this);
 
         CBEntityListener entityListener = new CBEntityListener(this);
 
@@ -118,12 +145,26 @@ public class CannonBallPlugin extends BukkitPlugin {
         pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.CREEPER_POWER, entityListener, Priority.Highest, this);
 
+        if (pm.getPlugin("MoveCraft") != null) {
+            MoveCraftListener moveCraftListener = new MoveCraftListener();
+            pm.registerEvent(Event.Type.CUSTOM_EVENT, moveCraftListener, Priority.Monitor, this);
+        }
+
         log("enabled.");
     }
 
     @Override
     public void onDisable() {
-        cancelStunnerTask();
+        if (stunnerTaskId > 0) {
+            log("Cancelling task " + stunnerTaskId);
+            getServer().getScheduler().cancelTask(stunnerTaskId);
+            stunnerTaskId = -1;
+        }
+
+        for (Integer i : waterTrackers.keySet()) {
+            getServer().getScheduler().cancelTask(i);
+        }
+
         saveCannonsFile();
         log("disabled.");
     }
@@ -152,7 +193,7 @@ public class CannonBallPlugin extends BukkitPlugin {
             }
 
             if (playerSettings.get(player.getName()) == null) {
-                playerSettings.put(player.getName(), new PlayerSettings(getDefaultCannon()));
+                playerSettings.put(player.getName(), new PlayerSettings(getDefaultCannon(), getDefaultGun()));
             }
 
             Cannon cannon = playerSettings.get(player.getName()).getCannon();
@@ -241,7 +282,7 @@ public class CannonBallPlugin extends BukkitPlugin {
                 for (String player : playerSettings.keySet()) {
                     PlayerSettings s = playerSettings.get(player);
                     Cannon c = safeClone(s.getCannon());
-                    playerSettings.put(player, new PlayerSettings(c));
+                    playerSettings.put(player, new PlayerSettings(c, getDefaultGun()));
                 }
             }
         } catch (Exception e) {
@@ -276,7 +317,7 @@ public class CannonBallPlugin extends BukkitPlugin {
         try {
             FileOutputStream fos = new FileOutputStream(cache);
             ObjectOutputStream out = new ObjectOutputStream(fos);
-            out.write(CANNON_FILE_VERSION);
+            out.writeInt(CANNON_FILE_VERSION);
             out.writeObject(cannons);
             out.writeObject(playerSettings);
             out.close();
@@ -312,7 +353,7 @@ public class CannonBallPlugin extends BukkitPlugin {
         synchronized (playerSettings) {
             String name = player.getName();
             if (!playerSettings.containsKey(name)) {
-                playerSettings.put(name, new PlayerSettings(getDefaultCannon()));
+                playerSettings.put(name, new PlayerSettings(getDefaultCannon(), getDefaultGun()));
                 if (alertPlayer) {
                     MessageUtils.send(player, ChatColor.RED, "Default cannon settings used!\n" + getHelpText());
                 }
@@ -329,16 +370,20 @@ public class CannonBallPlugin extends BukkitPlugin {
         return new Cannon(getConfig().getAngle(), getConfig().getVelocity(), getConfig().getFuse());
     }
 
+    public Gun getDefaultGun() {
+        return CBConfiguration.DEFAULT_GUN;
+    }
+
     public void showCannonData(Player player) {
         Cannon cannon = getCannon(player);
         MessageUtils.send(player, cannon.toString());
     }
 
-    protected CBConfiguration getConfig() {
+    public CBConfiguration getConfig() {
         return config;
     }
 
-    protected CBPermissionHandler getPermissionHandler() {
+    public CBPermissionHandler getPermissionHandler() {
         return permissionHandler;
     }
 
@@ -352,64 +397,28 @@ public class CannonBallPlugin extends BukkitPlugin {
         return cannons.containsKey(location);
     }
 
-    public void registerShot(Entity projectile, ArsenalAction action) {
-        shotsFired.put(projectile.getEntityId(), action);
+    public void registerGrenade(Entity projectile, Grenade grenade) {
+        grenadesFired.put(projectile.getEntityId(), grenade);
     }
 
-    public boolean wasFired(Entity projectile) {
-        return projectile != null && shotsFired.containsKey(projectile.getEntityId());
+    public boolean isGrenade(Entity projectile) {
+        return projectile != null && grenadesFired.containsKey(projectile.getEntityId());
     }
 
-    public void stun(Entity entity, double yield) {
-        synchronized (theStunned) {
-            for (Entity e : entity.getNearbyEntities(yield, yield, yield)) {
-                if (!(e instanceof LivingEntity)) {
-                    continue;
-                }
-
-                StunnedLivingEntity stunnee = new StunnedLivingEntity((LivingEntity) e);
-                if (theStunned.contains(stunnee)) {
-                    // log("Now with more stunning!");
-                    stunnee = theStunned.get(theStunned.indexOf(stunnee));
-                } else {
-                    theStunned.add(stunnee);
-                }
-
-                stunnee.stun(config.getStunTime());
-                // log("Stunning " + stunnee.getEntity() + "(" + stunnee.getEntity().getEntityId() + ") until " + stunnee.getReleaseDate());
-            }
-
-            if (theStunned.size() != 0 && stunnerTaskId == -1) {
-                stunnerTaskId = getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Stunner(this), 0, 1);
-                log("Scheduled new task " + stunnerTaskId);
-            }
-        }
+    public List<TrackedLivingEntity> getTrackedEntities() {
+        return trackedEntities;
     }
 
-    public List<StunnedLivingEntity> getTheStunned() {
-        return theStunned;
-    }
-
-    protected void cancelStunnerTask() {
-        log("Cancelling task " + stunnerTaskId);
-        getServer().getScheduler().cancelTask(stunnerTaskId);
-        stunnerTaskId = -1;
-    }
-
-    public boolean isStunned(LivingEntity entity) {
-        return getStunnee(entity) != null;
-    }
-
-    public StunnedLivingEntity getStunnee(LivingEntity entity) {
-        StunnedLivingEntity stunnee = new StunnedLivingEntity(entity);
-        if (theStunned.contains(stunnee)) {
-            return theStunned.get(theStunned.indexOf(stunnee));
+    public TrackedLivingEntity getTrackedEntity(LivingEntity entity) {
+        TrackedLivingEntity victim = new TrackedLivingEntity(entity);
+        if (trackedEntities.contains(victim)) {
+            return trackedEntities.get(trackedEntities.indexOf(victim));
         }
         return null;
     }
 
-    protected boolean doCancelIfNeccessary(Event event) {
-        if (theStunned.size() == 0 || !(event instanceof Cancellable)) {
+    public boolean doCancelIfNeccessary(Event event) {
+        if (trackedEntities.size() == 0 || !(event instanceof Cancellable)) {
             return false;
         }
 
@@ -422,28 +431,45 @@ public class CannonBallPlugin extends BukkitPlugin {
             return false;
         }
 
-        StunnedLivingEntity stunnee = getStunnee(entity);
-        if (stunnee != null) {
+        TrackedLivingEntity victim = getTrackedEntity(entity);
+        if (victim == null) {
+            return false;
+        }
+
+        if (victim.isStunned()) {
             ((Cancellable) event).setCancelled(true);
             if (entity instanceof Player && !(event instanceof PlayerMoveEvent)) {
                 MessageUtils.send((Player) entity, ChatColor.RED, "No can do, you're stunned!");
             } else if (event instanceof PlayerMoveEvent) { // shouldn't have to do this!
                 ((Cancellable) event).setCancelled(false);
-                ((PlayerMoveEvent) event).setTo(stunnee.getLocation());
+                ((PlayerMoveEvent) event).setTo(victim.getLocation());
             }
 
             return true;
+        } else if (victim.isSnared()) {
+            log(entity + " is snared");
+            if (entity instanceof Player && (event instanceof PlayerTeleportEvent || event instanceof PlayerPortalEvent)) {
+                ((Cancellable) event).setCancelled(true);
+                MessageUtils.send((Player) entity, ChatColor.RED, "No can do, you're snared!");
+                return true;
+            } else if (event instanceof PlayerMoveEvent) {
+
+            }
+        }
+
+        if (victim.isDoused()) {
+
         }
 
         return false;
     }
 
-    public ArsenalAction getAction(Entity projectile) {
-        if (!wasFired(projectile)) {
-            return CBConfiguration.DEFAULT_ACTION;
+    public Grenade getGrenade(Entity projectile) {
+        if (!isGrenade(projectile)) {
+            return CBConfiguration.DEFAULT_GRENADE;
         }
 
-        return shotsFired.get(projectile.getEntityId());
+        return grenadesFired.get(projectile.getEntityId());
     }
 
     public boolean adjustInventoryAndUsage(Inventory inventory, UsageTracker settings, Material material, int uses) {
@@ -454,7 +480,11 @@ public class CannonBallPlugin extends BukkitPlugin {
         settings.use(material);
 
         if (settings.getUsage(material) == 0) {
-            inventory.removeItem(new ItemStack(material, 1));
+            if (inventory instanceof PlayerInventory) {
+                InventoryUtil.removeItemNearItemHeldInHand((PlayerInventory) inventory, material);
+            } else {
+                inventory.removeItem(new ItemStack(material, 1));
+            }
             if (material.name().endsWith("_BUCKET")) {
                 inventory.addItem(new ItemStack(Material.BUCKET, 1));
             }
@@ -464,63 +494,63 @@ public class CannonBallPlugin extends BukkitPlugin {
         return false;
     }
 
-    public void removeShot(Entity entity) {
-        shotsFired.remove(entity);
+    public void removeGrenade(Entity entity) {
+        grenadesFired.remove(entity);
     }
 
-    protected void goBoom(Entity entity) {
-        if (!wasFired(entity)) {
+    public void explodeGrenade(Entity entity) {
+        if (!isGrenade(entity)) {
             return;
         }
 
         float yield = 0;
         boolean setFire = false;
 
-        ArsenalAction action = getAction(entity);
+        Grenade grenade = getGrenade(entity);
+        if (grenade.getClusterSize() == 0) {
+            return;
+        }
+
         Location loc = entity.getLocation();
         // log("Action: " + action.getType() + ", " + action.getYield());
-        removeShot(entity);
+        removeGrenade(entity);
 
         Location locClone = loc.clone();
 
         World world = entity.getWorld();
 
-        switch (action.getType()) {
+        switch (grenade.getType()) {
+            case WATER_BALLOON:
+                if (grenade.getClusterSize() == 1) {
+                    Set<Block> before = convertSurfaceBlocks(loc, grenade);
+
+                    if (before.size() != 0) {
+                        WaterTracker tracker = new WaterTracker(this, before);
+                        int trackerId = getServer().getScheduler().scheduleSyncDelayedTask(this, tracker, 120);
+                        tracker.setId(trackerId);
+                        waterTrackers.put(trackerId, tracker);
+                    }
+                }
+
+            case SNARE:
             case STUN:
-                stun(entity, action.getYield());
+                if (grenade.getClusterSize() == 1) {
+                    strike(entity, grenade);
+                }
                 break;
 
-            case GRENADE:
-                yield = action.getYield();
-                break;
-
-            case CLUSTER:
-                Snowball cb;
-                Random random = new Random((long) (loc.lengthSquared() * loc.getPitch() * loc.getYaw()));
-
-                ArsenalAction cbAction = config.getAction(ArsenalAction.Type.GRENADE);
-                if (cbAction.getType() == ArsenalAction.Type.NOTHING) {
-                    cbAction = new ArsenalAction(ArsenalAction.Type.GRENADE, config.getDefaultYield(ArsenalAction.Type.GRENADE), 1);
-                }
-                
-                locClone.setPitch(-45);
-                int y = (int) action.getYield() * (action.isCannon() ? config.getCannonFactor() : 1);
-
-                for (int n = 0; n < y; n++) {
-                    locClone.setYaw(random.nextFloat() * 360);
-                    cb = world.spawn(loc, Snowball.class);
-                    cb.setVelocity(locClone.getDirection().multiply(random.nextDouble()));
-                    registerShot(cb, cbAction);
-                }
+            case TNT:
+            case EXPLOSIVE:
+                yield = grenade.getYield();
                 break;
 
             case MOLOTOV:
-                yield = action.getYield();
+                yield = grenade.getYield();
                 setFire = true;
                 break;
 
             case NUCLEAR:
-                yield = action.getYield();
+                yield = grenade.getYield();
                 setFire = true;
                 locClone.setPitch(0);
                 locClone.setYaw(0);
@@ -528,34 +558,135 @@ public class CannonBallPlugin extends BukkitPlugin {
                 break;
 
             case SPIDER_WEB:
-                world.playEffect(loc, Effect.EXTINGUISH, 0);
-                // TODO: turn all air blocks around impact area to webs
+                if (grenade.getClusterSize() == 1) {
+                    convertSurfaceBlocks(loc, grenade);
+                }
                 break;
 
-            case FLAME_THROWER:
-                world.playEffect(loc, Effect.EXTINGUISH, 0);
-                // TODO: light'er up!
-                break;
-
-            case WATER_BALLOON:
-                world.playEffect(loc, Effect.EXTINGUISH, 0);
-                // TODO: splash!
-                break;
-
-            case LIGHTNING:
-            case NOTHING:
             default:
                 return;
         }
 
-        if (action.isCannon()) {
-            yield *= config.getCannonFactor();
+        if (grenade.getClusterSize() > 1) {
+            Random random = new Random((long) (loc.lengthSquared() * loc.getPitch() * loc.getYaw()));
+            Grenade g = new Grenade(grenade.getType(), 1, grenade.getYield());
+            for (int n = 0; n < grenade.getClusterSize(); n++) {
+                locClone.setPitch(-45);
+                locClone.setYaw(random.nextFloat() * 360);
+                Snowball cb = world.spawn(loc, Snowball.class);
+                cb.setVelocity(locClone.getDirection().multiply(random.nextDouble() * .6));
+                registerGrenade(cb, g);
+            }
+            yield = 0;
+            setFire = false;
         }
 
         world.createExplosion(entity.getLocation(), yield, setFire);
+
     }
 
-    protected void goNuclear(Location location, List<Block> blocks) {
+    private Set<Block> convertSurfaceBlocks(Location loc, Grenade grenade) {
+        Material material = grenade.getType() == Type.WATER_BALLOON ? Material.WATER : Material.WEB;
+        Set<Block> changedSet = new HashSet<Block>();
+        for (Block block : getSurfaceBlocks(loc, grenade.getYield())) {
+            if (MaterialUtils.isWater(block.getRelative(BlockFace.DOWN).getType())) {
+                continue;
+            }
+
+            BlockCanBuildEvent e = new BlockCanBuildEvent(block, material.getId(), true);
+            getServer().getPluginManager().callEvent(e);
+            if (e.isBuildable()) {
+                changedSet.add(block);
+                block.setType(material);
+            }
+
+        }
+
+        return changedSet;
+    }
+
+    public void strike(Entity entity, Grenade grenade) {
+        float yield = grenade.getYield();
+        synchronized (trackedEntities) {
+            for (Entity e : entity.getNearbyEntities(yield, yield, yield)) {
+                if (!(e instanceof LivingEntity)) {
+                    continue;
+                }
+
+                TrackedLivingEntity victim = new TrackedLivingEntity((LivingEntity) e);
+                if (trackedEntities.contains(victim)) {
+                    // log("Now with more stunning!");
+                    victim = trackedEntities.get(trackedEntities.indexOf(victim));
+                } else {
+                    trackedEntities.add(victim);
+                }
+
+                log("Inflicting " + grenade.getType() + " on " + e);
+                switch (grenade.getType()) {
+                    case SNARE:
+                        victim.snare(config.getStunTime());
+                        break;
+
+                    case STUN:
+                        victim.stun(config.getStunTime());
+                        break;
+
+                    case WATER_BALLOON:
+                        // victim.douse(config.getStunTime());
+                        break;
+                }
+            }
+
+            if (trackedEntities.size() != 0 && stunnerTaskId == -1) {
+                stunnerTaskId = getServer().getScheduler().scheduleAsyncRepeatingTask(this, new EntityTracker(this), 0, 1);
+                log("Scheduled new task " + stunnerTaskId);
+            }
+        }
+    }
+
+    // return all surface blocks in a sphere with diameter yield around location
+    private Set<Block> getSurfaceBlocks(Location location, float yield) {
+        Set<Block> blocks = new HashSet<Block>();
+        Block hitBlock = location.getBlock();
+        addSurfaceBlocks(hitBlock, location, yield, blocks, new HashSet<Block>());
+        return blocks;
+    }
+
+    // recursively add surface blocks to a set if they are within distance
+    private void addSurfaceBlocks(final Block block, Location location, float distance, Set<Block> blocks, Set<Block> visited) {
+        if (visited.contains(block) || block.getLocation().distance(location) > distance) {
+            return;
+        }
+
+        searchUpDown(block, location, distance, blocks, visited, BlockFace.DOWN);
+        searchUpDown(block, location, distance, blocks, visited, BlockFace.UP);
+        visited.add(block);
+
+        for (BlockFace face : Arrays.asList(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST)) {
+            Block b = block.getRelative(face);
+            addSurfaceBlocks(b, location, distance, blocks, visited);
+        }
+
+    }
+
+    private void searchUpDown(final Block block, Location location, float distance, Set<Block> blocks, Set<Block> visited, BlockFace direction) {
+        Material m = block.getType();
+        Block b = block;
+        boolean didSearch = false;
+
+        while (m == Material.AIR && b.getLocation().distance(location) < distance) {
+            b = b.getRelative(direction);
+            m = b.getType();
+            visited.add(b);
+            didSearch = true;
+        }
+
+        if (m != Material.AIR && didSearch) {
+            blocks.add(b.getRelative(direction.getOppositeFace()));
+        }
+    }
+
+    public void goNuclear(Location location, List<Block> blocks) {
         if (nuclearExplosions.remove(location)) {
             for (Block target : blocks) {
                 for (BlockFace dir : Arrays.asList(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.DOWN)) {
@@ -571,4 +702,85 @@ public class CannonBallPlugin extends BukkitPlugin {
             }
         }
     }
+
+    public void removeWaterTracker(int trackerId) {
+        waterTrackers.remove(trackerId);
+    }
+
+    public void addBlockFlow(Block from, Block to) {
+        synchronized (waterTrackers) {
+            for (Integer i : waterTrackers.keySet()) {
+                waterTrackers.get(i).addBlock(from, to);
+            }
+        }
+    }
+
+    public Gun getGun(Player player) {
+        Gun gun = getDefaultGun();
+        if (getConfig().isGunItem(player.getItemInHand().getType())) {
+            PlayerInventory inv = player.getInventory();
+            if (inv.getHeldItemSlot() < 8) {
+                ItemStack i = inv.getItem(inv.getHeldItemSlot() + 1);
+                if (i != null) {
+                    gun = getConfig().getGun(i.getType());
+                }
+            }
+
+            if ((gun.getType() == getDefaultGun().getType() || !permissionHandler.canShoot(player, gun)) && inv.getHeldItemSlot() > 0) {
+                ItemStack i = inv.getItem(inv.getHeldItemSlot() - 1);
+                if (i != null) {
+                    gun = getConfig().getGun(i.getType());
+                }
+            }
+
+            // out of ammo
+            if (gun.getType() == getDefaultGun().getType()) {
+                playerSettings.get(player.getName()).setGun(gun);
+                return gun;
+            }
+
+            PlayerSettings settings = getPlayerSettings(player, false);
+
+            // see if we reloaded
+            Gun playerGun = settings.getGun();
+            if (playerGun != null && playerGun.getShotsFired() == 0) {
+                playerGun = gun;
+            }
+
+            if (permissionHandler.canShoot(player, gun)) {
+                return gun;
+            }
+        }
+        return getDefaultGun();
+    }
+
+    public void registerGunShot(Entity entity, Gun gun, Block block) {
+        bulletsFired.put(entity.getEntityId(), gun.getDamage());
+        blockShotAt.put(entity.getEntityId(), block);
+    }
+
+    public boolean isBullet(Entity projectile) {
+        return bulletsFired.containsKey(projectile.getEntityId());
+    }
+
+    public void removeBullet(Entity projectile) {
+        removeBullet(projectile.getEntityId());
+    }
+
+    public void removeBullet(Integer i) {
+        bulletsFired.remove(i);
+        blockShotAt.remove(i);
+    }
+
+    public Block getBlockShotAt(Entity projectile) {
+        return blockShotAt.get(projectile.getEntityId());
+    }
+
+    public int getBulletDamage(Entity projectile) {
+        if (isBullet(projectile)) {
+            return bulletsFired.get(projectile.getEntityId());
+        }
+        return 0;
+    }
+
 }

@@ -23,6 +23,7 @@
  */
 package com.iminurnetz.bukkit.plugin.cannonball;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -31,264 +32,205 @@ import java.util.logging.Level;
 
 import org.bukkit.Material;
 
-import com.iminurnetz.bukkit.plugin.cannonball.ArsenalAction.Type;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Gun;
+import com.iminurnetz.bukkit.plugin.cannonball.arsenal.Grenade;
 import com.iminurnetz.bukkit.plugin.util.ConfigurationService;
 import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class CBConfiguration extends ConfigurationService {
 
-    private static final String LAST_CHANGED_IN_VERSION = "1.0";
+    private static final String LAST_CHANGED_IN_VERSION = "1.3";
     private static final String SETTINGS_NODE = "settings";
 
     private static final double DEFAULT_ANGLE = 35;
     private static final double DEFAULT_VELOCITY = 2;
     private static final int DEFAULT_FUSE = 80;
-    private static final int DEFAULT_STUN_TIME = 10;
-    private static final int DEFAULT_CANNON_FACTOR = 2;
-    private static final String ARSENAL_NODE = SETTINGS_NODE + ".arsenal";
 
-    protected static final ArsenalAction DEFAULT_ACTION = new ArsenalAction(Type.NOTHING, 0, 0, false, false);
+    private static final int DEFAULT_STUN_TIME = 10;
+
+    private static final int DEFAULT_CANNON_FACTOR = 2;
+    private static final String GRENADE_NODE = SETTINGS_NODE + ".grenades";
+
+    private static final String GUN_ITEM_NODE = SETTINGS_NODE + ".gun-item";
+    private static final String GUNS_NODE = SETTINGS_NODE + ".guns";
+
+    protected static final Grenade DEFAULT_GRENADE = new Grenade(Grenade.Type.DUD, 0, 0);
+    protected static final Gun DEFAULT_GUN = new Gun(Gun.Type.TOY, Material.AIR, 0);
 
     private final CannonBallPlugin plugin;
 
-    private final Hashtable<Material, ArsenalAction> arsenal;
-    
-    public static List<Material> MELTABLE = Arrays.asList(
-            Material.STONE,
-            Material.GRASS,
-            Material.DIRT,
-            Material.COBBLESTONE,
-            Material.SAPLING,
-            Material.WATER,
-            Material.SAND,
-            Material.GRAVEL,
-            Material.GOLD_ORE,
-            Material.IRON_ORE,
-            Material.COAL_ORE,
-            Material.LAPIS_ORE,
-            Material.LAPIS_BLOCK,
-            Material.DISPENSER,
-            Material.SANDSTONE,
-            Material.NOTE_BLOCK,
-            Material.GOLD_BLOCK,
-            Material.IRON_BLOCK,
-            Material.DOUBLE_STEP,
-            Material.STEP,
-            Material.BRICK,
-            Material.MOSSY_COBBLESTONE,
-            Material.OBSIDIAN,
-            Material.DIAMOND_ORE,
-            Material.DIAMOND_BLOCK,
-            Material.SOIL,
-            Material.COBBLESTONE_STAIRS,
-            Material.STONE_PLATE,
-            Material.IRON_DOOR_BLOCK,
-            Material.REDSTONE_ORE,
-            Material.GLOWING_REDSTONE_ORE,
-            Material.CLAY,
-            Material.NETHERRACK,
-            Material.SOUL_SAND,
-            Material.GLOWSTONE
-    );
-    
-    public static List<Material> BURNABLE = Arrays.asList(
-            Material.WOOD,
-            Material.SAPLING,
-            Material.LOG,
-            Material.LEAVES,
-            Material.SPONGE,
-            Material.GLASS,
-            Material.DISPENSER,
-            Material.NOTE_BLOCK,
-            Material.BED_BLOCK,
-            Material.POWERED_RAIL,
-            Material.DETECTOR_RAIL,
-            Material.WEB,
-            Material.LONG_GRASS,
-            Material.DEAD_BUSH,
-            Material.WOOL,
-            Material.YELLOW_FLOWER,
-            Material.RED_ROSE,
-            Material.BROWN_MUSHROOM,
-            Material.RED_MUSHROOM,
-            Material.TNT,
-            Material.BOOKSHELF,
-            Material.TORCH,
-            Material.MOB_SPAWNER,
-            Material.WOOD_STAIRS,
-            Material.CHEST,
-            Material.WORKBENCH,
-            Material.CROPS,
-            Material.FURNACE,
-            Material.BURNING_FURNACE,
-            Material.SIGN_POST,
-            Material.WOODEN_DOOR,
-            Material.LADDER,
-            Material.RAILS,
-            Material.WALL_SIGN,
-            Material.LEVER,
-            Material.IRON_DOOR_BLOCK,
-            Material.WOOD_PLATE,
-            Material.CACTUS,
-            Material.SUGAR_CANE_BLOCK,
-            Material.JUKEBOX,
-            Material.FENCE,
-            Material.PUMPKIN,
-            Material.JACK_O_LANTERN,
-            Material.CAKE_BLOCK,
-            Material.DIODE_BLOCK_OFF,
-            Material.DIODE_BLOCK_ON,
-            Material.LOCKED_CHEST,
-            Material.TRAP_DOOR
-    );
+    private final Hashtable<Material, Grenade> grenades;
+    private final Hashtable<Material, Gun> guns;
+    private final Material gunItem;
 
-    public CBConfiguration(CannonBallPlugin plugin) {
-        super(plugin, LAST_CHANGED_IN_VERSION);
-        this.plugin = plugin;
-        arsenal = new Hashtable<Material, ArsenalAction>();
-        for (Type type : Type.values()) {
-            arsenal.put(getDefaultMaterial(type), new ArsenalAction(type, getDefaultYield(type), getDefaultUses(type)));
-        }
+    public static List<Material> MELTABLE = Arrays.asList(Material.STONE, Material.GRASS, Material.DIRT, Material.COBBLESTONE, Material.SAPLING, Material.WATER, Material.SAND, Material.GRAVEL, Material.GOLD_ORE, Material.IRON_ORE, Material.COAL_ORE, Material.LAPIS_ORE, Material.LAPIS_BLOCK, Material.DISPENSER, Material.SANDSTONE, Material.NOTE_BLOCK, Material.GOLD_BLOCK, Material.IRON_BLOCK, Material.DOUBLE_STEP, Material.STEP, Material.BRICK, Material.MOSSY_COBBLESTONE, Material.OBSIDIAN, Material.DIAMOND_ORE, Material.DIAMOND_BLOCK, Material.SOIL, Material.COBBLESTONE_STAIRS, Material.STONE_PLATE, Material.IRON_DOOR_BLOCK, Material.REDSTONE_ORE, Material.GLOWING_REDSTONE_ORE, Material.CLAY, Material.NETHERRACK, Material.SOUL_SAND, Material.GLOWSTONE);
 
-        List<String> arsenalList = plugin.getConfiguration().getKeys(ARSENAL_NODE);
-        if (arsenalList == null) {
-            arsenalList = Collections.emptyList();
-        }
+    public static List<Material> BURNABLE = Arrays.asList(Material.WOOD, Material.SAPLING, Material.LOG, Material.LEAVES, Material.SPONGE, Material.GLASS, Material.DISPENSER, Material.NOTE_BLOCK, Material.BED_BLOCK, Material.POWERED_RAIL, Material.DETECTOR_RAIL, Material.WEB, Material.LONG_GRASS, Material.DEAD_BUSH, Material.WOOL, Material.YELLOW_FLOWER, Material.RED_ROSE, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.TNT, Material.BOOKSHELF, Material.TORCH, Material.MOB_SPAWNER, Material.WOOD_STAIRS, Material.CHEST, Material.WORKBENCH, Material.CROPS, Material.FURNACE, Material.BURNING_FURNACE, Material.SIGN_POST, Material.WOODEN_DOOR, Material.LADDER, Material.RAILS, Material.WALL_SIGN, Material.LEVER, Material.IRON_DOOR_BLOCK, Material.WOOD_PLATE, Material.CACTUS, Material.SUGAR_CANE_BLOCK, Material.JUKEBOX, Material.FENCE, Material.PUMPKIN, Material.JACK_O_LANTERN, Material.CAKE_BLOCK, Material.DIODE_BLOCK_OFF, Material.DIODE_BLOCK_ON, Material.LOCKED_CHEST, Material.TRAP_DOOR);
 
-        for (String type : arsenalList) {
-            Type t = null;
-            try {
-                t = ArsenalAction.Type.valueOf(type.toUpperCase());
-            } catch (Exception e) {
-                // nada
-            }
-
-            if (t == null || t == Type.NOTHING) {
-                plugin.log(Level.SEVERE, "Unknown arsenal type '" + type + "'; IGNORED!");
-                continue;
-            }
-
-            String m = plugin.getConfiguration().getString(ARSENAL_NODE + "." + type + ".material");
-            Material material = MaterialUtils.getMaterial(m);
-            if (material == null) {
-                plugin.log(Level.SEVERE, "Unknown material '" + m + "' for arsenal type '" + type + "'; IGNORED!");
-                material = getDefaultMaterial(t);
-            }
-
-            float yield = (float) plugin.getConfiguration().getDouble(ARSENAL_NODE + "." + type + ".yield", getDefaultYield(t));
-            int uses = plugin.getConfiguration().getInt(ARSENAL_NODE + "." + type + ".uses", getDefaultUses(t));
-
-            boolean cannonUse = plugin.getConfiguration().getBoolean(ARSENAL_NODE + "." + type + ".cannon", true);
-            boolean playerUse = plugin.getConfiguration().getBoolean(ARSENAL_NODE + "." + type + ".player", true);
-
-            if (uses > 0) {
-                arsenal.put(material, new ArsenalAction(t, yield, uses, playerUse, cannonUse));
-            } else {
-                arsenal.remove(material);
+    public static List<Material> LETS_WATER_THROUGH = new ArrayList<Material>();
+    static {
+        for (Material m : Material.values()) {
+            if (MaterialUtils.isTraversable(m) || MaterialUtils.isSameMaterial(m, Material.DEAD_BUSH, Material.SIGN_POST, Material.FENCE)) {
+                LETS_WATER_THROUGH.add(m);
             }
         }
     }
 
-    private int getDefaultUses(Type type) {
-        switch (type) {
-            case FISH: // Fish are not fish
-                return 0;
+    public CBConfiguration(CannonBallPlugin plugin) {
+        super(plugin, LAST_CHANGED_IN_VERSION);
+        this.plugin = plugin;
+        grenades = new Hashtable<Material, Grenade>();
 
-            case COW:
+        List<String> configGrenades = plugin.getConfiguration().getKeys(GRENADE_NODE);
+        if (configGrenades == null) {
+            configGrenades = Collections.emptyList();
+        }
+
+        for (String m : configGrenades) {
+            Material material = MaterialUtils.getMaterial(m);
+            if (material == null) {
+                plugin.log(Level.SEVERE, "Unknown material '" + m + "' - IGNORED!");
+                continue;
+            }
+
+            String configNode = GRENADE_NODE + "." + m;
+
+            String t = plugin.getConfiguration().getString(configNode + ".action");
+            Grenade.Type type = null;
+            try {
+                type = Grenade.Type.valueOf(t.toUpperCase());
+            } catch (Exception e) {
+                // handled below
+            }
+
+            if (type == null || type == Grenade.Type.DUD) {
+                plugin.log(Level.SEVERE, "Unknown grenade type '" + material + "'; IGNORED!");
+                continue;
+            }
+
+            float yield = (float) plugin.getConfiguration().getDouble(configNode + ".yield", getDefaultYield(type));
+            int clusterSize = plugin.getConfiguration().getInt(configNode + ".cluster", 1);
+            int uses = plugin.getConfiguration().getInt(configNode + ".uses", getDefaultUses(type));
+
+            boolean cannonUse = plugin.getConfiguration().getBoolean(configNode + ".cannon", true);
+            boolean playerUse = plugin.getConfiguration().getBoolean(configNode + ".player", true);
+
+            int cannonFactor = plugin.getConfiguration().getInt(configNode + ".cannon-factor", 2);
+
+            if (uses > 0) {
+                grenades.put(material, new Grenade(type, clusterSize, yield, uses, playerUse, cannonUse, cannonFactor));
+            } else {
+                plugin.log(material + " disabled as 'uses' is set to " + uses);
+            }
+        }
+
+        grenades.put(Material.MILK_BUCKET, new Grenade(Grenade.Type.COW, 1, 1));
+        grenades.put(Material.PORK, new Grenade(Grenade.Type.PIG, 1, 1));
+        grenades.put(Material.WOOL, new Grenade(Grenade.Type.SHEEP, 1, 1));
+
+        Material gunItemMaterial = MaterialUtils.getMaterial(plugin.getConfiguration().getString(GUN_ITEM_NODE));
+        if (grenades.containsKey(gunItemMaterial)) {
+            plugin.log(Level.SEVERE, "Gun item is configured already as a grenade - GUNS ARE DISABLED!");
+            gunItem = null;
+        } else {
+            gunItem = gunItemMaterial;
+            if (gunItem == null) {
+                plugin.log(Level.SEVERE, "Unknown gun item - GUNS ARE DISABLED!");
+            }
+        }
+
+        guns = new Hashtable<Material, Gun>();
+        List<String> configGuns = plugin.getConfiguration().getKeys(GUNS_NODE);
+        if (configGuns == null) {
+            configGuns = Collections.emptyList();
+        }
+
+        for (String t : configGuns) {
+            Gun.Type type = null;
+            try {
+                type = Gun.Type.valueOf(t.toUpperCase());
+            } catch (Exception e) {
+                plugin.log(Level.SEVERE, "Unknown gun type '" + t + "'; IGNORED!");
+                continue;
+            }
+
+            String configNode = GUNS_NODE + "." + t;
+
+            String m = plugin.getConfiguration().getString(configNode + ".material");
+            Material material = MaterialUtils.getMaterial(m);
+            if (material == null) {
+                plugin.log(Level.SEVERE, "Unknown material '" + m + "' - IGNORED!");
+                continue;
+            }
+
+            int damage = 0;
+            switch (type) {
+                case CROSSBOW:
+                    damage = 2;
+                    break;
+
+                case SHOTGUN:
+                    damage = 1;
+                    break;
+
+                case REVOLVER:
+                case SNIPER:
+                case GATLIN:
+                    damage = 3;
+                    break;
+            }
+
+            damage = (int) (2 * plugin.getConfiguration().getDouble(configNode + ".damage", damage));
+            guns.put(material, new Gun(type, material, damage));
+        }
+    }
+
+    private int getDefaultUses(Grenade.Type type) {
+        switch (type) {
             case PIG:
+            case COW:
             case SHEEP:
-            case GRENADE:
-            case CLUSTER:
+            case SNARE:
             case NUCLEAR:
             case STUN:
+            case EXPLOSIVE:
+            case TNT:
                 return 1;
-
-            case LIGHTNING:
-                return 20;
 
             case MOLOTOV:
             case WATER_BALLOON:
             case SPIDER_WEB:
                 return 10;
 
-            case FLAME_THROWER:
-                return 5;
-
-            case NOTHING:
+            case DUD:
             default:
                 return 0;
         }
     }
 
-    protected float getDefaultYield(Type type) {
+    protected float getDefaultYield(Grenade.Type type) {
         switch (type) {
+            case MOLOTOV:
+                return 1;
+
+            case SNARE:
             case STUN:
-            case FLAME_THROWER:
-            case SPIDER_WEB:
                 return 2;
 
-            case GRENADE:
-            case CLUSTER:
-            case LIGHTNING:
+            case WATER_BALLOON:
+                return 3;
+
+            case SPIDER_WEB:
+            case EXPLOSIVE:
+            case TNT:
                 return 4;
 
             case NUCLEAR:
                 return 8;
 
-            case MOLOTOV:
-            case WATER_BALLOON:
-                return 1;
-
-            case NOTHING:
+            case DUD:
             default:
                 return 0;
-        }
-    }
-
-    private Material getDefaultMaterial(Type type) {
-        switch (type) {
-            case FISH:
-                return Material.FEATHER;
-
-            case COW:
-                return Material.MILK_BUCKET;
-
-            case PIG:
-                return Material.PORK;
-
-            case SHEEP:
-                return Material.WOOL;
-
-            case STUN:
-                return Material.CLAY_BALL;
-
-            case GRENADE:
-                return Material.TNT;
-
-            case CLUSTER:
-                return Material.SLIME_BALL;
-
-            case NUCLEAR:
-                return Material.GOLDEN_APPLE;
-
-            case MOLOTOV:
-                return Material.LAVA_BUCKET;
-
-            case FLAME_THROWER:
-                return Material.FLINT_AND_STEEL;
-
-            case WATER_BALLOON:
-                return Material.WATER_BUCKET;
-
-            case SPIDER_WEB:
-                return Material.STRING;
-
-            case LIGHTNING:
-                return Material.GOLD_SWORD;
-
-            case NOTHING:
-            default:
-                return Material.AIR;
         }
     }
 
@@ -312,24 +254,22 @@ public class CBConfiguration extends ConfigurationService {
         return plugin.getConfiguration().getInt(SETTINGS_NODE + ".cannon-factor", DEFAULT_CANNON_FACTOR);
     }
 
-    public ArsenalAction getAction(Material material) {
-        if (!arsenal.containsKey(material)) {
-            return DEFAULT_ACTION;
+    public Grenade getGrenade(Material material) {
+        if (!grenades.containsKey(material)) {
+            return DEFAULT_GRENADE;
         }
 
-        return arsenal.get(material);
+        return grenades.get(material);
     }
 
-    public Hashtable<Material, ArsenalAction> getArsenal() {
-        return arsenal;
-    }
-
-    public ArsenalAction getAction(Type type) {
-        for (Material m : arsenal.keySet()) {
-            if (arsenal.get(m).getType() == type) {
-                return arsenal.get(m);
-            }
+    public Gun getGun(Material material) {
+        if (!guns.containsKey(material)) {
+            return DEFAULT_GUN;
         }
-        return DEFAULT_ACTION;
+
+        return guns.get(material);
+    }
+    public boolean isGunItem(Material material) {
+        return gunItem != null ? gunItem == material : false;
     }
 }
