@@ -235,4 +235,29 @@ public class InventoryUtil {
         
         return false;
     }
+
+    public static void removeItemNearItemHeldInHand(Player player, Material material) {
+        removeItemNearItemHeldInHand(player.getInventory(), material);
+        player.updateInventory();
+    }
+
+    public static void removeItemNearItemHeldInHand(PlayerInventory inventory, Material material) {
+        int slot = inventory.getHeldItemSlot();
+        if (inventory.getItem(slot).getType() == material) {
+            // default
+        } else if (slot < 8 && inventory.getItem(slot + 1).getType() == material) {
+            slot += 1;
+        } else if (slot > 0) {
+            slot -= 1;
+        } else {
+            return;
+        }
+
+        ItemStack stack = inventory.getItem(slot);
+        stack.setAmount(stack.getAmount() - 1);
+        if (stack.getAmount() == 0) {
+            stack = null;
+        }
+        inventory.setItem(slot, stack);
+    }
 }

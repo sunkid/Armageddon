@@ -214,10 +214,12 @@ public class MaterialUtils {
 		pluralWords.put(Material.DIODE_BLOCK_ON, "diode blocks (on)");
 	}
 	
-	static {
-		for (Material m : Material.values())
-			if (m.isBlock())
+    static {
+        for (Material m : Material.values()) {
+            if (m.isBlock()) {
 				stackableMaterial.add(m);
+            }
+        }
 		damageableMaterial.addAll(stackableMaterial);
 		damageableMaterial.addAll(damageableItems);
 		stackableMaterial.addAll(stackableItems);
@@ -461,6 +463,23 @@ public class MaterialUtils {
     
     public static boolean canDropSeeds(Material m) {
         return isSameMaterial(m, Material.LONG_GRASS, Material.DEAD_BUSH, Material.CROPS);
+    }
+
+    public static boolean isHarvestablePlant(Material m) {
+        return isSameMaterial(m, Material.LONG_GRASS, Material.DEAD_BUSH, Material.CROPS, Material.SUGAR_CANE_BLOCK, Material.CACTUS, Material.SAPLING) ||
+               isFlower(m) || isMushroom(m) || isPumpkin(m);
+    }
+
+    public static boolean isPumpkin(Material m) {
+        return isSameMaterial(m, Material.PUMPKIN, Material.JACK_O_LANTERN);
+    }
+
+    public static boolean isRail(Material m) {
+        return isSameMaterial(m, Material.RAILS, Material.POWERED_RAIL, Material.DETECTOR_RAIL);
+    }
+
+    public static boolean isTorch(Material m) {
+        return (m != null && m.name().contains("TORCH"));
     }
 
     /**
@@ -843,10 +862,11 @@ public class MaterialUtils {
 	}
 
     public static boolean isTraversable(Material m) {
-        return !m.isBlock() || isWater(m) || isLava(m) || isFlower(m) || isMushroom(m) || isPressurePlate(m) || isDiode(m) ||
+        return !m.isBlock() || isWater(m) || isLava(m) || isFlower(m) || isMushroom(m) || isPressurePlate(m) ||
+               isDiode(m) || isRail(m) ||
                isSameMaterial(m, Material.AIR, Material.CROPS, Material.SUGAR_CANE_BLOCK, Material.SAPLING,
-                       Material.REDSTONE_WIRE, Material.RAILS, Material.STONE_BUTTON, Material.PORTAL, Material.LONG_GRASS,
-                       Material.DEAD_BUSH);
+                       Material.REDSTONE_WIRE, Material.STONE_BUTTON, Material.PORTAL, Material.LONG_GRASS,
+                       Material.DEAD_BUSH, Material.SNOW, Material.WEB, Material.FIRE);
                
     }
 
