@@ -352,8 +352,5 @@ public class ArmageddonPlayerListener extends PlayerListener {
     public void onItemHeldChange(PlayerItemHeldEvent event) {
         Gun gun = plugin.getGun(event.getPlayer());
         gun.setShotsFired(0);
-        if (gun.getType() != Gun.Type.TOY) {
-            MessageUtils.send(event.getPlayer(), ChatColor.GREEN, "locked and loaded");
-        }
     }
 }
