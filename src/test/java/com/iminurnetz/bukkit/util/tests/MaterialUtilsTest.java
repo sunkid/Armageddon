@@ -84,7 +84,7 @@ public class MaterialUtilsTest extends TestCase {
 				continue;
 			Material m = Material.getMaterial(id);
 			if (m != null)
-				assertTrue(m.name(), MaterialUtils.isStackable(m));
+                assertTrue(m + "(" + m.getId() + ") isn't stackable!", MaterialUtils.isStackable(m));
 		}
 	}
 	
@@ -157,7 +157,7 @@ public class MaterialUtilsTest extends TestCase {
 			return false;
 		}
 
-		return (id != 354) && (id != 355) && (id != 356) && (id != 357) && (id != 2256) && (id != 2257);
+        return (id != 354) && (id != 355) && (id != 356) && (id != 357) && (id != 359) && (id != 2256) && (id != 2257);
 	}
 
 }
