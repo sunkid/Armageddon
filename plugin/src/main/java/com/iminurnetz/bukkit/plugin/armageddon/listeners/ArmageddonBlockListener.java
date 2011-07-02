@@ -78,8 +78,6 @@ public class ArmageddonBlockListener extends BlockListener {
 
             Grenade grenade = plugin.getConfig().getGrenade(material);
 
-            plugin.log("Material: " + material + ", action: " + grenade.getType() + ", " + grenade.isCannonUse());
-
             if (grenade.getType() == Type.DUD || !grenade.isCannonUse()) {
                 return;
             }
@@ -164,8 +162,6 @@ public class ArmageddonBlockListener extends BlockListener {
                 default:
                     return;
             }
-
-            plugin.log("projectile: " + entity);
 
             if (entity != null) {
                 if (!(entity instanceof Fireball)) {

@@ -146,7 +146,7 @@ public class ArmageddonPlugin extends BukkitPlugin {
         pm.registerEvent(Event.Type.CREEPER_POWER, entityListener, Priority.Highest, this);
 
         if (pm.getPlugin("MoveCraft") != null) {
-            MoveCraftListener moveCraftListener = new MoveCraftListener();
+            MoveCraftListener moveCraftListener = new MoveCraftListener(this);
             pm.registerEvent(Event.Type.CUSTOM_EVENT, moveCraftListener, Priority.Monitor, this);
         }
 
@@ -363,7 +363,10 @@ public class ArmageddonPlugin extends BukkitPlugin {
     }
 
     public String getHelpText() {
-        return "Use '/cb [angle [velocity [fuse]]]' to configure your settings!\n" + "Display a cannon's settings by left-clicking it bare handed\n" + "Toggle dispensers/cannons by left-clicking with red stone dust\n" + "Set a cannon to your settings by left-clicking it with a torch\n";
+        return "Use '/cb [angle [velocity [fuse]]]' to configure your settings!\n" +
+               "Display a cannon's settings by left-clicking it bare handed\n" +
+               "Toggle cannons on/off by left-clicking with red stone dust\n" +
+               "Set a cannon to your settings by left-clicking it with a torch\n";        
     }
 
     public Cannon getDefaultCannon() {
@@ -781,6 +784,10 @@ public class ArmageddonPlugin extends BukkitPlugin {
             return bulletsFired.get(projectile.getEntityId());
         }
         return 0;
+    }
+
+    public Hashtable<BlockLocation, Cannon> getCannons() {
+        return cannons;
     }
 
 }

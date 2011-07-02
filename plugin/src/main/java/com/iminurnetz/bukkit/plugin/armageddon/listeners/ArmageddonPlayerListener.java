@@ -146,7 +146,7 @@ public class ArmageddonPlayerListener extends PlayerListener {
                         MessageUtils.send(player, ChatColor.GREEN, "This dispenser no longer is a cannon!");
                         event.setCancelled(true);
                     } else {
-                        Cannon cannon = plugin.getCannon(block, false);
+                    Cannon cannon = plugin.getCannon(block, true);
                         MessageUtils.send(player, ChatColor.GREEN, "This dispenser is now a cannon!");
                         if (plugin.getPermissionHandler().canDisplay(player)) {
                             MessageUtils.send(player, ChatColor.GREEN, cannon.toString());
