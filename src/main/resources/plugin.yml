@@ -20,9 +20,9 @@
 # Commercial Use:
 #   Please contact sunkid@iminurnetz.com
 #
-name: BaseBukkitPlugin
+name: ${project.name}
 main: com.iminurnetz.bukkit.plugin.BaseBukkitPlugin
-version: 1.0
+version: ${project.version}
 authors: [sunkid <sunkid@iminurnetz.com>]
-website: https://github.com/sunkid/BaseBukkitPlugin
+website: https://github.com/sunkid/${project.name}
 softdepend: [GroupManager Permissions]

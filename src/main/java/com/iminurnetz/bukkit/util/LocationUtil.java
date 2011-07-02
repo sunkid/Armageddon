@@ -226,17 +226,17 @@ public class LocationUtil {
                 Math.pow(pLoc.getZ() - loc.getZ(), 2));
     }
 
-    public static Vector getHandLocation(Player player) {
-        Location loc = player.getLocation();
+    public static Location getHandLocation(Player player) {
+        Location loc = player.getLocation().clone();
         
         double a = loc.getYaw() / 180D * Math.PI + Math.PI / 2;
         double l = Math.sqrt(0.8D * 0.8D + 0.4D * 0.4D);
         
-        double x = loc.getX() + l * Math.cos(a) - 0.8D * Math.sin(a);
-        double y = loc.getY() + player.getEyeHeight() - 0.2D;
-        double z = loc.getZ() + l * Math.sin(a) + 0.8D * Math.cos(a);
+        loc.setX(loc.getX() + l * Math.cos(a) - 0.8D * Math.sin(a));
+        loc.setY(loc.getY() + player.getEyeHeight() - 0.2D);
+        loc.setZ(loc.getZ() + l * Math.sin(a) + 0.8D * Math.cos(a));
         
-        return new Vector(x, y, z);
+        return loc;
     }
 
     /**
