@@ -26,6 +26,7 @@ package com.iminurnetz.bukkit.util;
 import java.io.Serializable;
 
 import org.bukkit.block.Block;
+import org.bukkit.util.Vector;
 
 public class BlockLocation implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -78,5 +79,14 @@ public class BlockLocation implements Serializable {
     @Override
     public int hashCode() {
         return (((37 * x) + y) * 31 + z) * 17 + world.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "BlockLocation[" + world + " x=" + x + ", y=" + y + ", z=" + z + "]";
+    }
+
+    public BlockLocation move(Vector move) {
+        return new BlockLocation(world, x + move.getBlockX(), y + move.getBlockY(), z + move.getBlockZ());
     }
 }

@@ -1,4 +1,4 @@
-BaseBukkitPlugin v1.3
+BaseBukkitPlugin v1.4
 
 INSTALL and UPGRADE
 
