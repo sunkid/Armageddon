@@ -26,8 +26,108 @@ version: ${project.version}
 authors: [sunkid <sunkid@iminurnetz.com>]
 website: https://github.com/sunkid/${project.name}
 depends: [BaseBukkitPlugin]
+
 commands:
     cb:
         description: Display or change your cannon settings
         usage: /cb [angle [velocity [fuse]]]
-        
+
+permissions:
+    armageddon.*:
+        description: allows full access to all Armageddon features
+        children:
+            armageddon.display: true
+            armageddon.configure: true
+            armageddon.toggle: true
+            armageddon.grenades.*: true
+            armageddon.guns.*: true
+
+    armageddon.display:
+        description: allows a player to display the settings of a cannon
+        default: true
+
+    armageddon.configure:
+        description: allows a player to configure the settings of a cannon
+        default: op
+
+    armageddon.toggle:
+        description: allows a player to change a dispenser into a cannon and vice versa
+        default: op
+
+    armageddon.grenades.*:
+        description: allows players to throw any grenade
+        children:
+            armageddon.grenades.snare: true
+            armageddon.grenades.stun: true
+            armageddon.grenades.explosive: true
+            armageddon.grenades.tnt: true
+            armageddon.grenades.nuclear: true
+            armageddon.grenades.molotov: true
+            armageddon.grenades.water_balloon: true
+            armageddon.grenades.spider_web: true
+
+    armageddon.grenades.snare:
+        description: allows a player to throw a snare grenade
+        default: op
+
+    armageddon.grenades.stun:
+        description: allows a player to throw a stun grenade
+        default: op
+
+    armageddon.grenades.explosive:
+        description: allows a player to throw a TNT-sized explosive
+        default: op
+
+    armageddon.grenades.tnt:
+        description: allows a player to throw TNT
+        default: op
+
+    armageddon.grenades.nuclear:
+        description: allows a player to throw a nuclear grenade
+        default: op
+
+    armageddon.grenades.molotov:
+        description: allows a player to throw a molotov cocktail (aka fireball)
+        default: op
+
+    armageddon.grenades.water_balloon:
+        description: allows a player to throw a water balloon
+        default: op
+
+    armageddon.grenades.spider_web:
+        description: allows a player to throw a spider web grenade
+        default: op
+
+    armageddon.guns.*:
+        description: allows a player to use any gun
+        children:
+            armageddon.guns.flame_thrower: true
+            armageddon.guns.crossbow: true
+            armageddon.guns.revolver: true
+            armageddon.guns.shotgun: true
+            armageddon.guns.sniper: true
+            armageddon.guns.gatlin: true
+
+    armageddon.guns.flame_thrower:
+        description: allows a player to shoot a flame thrower
+        default: op
+
+    armageddon.guns.crossbow:
+        description: allows a player to shoot a crossbow
+        default: op
+
+    armageddon.guns.revolver:
+        description: allows a player to shoot a revolver
+        default: op
+
+    armageddon.guns.shotgun:
+        description: allows a player to shoot a shotgun
+        default: op
+
+    armageddon.guns.sniper:
+        description: allows a player to shoot a sniper rifle
+        default: op
+
+    armageddon.guns.gatlin:
+        description: allows a player to shoot a gatlin gun
+        default: op

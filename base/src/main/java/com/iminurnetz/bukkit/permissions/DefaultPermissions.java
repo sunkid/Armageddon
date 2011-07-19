@@ -49,7 +49,7 @@ public class DefaultPermissions implements PermissionHandler {
 	
     @Override
 	public boolean hasPermission(Player player, String permission) {
-		return (defaultPermission || (enableOps && player.isOp()));
+        return (defaultPermission || (enableOps && player.isOp()) || player.hasPermission(permission));
 	}
 
     @Override
