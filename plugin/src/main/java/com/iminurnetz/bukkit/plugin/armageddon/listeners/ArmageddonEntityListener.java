@@ -99,26 +99,36 @@ public class ArmageddonEntityListener extends EntityListener {
 
     @Override
     public void onProjectileHit(ProjectileHitEvent event) {
-        Projectile projectile = (Projectile) event.getEntity();
+        final Projectile projectile = (Projectile) event.getEntity();
         if (plugin.isGrenade(projectile)) {
             plugin.explodeGrenade(projectile);
-        } else if (plugin.isBullet(projectile)) {
-            Block block = plugin.getBlockShotAt(projectile);
-            if (block != null) {
-                Material material = block.getType();
-                if (MaterialUtils.isHarvestablePlant(material) || (material.getData() != null && Attachable.class.isAssignableFrom(material.getData())) || material == Material.GLASS) {
-                    BlockBreakEvent e = new BlockBreakEvent(block, (Player) projectile.getShooter());
-                    plugin.getServer().getPluginManager().callEvent(e);
-                    if (!e.isCancelled()) {
-                        BlockState state = block.getState();
-                        block.setType(Material.AIR);
-                        for (ItemStack stack : MaterialUtils.getDroppedMaterial(state)) {
-                            block.getWorld().dropItemNaturally(block.getLocation(), stack);
+        } else {
+            // need to make sure we didn't hit an entity
+            if (plugin.isBullet(projectile)) {
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                    public void run() {
+                        // second test will fail if projectile hit an entity
+                        if (plugin.isBullet(projectile)) {
+                            Block block = plugin.getBlockShotAt(projectile);
+                            if (block != null) {
+                                Material material = block.getType();
+                                if (MaterialUtils.isHarvestablePlant(material) || (material.getData() != null && Attachable.class.isAssignableFrom(material.getData())) || material == Material.GLASS) {
+                                    BlockBreakEvent e = new BlockBreakEvent(block, (Player) projectile.getShooter());
+                                    plugin.getServer().getPluginManager().callEvent(e);
+                                    if (!e.isCancelled()) {
+                                        BlockState state = block.getState();
+                                        block.setType(Material.AIR);
+                                        for (ItemStack stack : MaterialUtils.getDroppedMaterial(state)) {
+                                            block.getWorld().dropItemNaturally(block.getLocation(), stack);
+                                        }
+                                    }
+                                }
+                            }
+                            plugin.removeBullet(projectile);
                         }
                     }
-                }
+                }, 1);
             }
-            plugin.removeBullet(projectile);
         }
     }
 

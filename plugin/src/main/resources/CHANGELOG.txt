@@ -2,6 +2,10 @@ Listed below are released versions and cumulative changes between them
 
 ${project.version}
 
+* fixed compatibility issue with latest CraftBukkit recommended build
+
+2.2
+
 * added support for Bukkit-internal permissions
 * tested with CB1000
 
