@@ -61,6 +61,11 @@ public class ArmageddonBlockListener extends BlockListener {
         Block block = event.getBlock();
         if (block.getType() == Material.DISPENSER) {
             plugin.removeCannon(block);
+        } else if (block.getType() == Material.WEB) {
+            if (plugin.removeWeb(block)) {
+                // event.setCancelled(true);
+                block.setType(Material.AIR);
+            }
         }
     }
 

@@ -1,5 +1,12 @@
 Listed below are released versions and cumulative changes between them
 
+2.4
+
+* fixed use of deprecated EntityDamageByProjectileEvent
+* added ability to turn joke grenades off
+* added feature to not yield thread from thrown spider webs and to remove them after a little while
+* removed spurious debug messages
+
 2.3
 
 * fixed compatibility issue with latest CraftBukkit recommended build

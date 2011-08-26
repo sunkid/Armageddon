@@ -39,7 +39,7 @@ import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class ArmageddonConfiguration extends ConfigurationService {
 
-    private static final String LAST_CHANGED_IN_VERSION = "1.3";
+    private static final String LAST_CHANGED_IN_VERSION = "1.4";
     private static final String SETTINGS_NODE = "settings";
 
     private static final double DEFAULT_ANGLE = 35;
@@ -124,9 +124,11 @@ public class ArmageddonConfiguration extends ConfigurationService {
             }
         }
 
-        grenades.put(Material.MILK_BUCKET, new Grenade(Grenade.Type.COW, 1, 1));
-        grenades.put(Material.PORK, new Grenade(Grenade.Type.PIG, 1, 1));
-        grenades.put(Material.WOOL, new Grenade(Grenade.Type.SHEEP, 1, 1));
+        if (plugin.getConfiguration().getBoolean(GRENADE_NODE + ".disable-joke", false)) {
+            grenades.put(Material.MILK_BUCKET, new Grenade(Grenade.Type.COW, 1, 1));
+            grenades.put(Material.PORK, new Grenade(Grenade.Type.PIG, 1, 1));
+            grenades.put(Material.WOOL, new Grenade(Grenade.Type.SHEEP, 1, 1));
+        }
 
         Material gunItemMaterial = MaterialUtils.getMaterial(plugin.getConfiguration().getString(GUN_ITEM_NODE));
         if (grenades.containsKey(gunItemMaterial)) {

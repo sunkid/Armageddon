@@ -76,6 +76,7 @@ import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonEntityListene
 import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonPlayerListener;
 import com.iminurnetz.bukkit.plugin.armageddon.listeners.MoveCraftListener;
 import com.iminurnetz.bukkit.plugin.armageddon.tasks.EntityTracker;
+import com.iminurnetz.bukkit.plugin.armageddon.tasks.SpiderWebTracker;
 import com.iminurnetz.bukkit.plugin.armageddon.tasks.WaterTracker;
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.util.BlockLocation;
@@ -88,6 +89,7 @@ public class ArmageddonPlugin extends BukkitPlugin {
     private Hashtable<String, PlayerSettings> playerSettings;
     private List<TrackedLivingEntity> trackedEntities;
     private Hashtable<Integer, WaterTracker> waterTrackers;
+    private Set<Block> spiderWebs;
 
     private int stunnerTaskId = -1;
 
@@ -108,6 +110,7 @@ public class ArmageddonPlugin extends BukkitPlugin {
         grenadesFired = new Hashtable<Integer, Grenade>();
         trackedEntities = new ArrayList<TrackedLivingEntity>();
         waterTrackers = new Hashtable<Integer, WaterTracker>();
+        spiderWebs = new HashSet<Block>();
 
         nuclearExplosions = new ArrayList<Location>();
 
@@ -584,7 +587,12 @@ public class ArmageddonPlugin extends BukkitPlugin {
 
             case SPIDER_WEB:
                 if (grenade.getClusterSize() == 1) {
-                    convertSurfaceBlocks(loc, grenade);
+                    Set<Block> webs = convertSurfaceBlocks(loc, grenade);
+                    if (webs.size() != 0) {
+                        SpiderWebTracker tracker = new SpiderWebTracker(this, webs);
+                        getServer().getScheduler().scheduleSyncDelayedTask(this, tracker, 240);
+                        spiderWebs.addAll(webs);
+                    }
                 }
                 break;
 
@@ -646,7 +654,7 @@ public class ArmageddonPlugin extends BukkitPlugin {
                     trackedEntities.add(victim);
                 }
 
-                log("Inflicting " + grenade.getType() + " on " + e);
+                // log("Inflicting " + grenade.getType() + " on " + e);
                 switch (grenade.getType()) {
                     case SNARE:
                         victim.snare(config.getStunTime());
@@ -810,6 +818,10 @@ public class ArmageddonPlugin extends BukkitPlugin {
 
     public Hashtable<BlockLocation, Cannon> getCannons() {
         return cannons;
+    }
+
+    public boolean removeWeb(Block web) {
+        return spiderWebs.remove(web);
     }
 
 }

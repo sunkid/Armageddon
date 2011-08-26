@@ -32,8 +32,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.CreeperPowerEvent;
-import org.bukkit.event.entity.EntityDamageByProjectileEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.EntityListener;
@@ -56,9 +57,9 @@ public class ArmageddonEntityListener extends EntityListener {
 
     @Override
     public void onEntityDamage(EntityDamageEvent e) {
-        if (e instanceof EntityDamageByProjectileEvent) {
-            EntityDamageByProjectileEvent event = (EntityDamageByProjectileEvent) e;
-            Projectile projectile = event.getProjectile();
+        if (e instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) e).getCause() == DamageCause.PROJECTILE) {
+            EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) e;
+            Projectile projectile = (Projectile) event.getDamager();
             if (e.isCancelled()) {
                 plugin.removeGrenade(projectile);
                 plugin.removeBullet(projectile);

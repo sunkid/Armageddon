@@ -5,7 +5,7 @@
 # CHANGE THE VERSION IN YOUR config.yml TO THE ONE BELOW.
 settings:
     # version of the last update of the config file
-    version: 1.3
+    version: 1.4
 
     # the default angle to use [degrees]
     angle: 35
@@ -51,6 +51,8 @@ settings:
     # Players have to have the armageddon.grenades.<action> permission as well to use any
     # of these (e.g. 'armageddon.grenades.stun' or 'armageddon.grenades.*')
     grenades:
+        disable-joke: false # you'll figure it out ;)
+        
         soul sand:
             action: snare
 
