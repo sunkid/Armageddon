@@ -47,6 +47,10 @@ public class Item {
 		this(material, material.getNewData((byte) 0));
 	}
 	
+    public Item(ItemStack stack) {
+        this(stack.getType(), stack.getData());
+    }
+
 	public Item(String item) throws InstantiationException {
 		if (item == null)
 			throw new InstantiationException("Item specification cannot be null");
