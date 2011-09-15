@@ -78,16 +78,6 @@ public class MaterialUtilsTest extends TestCase {
 		}
 	}
 	
-	public void testIsPlaceable() {
-		for (int id = 1; id <= 2257; id++) {
-			if (!isStackable(id))
-				continue;
-			Material m = Material.getMaterial(id);
-			if (m != null)
-                assertTrue(m + "(" + m.getId() + ") isn't stackable!", MaterialUtils.isStackable(m));
-		}
-	}
-	
 	public void testShortCuts() {
 		assertTrue("grass is grass", MaterialUtils.isSameMaterial(Material.GRASS, Material.GRASS));
 		assertTrue("Grass is dirt", MaterialUtils.isDirt(Material.GRASS));
@@ -130,34 +120,4 @@ public class MaterialUtilsTest extends TestCase {
 
 		return id == 346;
 	}
-
-	private static boolean isStackable(int id) {
-		if ((id >= 256) && (id <= 261)) {
-			return false;
-		}
-		if ((id >= 267) && (id <= 279)) {
-			return false;
-		}
-		if ((id >= 282) && (id <= 286)) {
-			return false;
-		}
-		if ((id >= 290) && (id <= 294)) {
-			return false;
-		}
-		if ((id >= 297) && (id <= 317)) {
-			return false;
-		}
-		if ((id >= 322) && (id <= 330)) {
-			return false;
-		}
-		if ((id == 319) || (id == 320) || (id == 349) || (id == 350)) {
-			return false;
-		}
-		if ((id == 333) || (id == 335) || (id == 343) || (id == 342) || (id == 358)) {
-			return false;
-		}
-
-        return (id != 354) && (id != 355) && (id != 356) && (id != 357) && (id != 359) && (id != 2256) && (id != 2257);
-	}
-
 }
