@@ -103,42 +103,6 @@ public class MaterialUtils {
 			Material.CAKE
 				);
 	
-	public static List<Material> stackableMaterial = new ArrayList<Material>();
-	public static List<Material> stackableItems =
-		Arrays.asList(
-			Material.ARROW,
-			Material.COAL,
-			Material.DIAMOND,
-			Material.IRON_INGOT,
-			Material.GOLD_INGOT,
-			Material.STICK,
-			Material.BOWL,
-			Material.STRING,
-			Material.FEATHER,
-			Material.SULPHUR,
-			Material.SEEDS,
-			Material.WHEAT,
-			Material.FLINT,
-			Material.PAINTING,
-			Material.REDSTONE,
-			Material.SNOW_BALL,
-			Material.LEATHER,
-			Material.CLAY_BRICK,
-			Material.CLAY_BALL,
-			Material.SUGAR_CANE,
-			Material.PAPER,
-			Material.BOOK,
-			Material.SLIME_BALL,
-			Material.EGG,
-			Material.COMPASS,
-			Material.FISHING_ROD,
-			Material.WATCH,
-			Material.GLOWSTONE_DUST,
-			Material.INK_SACK,
-			Material.BONE,
-			Material.SUGAR
-				);
-
 	public static Map<Material, String> pluralWords = new HashMap<Material, String>();
 	static {
 		for (Material m : Material.values()) {
@@ -215,14 +179,8 @@ public class MaterialUtils {
 	}
 	
     static {
-        for (Material m : Material.values()) {
-            if (m.isBlock()) {
-				stackableMaterial.add(m);
-            }
-        }
-		damageableMaterial.addAll(stackableMaterial);
+        // damageableMaterial.addAll(stackableMaterial);
 		damageableMaterial.addAll(damageableItems);
-		stackableMaterial.addAll(stackableItems);
 	}
 	
 	public static Material getMaterialByName(String name) {
@@ -727,7 +685,7 @@ public class MaterialUtils {
 	}
 
 	public static boolean isStackable(Material m) {
-		return stackableMaterial.contains(m);
+        return m.getMaxStackSize() != 1;
 	}
 
 	public static boolean isDamageable(int id) {
@@ -735,7 +693,7 @@ public class MaterialUtils {
 	}
 	
 	public static boolean isDamageable(Material m) {
-		return damageableMaterial.contains(m);
+        return damageableMaterial.contains(m) || m.getMaxStackSize() != 1;
 	}
 
 	// original code from Nijikokun's Items class
