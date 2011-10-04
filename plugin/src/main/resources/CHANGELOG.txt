@@ -2,6 +2,10 @@ Listed below are released versions and cumulative changes between them
 
 ${project.version}
 
+* fixed silly error message when parsing configuration
+
+2.4
+
 * fixed use of deprecated EntityDamageByProjectileEvent
 * added ability to turn joke grenades off
 * added feature to not yield thread from thrown spider webs and to remove them after a little while

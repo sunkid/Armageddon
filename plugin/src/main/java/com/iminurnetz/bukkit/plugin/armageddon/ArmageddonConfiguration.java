@@ -88,7 +88,7 @@ public class ArmageddonConfiguration extends ConfigurationService {
 
         for (String m : configGrenades) {
             Material material = MaterialUtils.getMaterial(m);
-            if (material == null) {
+            if (material == null && !m.equals("disable-joke")) {
                 plugin.log(Level.SEVERE, "Unknown material '" + m + "' - IGNORED!");
                 continue;
             }
