@@ -179,7 +179,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
         int len;
 
         try {
-            InputStream is = getResource("/" + in);
+            InputStream is = getClass().getResourceAsStream("/" + in);
             OutputStream os = new FileOutputStream(getDataFile(out));
             while ((len = is.read(buf)) > 0) {
                 os.write(buf, 0, len);
@@ -187,7 +187,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
             is.close();
             os.close();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Cannot generate file " + out + " from jar resource " + in, e);
         }
     }
