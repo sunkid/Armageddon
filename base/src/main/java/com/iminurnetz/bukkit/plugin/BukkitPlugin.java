@@ -23,25 +23,20 @@
  */
 package com.iminurnetz.bukkit.plugin;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.util.Map;
+import java.io.OutputStream;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.ConfigurationException;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
-import org.yaml.snakeyaml.reader.UnicodeReader;
-import org.yaml.snakeyaml.representer.Representer;
 
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.plugin.util.PluginLogger;
 
 public abstract class BukkitPlugin extends JavaPlugin {
-	protected Map<String, Object> root;
 	protected PluginLogger logger;
 
 	protected int MIN_SERVER_VERSION = 400;
@@ -49,28 +44,6 @@ public abstract class BukkitPlugin extends JavaPlugin {
 
 	public BukkitPlugin() {
 		logger = new PluginLogger(this);
-
-		// we are loading plugin.yml ourselves
-		URL configUrl = getClass().getResource("/plugin.yml");
-		Yaml yaml = new Yaml(new SafeConstructor(), new Representer());
-		InputStream stream = null;
-
-		try {
-			stream = configUrl.openStream();
-			read(yaml.load(new UnicodeReader(stream)));
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Cannot access plugin.yml");
-		} catch (ConfigurationException e) {
-			logger.log(Level.SEVERE, "Cannot access plugin.yml");
-		} finally {
-			try {
-				if (stream != null) {
-					stream.close();
-				}
-			} catch (IOException e) {
-			}
-		}
-
 		logger.log("initialized");
 	}
 	
@@ -99,25 +72,11 @@ public abstract class BukkitPlugin extends JavaPlugin {
     }
 
     public String getName() {
-		try {
-			return root.get("name").toString();
-		} catch (Exception e) {
-			getLogger().log(Level.SEVERE, this.getClass().getSimpleName()
-					+ " has no name yet!");
-		}
-
-		return "";
+        return getDescription().getName();
 	}
 
 	public String getVersion() {
-		try {
-			return root.get("version").toString();
-		} catch (Exception e) {
-			getLogger().log(Level.SEVERE, this.getClass().getSimpleName()
-					+ " has no version yet!");
-		}
-
-		return "";
+        return getDescription().getVersion();
 	}
 	
 	public int getServerVersion() {
@@ -130,16 +89,6 @@ public abstract class BukkitPlugin extends JavaPlugin {
 	    }
 	    
 	    return version;
-	}
-
-	@SuppressWarnings("unchecked")
-	private void read(Object input) throws ConfigurationException {
-		try {
-			root = (Map<String, Object>) input;
-		} catch (ClassCastException e) {
-			throw new ConfigurationException(
-					"Root document must be an key-value structure");
-		}
 	}
 
 	public String getFullMessagePrefix() {
@@ -195,4 +144,39 @@ public abstract class BukkitPlugin extends JavaPlugin {
      * @throws Exception 
      */
     public abstract void enablePlugin() throws Exception;
+
+    public void writeResourceToDataFolder(String in) {
+        writeResourceToDataFolder(in, in);
+    }
+
+    public void writeResourceToDataFolder(String in, String out) {
+        File dataFolder = getDataFolder();
+
+        if (!dataFolder.exists()) {
+            if (!dataFolder.mkdirs()) {
+                getLogger().log(Level.SEVERE, "Cannot create data directory at " + dataFolder.getAbsolutePath());
+                return;
+            }
+        }
+
+        byte[] buf = new byte[1024];
+        int len;
+
+        try {
+            InputStream is = getResource("/" + in);
+            OutputStream os = new FileOutputStream(getDataFile(out));
+            while ((len = is.read(buf)) > 0) {
+                os.write(buf, 0, len);
+            }
+            is.close();
+            os.close();
+
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Cannot generate file " + out + " from jar resource " + in, e);
+        }
+    }
+
+    public File getDataFile(String name) {
+        return new File(getDataFolder(), name);
+    }
 }
