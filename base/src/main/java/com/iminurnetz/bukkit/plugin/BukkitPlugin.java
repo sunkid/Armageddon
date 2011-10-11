@@ -31,6 +31,8 @@ import java.io.OutputStream;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
+import org.bukkit.plugin.InvalidDescriptionException;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
@@ -42,8 +44,16 @@ public abstract class BukkitPlugin extends JavaPlugin {
 	protected int MIN_SERVER_VERSION = 400;
 	protected int MAX_SERVER_VERSION = Integer.MAX_VALUE;
 
+    private PluginDescriptionFile description;
+
 	public BukkitPlugin() {
-		logger = new PluginLogger(this);
+        try {
+            description = new PluginDescriptionFile(getResource("/plugin.yml"));
+        } catch (InvalidDescriptionException e) {
+            e.printStackTrace();
+        }
+
+        logger = new PluginLogger(this);
 		logger.log("initialized");
 	}
 	
@@ -69,6 +79,11 @@ public abstract class BukkitPlugin extends JavaPlugin {
     // simple shortcut
     public void log(String msg, Exception e) {
         log(Level.SEVERE, msg, e);
+    }
+
+    @Override
+    public PluginDescriptionFile getDescription() {
+        return description;
     }
 
     public String getName() {
