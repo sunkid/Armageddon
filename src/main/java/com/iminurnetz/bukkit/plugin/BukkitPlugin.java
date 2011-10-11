@@ -48,7 +48,8 @@ public abstract class BukkitPlugin extends JavaPlugin {
 
 	public BukkitPlugin() {
         try {
-            description = new PluginDescriptionFile(getResource("/plugin.yml"));
+            InputStream is = getClass().getResourceAsStream("/plugin.yml");
+            description = new PluginDescriptionFile(is);
         } catch (InvalidDescriptionException e) {
             e.printStackTrace();
         }
