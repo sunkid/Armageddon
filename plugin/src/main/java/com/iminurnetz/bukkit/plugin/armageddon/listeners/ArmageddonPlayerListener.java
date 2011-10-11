@@ -75,7 +75,7 @@ public class ArmageddonPlayerListener extends PlayerListener {
 
     public ArmageddonPlayerListener(ArmageddonPlugin plugin) {
         this.plugin = plugin;
-        config = plugin.getConfig();
+        config = plugin.getArmageddonConfig();
     }
 
     @Override

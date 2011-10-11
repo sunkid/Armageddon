@@ -2,6 +2,10 @@ Listed below are released versions and cumulative changes between them
 
 ${project.version}
 
+* refactored for changes in bukkit's configuration support
+
+2.4.1
+
 * fixed silly error message when parsing configuration
 
 2.4

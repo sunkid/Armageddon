@@ -395,7 +395,7 @@ public class ArmageddonPlugin extends BukkitPlugin {
     }
 
     public Cannon getDefaultCannon() {
-        return new Cannon(getConfig().getAngle(), getConfig().getVelocity(), getConfig().getFuse());
+        return new Cannon(getArmageddonConfig().getAngle(), getArmageddonConfig().getVelocity(), getArmageddonConfig().getFuse());
     }
 
     public Gun getDefaultGun() {
@@ -407,7 +407,7 @@ public class ArmageddonPlugin extends BukkitPlugin {
         MessageUtils.send(player, cannon.toString());
     }
 
-    public ArmageddonConfiguration getConfig() {
+    public ArmageddonConfiguration getArmageddonConfig() {
         return config;
     }
 
@@ -750,19 +750,19 @@ public class ArmageddonPlugin extends BukkitPlugin {
 
     public Gun getGun(Player player) {
         Gun gun = getDefaultGun();
-        if (getConfig().isGunItem(player.getItemInHand().getType())) {
+        if (getArmageddonConfig().isGunItem(player.getItemInHand().getType())) {
             PlayerInventory inv = player.getInventory();
             if (inv.getHeldItemSlot() < 8) {
                 ItemStack i = inv.getItem(inv.getHeldItemSlot() + 1);
                 if (i != null) {
-                    gun = getConfig().getGun(i.getType());
+                    gun = getArmageddonConfig().getGun(i.getType());
                 }
             }
 
             if ((gun.getType() == getDefaultGun().getType() || !permissionHandler.canShoot(player, gun)) && inv.getHeldItemSlot() > 0) {
                 ItemStack i = inv.getItem(inv.getHeldItemSlot() - 1);
                 if (i != null) {
-                    gun = getConfig().getGun(i.getType());
+                    gun = getArmageddonConfig().getGun(i.getType());
                 }
             }
 

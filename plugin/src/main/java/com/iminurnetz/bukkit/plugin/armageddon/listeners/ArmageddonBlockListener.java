@@ -81,7 +81,7 @@ public class ArmageddonBlockListener extends BlockListener {
 
             Material material = event.getItem().getType();
 
-            Grenade grenade = plugin.getConfig().getGrenade(material);
+            Grenade grenade = plugin.getArmageddonConfig().getGrenade(material);
 
             if (grenade.getType() == Type.DUD || !grenade.isCannonUse()) {
                 return;
