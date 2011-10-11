@@ -24,19 +24,20 @@
 package com.iminurnetz.bukkit.plugin.util;
 
 import java.io.File;
+import java.util.Set;
 import java.util.logging.Level;
 
-import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import com.iminurnetz.bukkit.plugin.BukkitPlugin;
 
 public class ConfigurationService {
 
 	private static final String CONFIG_FILE = "config.yml";
-    private Configuration config;
+    private FileConfiguration config;
 	
 	private final BukkitPlugin plugin;
-	private final String lastChangedInVersion;
+    private final double lastChangedInVersion;
 
 	// global settings
 	public static final String SETTINGS_TAG = "settings";
@@ -46,7 +47,7 @@ public class ConfigurationService {
 	public static final boolean IS_ENABLED = false;
 	public static final boolean DEBUG = false;
 
-	public ConfigurationService(BukkitPlugin plugin, String lastChangedInVersion) {
+    public ConfigurationService(BukkitPlugin plugin, double lastChangedInVersion) {
 		this.plugin = plugin;
 		this.lastChangedInVersion = lastChangedInVersion;
 		load();
@@ -62,7 +63,7 @@ public class ConfigurationService {
 	/**
 	 * @return the lastChangedInVersion
 	 */
-	public String getLastChangedInVersion() {
+    public double getLastChangedInVersion() {
 		return lastChangedInVersion;
 	}
 
@@ -73,11 +74,11 @@ public class ConfigurationService {
         }
 		
         config = getPlugin().getConfig();
-		
-		if (!config.getString(SETTINGS_TAG + ".version", "").equals(getLastChangedInVersion())) {
-			getPlugin().log(Level.WARNING, "Your configuration file is outdated, please read config-new.yml");
+        double version = config.getDouble(SETTINGS_TAG + ".version", -1);
+        if (version != getLastChangedInVersion()) {
+            getPlugin().log(Level.WARNING, "Your configuration file is outdated (" + version + " vs. " + getLastChangedInVersion() + "), please read config-new.yml");
             getPlugin().writeResourceToDataFolder(CONFIG_FILE, "config-new.yml");
-		}
+        }
 	}
 
 	public boolean isEnabled() {
@@ -127,4 +128,12 @@ public class ConfigurationService {
 	public String getSettings(String setting, String defaultString) {
         return config.getString(SETTINGS_TAG + "." + setting, defaultString);
 	}
+
+    public FileConfiguration getConfiguration() {
+        return config;
+    }
+
+    public Set<String> getConfigurationNodes(String path) {
+        return config.getConfigurationSection(path).getValues(false).keySet();
+    }
 }
