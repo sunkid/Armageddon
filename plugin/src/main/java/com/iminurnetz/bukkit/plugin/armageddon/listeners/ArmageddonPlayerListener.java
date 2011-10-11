@@ -223,7 +223,7 @@ public class ArmageddonPlayerListener extends PlayerListener {
 
             if (entity != null) {
                 ((Projectile) entity).setShooter(player);
-                plugin.log("Shot projectile: " + entity.getEntityId());
+                // plugin.log("Shot projectile: " + entity.getEntityId());
                 plugin.registerGunShot(entity, gun, blockShotAt);
                 if (entity instanceof Snowball) {
                     world.createExplosion(handLocation, 0);

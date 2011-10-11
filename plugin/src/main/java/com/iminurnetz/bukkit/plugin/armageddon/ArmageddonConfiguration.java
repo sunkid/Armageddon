@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade;
 import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Gun;
@@ -39,7 +41,7 @@ import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class ArmageddonConfiguration extends ConfigurationService {
 
-    private static final String LAST_CHANGED_IN_VERSION = "1.4";
+    private static final double LAST_CHANGED_IN_VERSION = 1.4;
     private static final String SETTINGS_NODE = "settings";
 
     private static final double DEFAULT_ANGLE = 35;
@@ -57,8 +59,6 @@ public class ArmageddonConfiguration extends ConfigurationService {
     protected static final Grenade DEFAULT_GRENADE = new Grenade(Grenade.Type.DUD, 0, 0);
     protected static final Gun DEFAULT_GUN = new Gun(Gun.Type.TOY, Material.AIR, 0);
 
-    private final ArmageddonPlugin plugin;
-
     private final Hashtable<Material, Grenade> grenades;
     private final Hashtable<Material, Gun> guns;
     private final Material gunItem;
@@ -75,27 +75,27 @@ public class ArmageddonConfiguration extends ConfigurationService {
             }
         }
     }
+    
+    private final FileConfiguration config;
 
     public ArmageddonConfiguration(ArmageddonPlugin plugin) {
         super(plugin, LAST_CHANGED_IN_VERSION);
-        this.plugin = plugin;
         grenades = new Hashtable<Material, Grenade>();
+        
+        config = getConfiguration();
 
-        List<String> configGrenades = plugin.getConfiguration().getKeys(GRENADE_NODE);
-        if (configGrenades == null) {
-            configGrenades = Collections.emptyList();
-        }
-
-        for (String m : configGrenades) {
+        for (String m : getConfigurationNodes(GRENADE_NODE)) {
             Material material = MaterialUtils.getMaterial(m);
             if (material == null && !m.equals("disable-joke")) {
                 plugin.log(Level.SEVERE, "Unknown material '" + m + "' - IGNORED!");
+                continue;
+            } else if (m.equals("disable-joke")) {
                 continue;
             }
 
             String configNode = GRENADE_NODE + "." + m;
 
-            String t = plugin.getConfiguration().getString(configNode + ".action");
+            String t = config.getString(configNode + ".action");
             Grenade.Type type = null;
             try {
                 type = Grenade.Type.valueOf(t.toUpperCase());
@@ -108,14 +108,14 @@ public class ArmageddonConfiguration extends ConfigurationService {
                 continue;
             }
 
-            float yield = (float) plugin.getConfiguration().getDouble(configNode + ".yield", getDefaultYield(type));
-            int clusterSize = plugin.getConfiguration().getInt(configNode + ".cluster", 1);
-            int uses = plugin.getConfiguration().getInt(configNode + ".uses", getDefaultUses(type));
+            float yield = (float) config.getDouble(configNode + ".yield", getDefaultYield(type));
+            int clusterSize = config.getInt(configNode + ".cluster", 1);
+            int uses = config.getInt(configNode + ".uses", getDefaultUses(type));
 
-            boolean cannonUse = plugin.getConfiguration().getBoolean(configNode + ".cannon", true);
-            boolean playerUse = plugin.getConfiguration().getBoolean(configNode + ".player", true);
+            boolean cannonUse = config.getBoolean(configNode + ".cannon", true);
+            boolean playerUse = config.getBoolean(configNode + ".player", true);
 
-            int cannonFactor = plugin.getConfiguration().getInt(configNode + ".cannon-factor", 2);
+            int cannonFactor = config.getInt(configNode + ".cannon-factor", 2);
 
             if (uses > 0) {
                 grenades.put(material, new Grenade(type, clusterSize, yield, uses, playerUse, cannonUse, cannonFactor));
@@ -124,13 +124,13 @@ public class ArmageddonConfiguration extends ConfigurationService {
             }
         }
 
-        if (plugin.getConfiguration().getBoolean(GRENADE_NODE + ".disable-joke", false)) {
+        if (config.getBoolean(GRENADE_NODE + ".disable-joke", false)) {
             grenades.put(Material.MILK_BUCKET, new Grenade(Grenade.Type.COW, 1, 1));
             grenades.put(Material.PORK, new Grenade(Grenade.Type.PIG, 1, 1));
             grenades.put(Material.WOOL, new Grenade(Grenade.Type.SHEEP, 1, 1));
         }
 
-        Material gunItemMaterial = MaterialUtils.getMaterial(plugin.getConfiguration().getString(GUN_ITEM_NODE));
+        Material gunItemMaterial = MaterialUtils.getMaterial(config.getString(GUN_ITEM_NODE));
         if (grenades.containsKey(gunItemMaterial)) {
             plugin.log(Level.SEVERE, "Gun item is configured already as a grenade - GUNS ARE DISABLED!");
             gunItem = null;
@@ -142,12 +142,7 @@ public class ArmageddonConfiguration extends ConfigurationService {
         }
 
         guns = new Hashtable<Material, Gun>();
-        List<String> configGuns = plugin.getConfiguration().getKeys(GUNS_NODE);
-        if (configGuns == null) {
-            configGuns = Collections.emptyList();
-        }
-
-        for (String t : configGuns) {
+        for (String t : getConfigurationNodes(GUNS_NODE)) {
             Gun.Type type = null;
             try {
                 type = Gun.Type.valueOf(t.toUpperCase());
@@ -158,7 +153,7 @@ public class ArmageddonConfiguration extends ConfigurationService {
 
             String configNode = GUNS_NODE + "." + t;
 
-            String m = plugin.getConfiguration().getString(configNode + ".material");
+            String m = config.getString(configNode + ".material");
             Material material = MaterialUtils.getMaterial(m);
             if (material == null) {
                 plugin.log(Level.SEVERE, "Unknown material '" + m + "' - IGNORED!");
@@ -182,7 +177,7 @@ public class ArmageddonConfiguration extends ConfigurationService {
                     break;
             }
 
-            damage = (int) (2 * plugin.getConfiguration().getDouble(configNode + ".damage", damage));
+            damage = (int) (2 * config.getDouble(configNode + ".damage", damage));
             guns.put(material, new Gun(type, material, damage));
         }
     }
@@ -237,23 +232,23 @@ public class ArmageddonConfiguration extends ConfigurationService {
     }
 
     public double getAngle() {
-        return plugin.getConfiguration().getDouble(SETTINGS_NODE + ".angle", DEFAULT_ANGLE);
+        return config.getDouble(SETTINGS_NODE + ".angle", DEFAULT_ANGLE);
     }
 
     public double getVelocity() {
-        return plugin.getConfiguration().getDouble(SETTINGS_NODE + ".velocity", DEFAULT_VELOCITY);
+        return config.getDouble(SETTINGS_NODE + ".velocity", DEFAULT_VELOCITY);
     }
 
     public int getFuse() {
-        return plugin.getConfiguration().getInt(SETTINGS_NODE + ".fuse", DEFAULT_FUSE);
+        return config.getInt(SETTINGS_NODE + ".fuse", DEFAULT_FUSE);
     }
 
     public int getStunTime() {
-        return plugin.getConfiguration().getInt(SETTINGS_NODE + ".stun-time", DEFAULT_STUN_TIME);
+        return config.getInt(SETTINGS_NODE + ".stun-time", DEFAULT_STUN_TIME);
     }
 
     public int getCannonFactor() {
-        return plugin.getConfiguration().getInt(SETTINGS_NODE + ".cannon-factor", DEFAULT_CANNON_FACTOR);
+        return config.getInt(SETTINGS_NODE + ".cannon-factor", DEFAULT_CANNON_FACTOR);
     }
 
     public Grenade getGrenade(Material material) {
