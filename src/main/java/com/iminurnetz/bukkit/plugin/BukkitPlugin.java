@@ -25,8 +25,10 @@ package com.iminurnetz.bukkit.plugin;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 
@@ -49,7 +51,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
 
     private PluginDescriptionFile description;
 
-    private static final String REPOSITORY = "https://raw.github.com/sunkid/BaseBukkitPlugin/master/release/";
+    public static final String REPOSITORY = "https://raw.github.com/sunkid/BaseBukkitPlugin/selfupdate/release/";
 
 	public BukkitPlugin() {
         try {
@@ -158,7 +160,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
         }
 	}
 	
-    protected void checkBaseBukkitPluginVersion() throws Exception {
+    public void checkBaseBukkitPluginVersion() throws Exception {
         logger.log("BaseBukkitPlugin version check...");
 
         Plugin plugin;
@@ -173,8 +175,8 @@ public abstract class BukkitPlugin extends JavaPlugin {
             plugin = pm.getPlugin("BaseBukkitPlugin");
         }
 
-        URL versionUrl = new URL(REPOSITORY + "version.txt");
-        String latestVersion = DownloadUtils.readURL(versionUrl);
+        String latestVersion = getLatestVersionFromRepository();
+
         if (!latestVersion.equals(plugin.getDescription().getVersion())) {
             logger.log("Downloading latest version " + latestVersion);
 
@@ -186,6 +188,12 @@ public abstract class BukkitPlugin extends JavaPlugin {
             plugin = pm.loadPlugin(pFile);
             pm.enablePlugin(plugin);
         }
+    }
+
+    public static String getLatestVersionFromRepository() throws IOException {
+        URL versionUrl = new URL(REPOSITORY + "version.txt");
+        String latestVersion = DownloadUtils.readURL(versionUrl);
+        return latestVersion.trim();
     }
 
     protected int getMinimumServerVersion() {
