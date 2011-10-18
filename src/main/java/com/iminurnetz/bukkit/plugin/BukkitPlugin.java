@@ -30,6 +30,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
@@ -44,7 +46,9 @@ import com.iminurnetz.bukkit.plugin.util.PluginLogger;
 import com.iminurnetz.util.DownloadUtils;
 
 public abstract class BukkitPlugin extends JavaPlugin {
-	protected PluginLogger logger;
+	private static final String BASE_BUKKIT_PLUGIN = "BaseBukkitPlugin";
+
+    protected PluginLogger logger;
 
 	protected int MIN_SERVER_VERSION = 400;
 	protected int MAX_SERVER_VERSION = Integer.MAX_VALUE;
@@ -152,42 +156,57 @@ public abstract class BukkitPlugin extends JavaPlugin {
                 log("Server version compatibility check succeeded");
             }
 
-            checkBaseBukkitPluginVersion();
+            if (getServer().getPluginManager().getPlugin(BASE_BUKKIT_PLUGIN) == null) {
+                updateAndLoadBaseBukkitPlugin();
+            }
+
             enablePlugin();
+
         } catch (Exception e) {
             log("Error enabling! ABORTED", e);
             this.setEnabled(false);
         }
 	}
 	
-    public void checkBaseBukkitPluginVersion() throws Exception {
+    public void updateAndLoadBaseBukkitPlugin() throws Exception {
         logger.log("BaseBukkitPlugin version check...");
 
         Plugin plugin;
-        File pFile = new File(getDataFolder().getParentFile(), "BaseBukkitPlugin");
+
+        File dataFolder = getDataFolder();
+        if (!dataFolder.exists()) {
+            dataFolder.mkdirs();
+        }
+
+        File pFile = new File(dataFolder, BASE_BUKKIT_PLUGIN + ".jar");
+
+        String baseVersion = "0";
+
+        if (pFile.exists()) {
+            JarFile jarFile = new JarFile(pFile);
+            JarEntry entry = jarFile.getJarEntry("plugin.yml");
+            InputStream stream = jarFile.getInputStream(entry);
+
+            PluginDescriptionFile desc = new PluginDescriptionFile(stream);
+            baseVersion = desc.getVersion();
+            stream.close();
+            jarFile.close();
+        }
 
         PluginManager pm = getServer().getPluginManager();
 
-        if (!pm.isPluginEnabled("BaseBukkitPlugin")) {
-            plugin = pm.loadPlugin(pFile);
-            pm.enablePlugin(plugin);
-        } else {
-            plugin = pm.getPlugin("BaseBukkitPlugin");
-        }
-
         String latestVersion = getLatestVersionFromRepository();
 
-        if (!latestVersion.equals(plugin.getDescription().getVersion())) {
+        if (!latestVersion.equals(baseVersion)) {
             logger.log("Downloading latest version " + latestVersion);
 
-            pm.disablePlugin(plugin);
-
-            URL jarUrl = new URL(REPOSITORY + "BaseBukkitPlugin" + ".jar");
+            URL jarUrl = new URL(REPOSITORY + BASE_BUKKIT_PLUGIN + ".jar");
             DownloadUtils.download(logger, jarUrl, pFile);
-
-            plugin = pm.loadPlugin(pFile);
-            pm.enablePlugin(plugin);
         }
+
+        plugin = pm.loadPlugin(pFile);
+        pm.enablePlugin(plugin);
+
     }
 
     public static String getLatestVersionFromRepository() throws IOException {
