@@ -25,18 +25,21 @@ package com.iminurnetz.bukkit.plugin;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.InvalidDescriptionException;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.plugin.util.PluginLogger;
+import com.iminurnetz.util.DownloadUtils;
 
 public abstract class BukkitPlugin extends JavaPlugin {
 	protected PluginLogger logger;
@@ -46,6 +49,8 @@ public abstract class BukkitPlugin extends JavaPlugin {
 
     private PluginDescriptionFile description;
 
+    private static final String REPOSITORY = "https://raw.github.com/sunkid/BaseBukkitPlugin/master/release/";
+
 	public BukkitPlugin() {
         try {
             InputStream is = getClass().getResourceAsStream("/plugin.yml");
@@ -53,9 +58,9 @@ public abstract class BukkitPlugin extends JavaPlugin {
         } catch (InvalidDescriptionException e) {
             e.printStackTrace();
         }
-
+        
         logger = new PluginLogger(this);
-		logger.log("initialized");
+        logger.log("initialized");
 	}
 	
 	public PluginLogger getLogger() {
@@ -145,6 +150,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
                 log("Server version compatibility check succeeded");
             }
 
+            checkBaseBukkitPluginVersion();
             enablePlugin();
         } catch (Exception e) {
             log("Error enabling! ABORTED", e);
@@ -152,7 +158,39 @@ public abstract class BukkitPlugin extends JavaPlugin {
         }
 	}
 	
-	protected int getMinimumServerVersion() { return MIN_SERVER_VERSION; }
+    protected void checkBaseBukkitPluginVersion() throws Exception {
+        logger.log("BaseBukkitPlugin version check...");
+
+        Plugin plugin;
+        File pFile = new File(getDataFolder().getParentFile(), "BaseBukkitPlugin");
+
+        PluginManager pm = getServer().getPluginManager();
+
+        if (!pm.isPluginEnabled("BaseBukkitPlugin")) {
+            plugin = pm.loadPlugin(pFile);
+            pm.enablePlugin(plugin);
+        } else {
+            plugin = pm.getPlugin("BaseBukkitPlugin");
+        }
+
+        URL versionUrl = new URL(REPOSITORY + "version.txt");
+        String latestVersion = DownloadUtils.readURL(versionUrl);
+        if (!latestVersion.equals(plugin.getDescription().getVersion())) {
+            logger.log("Downloading latest version " + latestVersion);
+
+            pm.disablePlugin(plugin);
+
+            URL jarUrl = new URL(REPOSITORY + "BaseBukkitPlugin" + ".jar");
+            DownloadUtils.download(logger, jarUrl, pFile);
+
+            plugin = pm.loadPlugin(pFile);
+            pm.enablePlugin(plugin);
+        }
+    }
+
+    protected int getMinimumServerVersion() {
+        return MIN_SERVER_VERSION;
+    }
     protected int getMaximumServerVersion() { return MAX_SERVER_VERSION; }
     
     /**
