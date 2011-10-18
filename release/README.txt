@@ -1,8 +1,8 @@
-Armageddon v2.4.2 build 338.20111011
+Armageddon v2.5 build 340.20111018
 
 INSTALL and UPGRADE
 
-1. Copy the included jar files to your server's plugin directory
+1. Copy the included jar file to your server's plugin directory
 2. Reload your server
 3. Change any configuration in plugins/Armageddon/config.yml as neccessary
 4. Reload your server

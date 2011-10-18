@@ -1,9 +1,9 @@
 ==========================================
-CannonBall - A Bukkit Plugin for Minecraft
+Armageddon - A Bukkit Plugin for Minecraft
 ==========================================
 By sunkid
 
-CannonBall - shoot live TNT from dispensers with configurable angles and velocities
+Armageddon - shoot live TNT from dispensers with configurable angles and velocities
 
 Discussion Forum Link: http://bit.ly/cannons4bukkit
 Source & Latest Release: https://github.com/sunkid/CannonBall
@@ -27,15 +27,15 @@ INSTALLATION:
 
 #) download jar file and move to your plugins folder
 #) reload your server
-#) read and adjust configuration file in plugins/CannonBall/config.yml
+#) read and adjust configuration file in plugins/Armageddon/config.yml
 #) reload your server if you made any changes
 
-UPGRADING FROM PREVIOUS VERSIONS OF CannonBall
-----------------------------------------------
+UPGRADING
+---------
 
 #) follow INSTALLATION steps 1 - 3.
 #) if you see a warning message about an outdated config.yml file, simply follow the instructions
-   in plugins/CannonBall/config-new.yml
+   in plugins/Armageddon/config-new.yml
 #) if there is no warning message, you are good to go
 
 

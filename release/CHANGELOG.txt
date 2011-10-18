@@ -1,5 +1,9 @@
 Listed below are released versions and cumulative changes between them
 
+2.5
+
+* adapted to BaseBukkitPlugin version 1.8 - there is no need to install that jar manually anymore
+
 2.4.2
 
 * refactored for changes in bukkit's configuration support
