@@ -28,7 +28,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -55,7 +54,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
 
     private PluginDescriptionFile description;
 
-    public static final String REPOSITORY = "https://raw.github.com/sunkid/BaseBukkitPlugin/selfupdate/release/";
+    public static final String REPOSITORY = "https://raw.github.com/sunkid/BaseBukkitPlugin/master/release/";
 
 	public BukkitPlugin() {
         try {
