@@ -1,5 +1,9 @@
 Listed below are released versions and cumulative changes between them
 
+2.8
+
+* made BaseBukkitPlugin checks more fail-safe
+
 2.7
 
 * upgraded to BaseBukkitPlugin version 2.0 which adds self-update functionality
