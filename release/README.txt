@@ -1,4 +1,4 @@
-Armageddon v2.8 build 344.20111030
+Armageddon v2.81 build 345.20111120
 
 INSTALL and UPGRADE
 
