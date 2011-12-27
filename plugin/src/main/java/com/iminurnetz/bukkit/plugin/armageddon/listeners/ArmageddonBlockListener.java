@@ -32,6 +32,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Pig;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.TNTPrimed;
@@ -162,6 +163,18 @@ public class ArmageddonBlockListener extends BlockListener {
                     locClone.setPitch(0);
                     locClone.setYaw(yaw);
                     entity = world.spawn(locClone, Fireball.class);
+                    LivingEntity owner = plugin.getServer().getPlayer(cannon.getOwner());
+                    if (owner == null) {
+                        // get the closest living entity
+                        double distance = Double.MAX_VALUE;
+                        for (LivingEntity e : world.getLivingEntities()) {
+                            if (e.getLocation().distance(locClone) < distance) {
+                                distance = e.getLocation().distance(locClone);
+                                owner = e;
+                            }
+                        }
+                    }
+                    ((Fireball) entity).setShooter(owner);
                     break;
 
                 default:

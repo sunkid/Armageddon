@@ -31,12 +31,18 @@ public class Cannon extends UsageTracker implements Serializable {
     private double angle;
     private double velocity;
     private int fuse;
+    private String owner;
     
     public Cannon(double angle, double velocity, int fuse) {
+        this(angle, velocity, fuse, null);
+    }
+
+    public Cannon(double angle, double velocity, int fuse, String owner) {
         super();
         this.angle = angle;
         this.velocity = velocity;
         this.fuse = fuse;
+        this.owner = owner;
     }
     
     public double getAngle() {
@@ -65,7 +71,7 @@ public class Cannon extends UsageTracker implements Serializable {
     
     @Override
     public Cannon clone() {
-        Cannon c = new Cannon(angle, velocity, fuse);
+        Cannon c = new Cannon(angle, velocity, fuse, owner);
         return c;
     }
 
@@ -99,5 +105,13 @@ public class Cannon extends UsageTracker implements Serializable {
         return "Cannon set to " + String.format("%.1f", getAngle()) +
             " deg. at " + String.format("%.1f", getVelocity()) +
             "m/s, with a " + getFuse() + " tick fuse";
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }

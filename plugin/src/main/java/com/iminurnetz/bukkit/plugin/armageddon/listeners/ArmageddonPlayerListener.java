@@ -124,6 +124,7 @@ public class ArmageddonPlayerListener extends PlayerListener {
                 case TORCH:
                     if (plugin.getPermissionHandler().canConfigure(player)) {
                         Cannon cannon = plugin.getCannon(block, true);
+                        cannon.setOwner(player.getName());
                         if (cannon.equals(plugin.getCannon(player))) {
                             MessageUtils.send(player, ChatColor.RED, "Settings were not changed!");
                         } else {
@@ -247,6 +248,7 @@ public class ArmageddonPlayerListener extends PlayerListener {
 
                 case MOLOTOV:
                     entity = world.spawn(handLocation, Fireball.class);
+                    ((Fireball) entity).setShooter(player);
                     break;
 
                 /*
