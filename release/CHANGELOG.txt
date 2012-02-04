@@ -1,6 +1,10 @@
 Listed below are released versions and cumulative changes between them
 
-2.9
+2.91
+
+* update for BaseBukkitPlugin 2.4
+
+2.83
 
 * fix for molotov grenades, which now require a shooter
 
