@@ -44,6 +44,8 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerChatEvent;
@@ -78,6 +80,7 @@ public class ArmageddonPlayerListener implements Listener {
         config = plugin.getArmageddonConfig();
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (plugin.doCancelIfNeccessary(event)) {
             return;
@@ -319,31 +322,7 @@ public class ArmageddonPlayerListener implements Listener {
             player.updateInventory();
         }
     }
-
-    public void onPlayerChat(PlayerChatEvent event) {
-        plugin.doCancelIfNeccessary(event);
-    }
-
-    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-        plugin.doCancelIfNeccessary(event);
-    }
-
-    public void onPlayerMove(PlayerMoveEvent event) {
-        plugin.doCancelIfNeccessary(event);
-    }
-
-    public void onPlayerTeleport(PlayerTeleportEvent event) {
-        plugin.doCancelIfNeccessary(event);
-    }
-
-    public void onPlayerPickupItem(PlayerPickupItemEvent event) {
-        plugin.doCancelIfNeccessary(event);
-    }
-
-    public void onPlayerPortal(PlayerPortalEvent event) {
-        plugin.doCancelIfNeccessary(event);
-    }
-
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onItemHeldChange(PlayerItemHeldEvent event) {
         Gun gun = plugin.getGun(event.getPlayer());
         gun.setShotsFired(0);

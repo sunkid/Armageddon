@@ -2,6 +2,11 @@ Listed below are released versions and cumulative changes between them
 
 ${project.version}
 
+* better adaptation to new event model
+* introduction of WaterTrackerMap and TrackedEntityList to only register chatty events when needed
+
+2.93
+
 * update for new event model in bukkit 1.1 R5
 
 2.92

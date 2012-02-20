@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
@@ -54,32 +55,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.BlockCanBuildEvent;
-import org.bukkit.event.block.BlockDispenseEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.entity.CreeperPowerEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityInteractEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
@@ -87,10 +72,12 @@ import com.iminurnetz.bukkit.plugin.BukkitPlugin;
 import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade;
 import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade.Type;
 import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Gun;
+import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonBlockFromToListener;
 import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonBlockListener;
 import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonEntityListener;
 import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonPlayerListener;
 import com.iminurnetz.bukkit.plugin.armageddon.listeners.MoveCraftListener;
+import com.iminurnetz.bukkit.plugin.armageddon.listeners.TrackedEntityListener;
 import com.iminurnetz.bukkit.plugin.armageddon.tasks.EntityTracker;
 import com.iminurnetz.bukkit.plugin.armageddon.tasks.SpiderWebTracker;
 import com.iminurnetz.bukkit.plugin.armageddon.tasks.WaterTracker;
@@ -98,14 +85,13 @@ import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.util.BlockLocation;
 import com.iminurnetz.bukkit.util.InventoryUtil;
 import com.iminurnetz.bukkit.util.MaterialUtils;
-import com.sycoprime.movecraft.events.MoveCraftMoveEvent;
 
 public class ArmageddonPlugin extends BukkitPlugin {
 
-    private Hashtable<BlockLocation, Cannon> cannons;
-    private Hashtable<String, PlayerSettings> playerSettings;
+    private Map<BlockLocation, Cannon> cannons;
+    private Map<String, PlayerSettings> playerSettings;
     private List<TrackedLivingEntity> trackedEntities;
-    private Hashtable<Integer, WaterTracker> waterTrackers;
+    private WaterTrackerMap<Integer, WaterTracker> waterTrackers;
     private Set<Block> spiderWebs;
 
     private int stunnerTaskId = -1;
@@ -113,11 +99,11 @@ public class ArmageddonPlugin extends BukkitPlugin {
     private ArmageddonConfiguration config;
     private ArmageddonPermissionHandler permissionHandler;
 
-    private Hashtable<Integer, Grenade> grenadesFired;
+    private Map<Integer, Grenade> grenadesFired;
     private List<Location> nuclearExplosions;
 
-    private Hashtable<Integer, Integer> bulletsFired;
-    private Hashtable<Integer, Block> blockShotAt;
+    private Map<Integer, Integer> bulletsFired;
+    private Map<Integer, Block> blockShotAt;
 
     public static final int CANNON_FILE_VERSION = 2;
 
@@ -125,8 +111,8 @@ public class ArmageddonPlugin extends BukkitPlugin {
     public void enablePlugin() throws Exception {
 
         grenadesFired = new Hashtable<Integer, Grenade>();
-        trackedEntities = new ArrayList<TrackedLivingEntity>();
-        waterTrackers = new Hashtable<Integer, WaterTracker>();
+        trackedEntities = new TrackedEntityList<TrackedLivingEntity>(this);
+        waterTrackers = new WaterTrackerMap<Integer, WaterTracker>(this);
         spiderWebs = new HashSet<Block>();
 
         nuclearExplosions = new ArrayList<Location>();
@@ -141,34 +127,9 @@ public class ArmageddonPlugin extends BukkitPlugin {
 
         PluginManager pm = getServer().getPluginManager();
 
-        EventExecutor executor = new ArmageddonEventExecutor(this);
-
-        ArmageddonBlockListener blockListener = new ArmageddonBlockListener(this);
-
-        pm.registerEvent(BlockDispenseEvent.class, blockListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(BlockBreakEvent.class, blockListener, EventPriority.MONITOR, executor, this);
-        pm.registerEvent(BlockFromToEvent.class, blockListener, EventPriority.MONITOR, executor, this);
-
-        ArmageddonPlayerListener playerListener = new ArmageddonPlayerListener(this);
-
-        pm.registerEvent(PlayerChatEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(PlayerCommandPreprocessEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(PlayerInteractEvent.class, playerListener, EventPriority.MONITOR, executor, this);
-        pm.registerEvent(PlayerMoveEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(PlayerPickupItemEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(PlayerPortalEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(PlayerTeleportEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(PlayerItemHeldEvent.class, playerListener, EventPriority.MONITOR, executor, this);
-
-        ArmageddonEntityListener entityListener = new ArmageddonEntityListener(this);
-
-        pm.registerEvent(EntityDamageEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(EntityExplodeEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(EntityInteractEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(ExplosionPrimeEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(ProjectileHitEvent.class, entityListener, EventPriority.MONITOR, executor, this);
-        pm.registerEvent(EntityTargetEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
-        pm.registerEvent(CreeperPowerEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvents(new ArmageddonBlockListener(this), this);
+        pm.registerEvents(new ArmageddonPlayerListener(this), this);
+        pm.registerEvents(new ArmageddonEntityListener(this), this);
 
         if (pm.getPlugin("MoveCraft") != null) {
             Plugin moveCraft = pm.getPlugin("MoveCraft");
@@ -187,8 +148,7 @@ public class ArmageddonPlugin extends BukkitPlugin {
 
             if (major > 0 || minor > 6) {
                 log("Enabling MoveCraft support!");
-                MoveCraftListener moveCraftListener = new MoveCraftListener(this);
-                pm.registerEvent(MoveCraftMoveEvent.class, moveCraftListener, EventPriority.MONITOR, executor, this);
+                pm.registerEvents(new MoveCraftListener(this), this);
             } else {
                 log("MoveCraft version " + version + " (" + major + "." + minor + ") not supported");
             }
@@ -835,12 +795,71 @@ public class ArmageddonPlugin extends BukkitPlugin {
         return 0;
     }
 
-    public Hashtable<BlockLocation, Cannon> getCannons() {
+    public Map<BlockLocation, Cannon> getCannons() {
         return cannons;
     }
 
     public boolean removeWeb(Block web) {
         return spiderWebs.remove(web);
     }
+}
 
+class WaterTrackerMap<K, V> extends Hashtable<Integer, WaterTracker> {
+    private static final long serialVersionUID = 1L;
+
+    private final ArmageddonPlugin plugin;
+    private final ArmageddonBlockFromToListener blockFromToListener;
+
+    public WaterTrackerMap(ArmageddonPlugin plugin) {
+        this.plugin = plugin;
+        blockFromToListener = new ArmageddonBlockFromToListener(plugin);
+    }
+
+    @Override
+    public synchronized WaterTracker put(Integer i, WaterTracker tracker) {
+        WaterTracker t = super.put(i, tracker);
+        if (this.size() == 1) {
+            plugin.getServer().getPluginManager().registerEvents(blockFromToListener, plugin);
+        }
+        return t;
+    }
+
+    @Override
+    public synchronized WaterTracker remove(Object o) {
+        WaterTracker t = super.remove(o);
+        if (this.size() == 0) {
+            HandlerList.unregisterAll(blockFromToListener);
+        }
+        return t;
+    }
+}
+
+class TrackedEntityList<T> extends ArrayList<TrackedLivingEntity> {
+    private static final long serialVersionUID = 1L;
+
+    private final ArmageddonPlugin plugin;
+    private final TrackedEntityListener trackedEntityListener;
+
+    public TrackedEntityList(ArmageddonPlugin plugin) {
+        this.plugin = plugin;
+        trackedEntityListener = new TrackedEntityListener(plugin);
+    }
+
+    @Override
+    public synchronized boolean add(TrackedLivingEntity entity) {
+        boolean b = super.add(entity);
+        if (this.size() == 1) {
+            plugin.getServer().getPluginManager().registerEvents(trackedEntityListener, plugin);
+        }
+        return b;
+    }
+
+    @Override
+    public synchronized TrackedLivingEntity remove(int i) {
+        TrackedLivingEntity entity = super.remove(i);
+        if (this.size() == 0) {
+            HandlerList.unregisterAll(trackedEntityListener);
+        }
+        return entity;
+    }
 }

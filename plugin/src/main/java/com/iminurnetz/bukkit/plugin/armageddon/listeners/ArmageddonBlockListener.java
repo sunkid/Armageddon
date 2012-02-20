@@ -35,10 +35,11 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
-import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.material.Dispenser;
 import org.bukkit.util.Vector;
 
@@ -46,7 +47,6 @@ import com.iminurnetz.bukkit.plugin.armageddon.ArmageddonPlugin;
 import com.iminurnetz.bukkit.plugin.armageddon.Cannon;
 import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade;
 import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade.Type;
-import com.iminurnetz.bukkit.util.MaterialUtils;
 
 public class ArmageddonBlockListener implements Listener {
 
@@ -56,6 +56,7 @@ public class ArmageddonBlockListener implements Listener {
         this.plugin = plugin;
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         if (block.getType() == Material.DISPENSER) {
@@ -68,6 +69,7 @@ public class ArmageddonBlockListener implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockDispense(BlockDispenseEvent event) {
         Block block = event.getBlock();
         if (block.getType() == Material.DISPENSER) {
@@ -192,12 +194,6 @@ public class ArmageddonBlockListener implements Listener {
                 event.setCancelled(true);
                 world.createExplosion(location, 0);
             }
-        }
-    }
-
-    public void onBlockFromTo(BlockFromToEvent event) {
-        if (MaterialUtils.isWater(event.getBlock().getType())) {
-            plugin.addBlockFlow(event.getBlock(), event.getToBlock());
         }
     }
 }
