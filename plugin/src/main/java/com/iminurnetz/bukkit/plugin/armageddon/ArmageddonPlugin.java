@@ -54,16 +54,32 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
+import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.entity.CreeperPowerEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityInteractEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
@@ -82,6 +98,7 @@ import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.util.BlockLocation;
 import com.iminurnetz.bukkit.util.InventoryUtil;
 import com.iminurnetz.bukkit.util.MaterialUtils;
+import com.sycoprime.movecraft.events.MoveCraftMoveEvent;
 
 public class ArmageddonPlugin extends BukkitPlugin {
 
@@ -124,32 +141,34 @@ public class ArmageddonPlugin extends BukkitPlugin {
 
         PluginManager pm = getServer().getPluginManager();
 
+        EventExecutor executor = new ArmageddonEventExecutor(this);
+
         ArmageddonBlockListener blockListener = new ArmageddonBlockListener(this);
 
-        pm.registerEvent(Event.Type.BLOCK_DISPENSE, blockListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
-        pm.registerEvent(Event.Type.BLOCK_FROMTO, blockListener, Priority.Monitor, this);
+        pm.registerEvent(BlockDispenseEvent.class, blockListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(BlockBreakEvent.class, blockListener, EventPriority.MONITOR, executor, this);
+        pm.registerEvent(BlockFromToEvent.class, blockListener, EventPriority.MONITOR, executor, this);
 
         ArmageddonPlayerListener playerListener = new ArmageddonPlayerListener(this);
 
-        pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, playerListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.PLAYER_PICKUP_ITEM, playerListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.PLAYER_PORTAL, playerListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Priority.Monitor, this);
+        pm.registerEvent(PlayerChatEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(PlayerCommandPreprocessEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(PlayerInteractEvent.class, playerListener, EventPriority.MONITOR, executor, this);
+        pm.registerEvent(PlayerMoveEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(PlayerPickupItemEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(PlayerPortalEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(PlayerTeleportEvent.class, playerListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(PlayerItemHeldEvent.class, playerListener, EventPriority.MONITOR, executor, this);
 
         ArmageddonEntityListener entityListener = new ArmageddonEntityListener(this);
 
-        pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.ENTITY_INTERACT, entityListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.EXPLOSION_PRIME, entityListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.PROJECTILE_HIT, entityListener, Priority.Monitor, this);
-        pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.CREEPER_POWER, entityListener, Priority.Highest, this);
+        pm.registerEvent(EntityDamageEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(EntityExplodeEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(EntityInteractEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(ExplosionPrimeEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(ProjectileHitEvent.class, entityListener, EventPriority.MONITOR, executor, this);
+        pm.registerEvent(EntityTargetEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
+        pm.registerEvent(CreeperPowerEvent.class, entityListener, EventPriority.HIGHEST, executor, this);
 
         if (pm.getPlugin("MoveCraft") != null) {
             Plugin moveCraft = pm.getPlugin("MoveCraft");
@@ -169,7 +188,7 @@ public class ArmageddonPlugin extends BukkitPlugin {
             if (major > 0 || minor > 6) {
                 log("Enabling MoveCraft support!");
                 MoveCraftListener moveCraftListener = new MoveCraftListener(this);
-                pm.registerEvent(Event.Type.CUSTOM_EVENT, moveCraftListener, Priority.Monitor, this);
+                pm.registerEvent(MoveCraftMoveEvent.class, moveCraftListener, EventPriority.MONITOR, executor, this);
             } else {
                 log("MoveCraft version " + version + " (" + major + "." + minor + ") not supported");
             }

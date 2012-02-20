@@ -44,12 +44,12 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
@@ -68,7 +68,7 @@ import com.iminurnetz.bukkit.plugin.util.MessageUtils;
 import com.iminurnetz.bukkit.util.InventoryUtil;
 import com.iminurnetz.bukkit.util.LocationUtil;
 
-public class ArmageddonPlayerListener extends PlayerListener {
+public class ArmageddonPlayerListener implements Listener {
 
     private final ArmageddonPlugin plugin;
     private final ArmageddonConfiguration config;
@@ -78,7 +78,6 @@ public class ArmageddonPlayerListener extends PlayerListener {
         config = plugin.getArmageddonConfig();
     }
 
-    @Override
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (plugin.doCancelIfNeccessary(event)) {
             return;
@@ -321,37 +320,30 @@ public class ArmageddonPlayerListener extends PlayerListener {
         }
     }
 
-    @Override
     public void onPlayerChat(PlayerChatEvent event) {
         plugin.doCancelIfNeccessary(event);
     }
 
-    @Override
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         plugin.doCancelIfNeccessary(event);
     }
 
-    @Override
     public void onPlayerMove(PlayerMoveEvent event) {
         plugin.doCancelIfNeccessary(event);
     }
 
-    @Override
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         plugin.doCancelIfNeccessary(event);
     }
 
-    @Override
     public void onPlayerPickupItem(PlayerPickupItemEvent event) {
         plugin.doCancelIfNeccessary(event);
     }
 
-    @Override
     public void onPlayerPortal(PlayerPortalEvent event) {
         plugin.doCancelIfNeccessary(event);
     }
 
-    @Override
     public void onItemHeldChange(PlayerItemHeldEvent event) {
         Gun gun = plugin.getGun(event.getPlayer());
         gun.setShotsFired(0);

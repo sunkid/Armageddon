@@ -32,14 +32,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Pig;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.material.Dispenser;
 import org.bukkit.util.Vector;
 
@@ -49,7 +48,7 @@ import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade;
 import com.iminurnetz.bukkit.plugin.armageddon.arsenal.Grenade.Type;
 import com.iminurnetz.bukkit.util.MaterialUtils;
 
-public class ArmageddonBlockListener extends BlockListener {
+public class ArmageddonBlockListener implements Listener {
 
     private final ArmageddonPlugin plugin;
 
@@ -57,7 +56,6 @@ public class ArmageddonBlockListener extends BlockListener {
         this.plugin = plugin;
     }
 
-    @Override
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         if (block.getType() == Material.DISPENSER) {
@@ -70,7 +68,6 @@ public class ArmageddonBlockListener extends BlockListener {
         }
     }
 
-    @Override
     public void onBlockDispense(BlockDispenseEvent event) {
         Block block = event.getBlock();
         if (block.getType() == Material.DISPENSER) {
@@ -198,7 +195,6 @@ public class ArmageddonBlockListener extends BlockListener {
         }
     }
 
-    @Override
     public void onBlockFromTo(BlockFromToEvent event) {
         if (MaterialUtils.isWater(event.getBlock().getType())) {
             plugin.addBlockFlow(event.getBlock(), event.getToBlock());
