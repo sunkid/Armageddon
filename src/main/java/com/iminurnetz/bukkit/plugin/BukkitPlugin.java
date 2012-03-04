@@ -66,7 +66,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
 
     private static final String HOME_URL = "http://www.iminurnetz.com/mcStats.cgi";
 
-    public static final String REPOSITORY = "https://raw.github.com/sunkid/@project@/versions/release/";
+    public static final String REPOSITORY = "https://raw.github.com/sunkid/@project@/master/release/";
 
     public BukkitPlugin() {
         try {
