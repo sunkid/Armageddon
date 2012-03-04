@@ -6,6 +6,11 @@
 	<artifactId>bukkit.plugin-parent</artifactId>
 	<version>1.0</version>
 	<packaging>pom</packaging>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<bukkit.version>1.1-R4-SNAPSHOT</bukkit.version>
+		<compatibility.version>1.1-R4-SNAPSHOT</compatibility.version>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>com.sycoprime</groupId>
@@ -13,6 +18,11 @@
 			<version>0.0.1-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.bukkit</groupId>
+		  <artifactId>bukkit</artifactId>
+		  <version>${bukkit.version}</version>
 		</dependency>
 	</dependencies>
 	<modules>

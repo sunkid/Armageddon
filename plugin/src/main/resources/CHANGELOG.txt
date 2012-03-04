@@ -2,6 +2,10 @@ Listed below are released versions and cumulative changes between them
 
 ${project.version}
 
+* update for BaseBukkitPlugin 2.6
+
+2.92
+
 * update for BaseBukkitPlugin 2.4
 
 2.83
