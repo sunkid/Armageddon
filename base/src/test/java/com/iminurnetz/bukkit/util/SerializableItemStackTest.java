@@ -21,23 +21,26 @@
  * Commercial Use:
  *    Please contact sunkid@iminurnetz.com
  */
-package com.iminurnetz.bukkit.plugin.util.tests;
+package com.iminurnetz.bukkit.util;
 
 import junit.framework.TestCase;
 
-import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
-import com.iminurnetz.bukkit.plugin.util.MessageUtils;
+import com.iminurnetz.bukkit.util.SerializableItemStack;
 
+public class SerializableItemStackTest extends TestCase {
+    public void testConversion() {
+        ItemStack s = new ItemStack(Material.WOOL, 10, (short) 0, DyeColor.BLUE.getData());
+        
+        SerializableItemStack ss = new SerializableItemStack(s);
+        
+        assertEquals("Serialization succeeded", s.getData().getData(), DyeColor.BLUE.getData());
 
-public class MessageUtilsTest  extends TestCase {
-	public void testConvertColor() {
-		String original = getOldCode(ChatColor.AQUA) + "Hello World" + getOldCode(ChatColor.BLACK);
-		String expected = ChatColor.AQUA.toString() + "Hello World" + ChatColor.BLACK.toString();
-		assertEquals(expected, MessageUtils.convertColor(original));
-	}
-	
-	private String getOldCode(ChatColor color) {
-		return "&" + Integer.toHexString( 0x10 | color.getCode()).substring(1).toLowerCase();
-	}
+        ItemStack s2 = ss.getStack();
+        assertEquals("Conversion succeeded", s, s2);
+        assertEquals("Data is retained", s.getData().getData(), s2.getData().getData());
+    }
 }
