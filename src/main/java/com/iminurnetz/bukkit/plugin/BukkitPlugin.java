@@ -40,6 +40,7 @@ import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.InvalidDescriptionException;
@@ -49,10 +50,13 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.iminurnetz.bukkit.plugin.util.MessageUtils;
+import com.iminurnetz.bukkit.util.BukkitVersion;
 import com.iminurnetz.util.DownloadUtils;
+import com.iminurnetz.util.Version;
 
 public abstract class BukkitPlugin extends JavaPlugin {
     private static final String BASE_BUKKIT_PLUGIN = "BaseBukkitPlugin";
+    private static BukkitVersion currentBukkitVersion = new BukkitVersion();
 
     protected int MIN_SERVER_VERSION = 400;
     protected int MAX_SERVER_VERSION = Integer.MAX_VALUE;
@@ -70,6 +74,10 @@ public abstract class BukkitPlugin extends JavaPlugin {
             description = new PluginDescriptionFile(is);
         } catch (InvalidDescriptionException e) {
             e.printStackTrace();
+        }
+
+        if (Bukkit.getServer() != null) {
+            currentBukkitVersion = new BukkitVersion(Bukkit.getBukkitVersion());
         }
 
         log(this.getFullMessagePrefix() + " initialized");
@@ -110,10 +118,6 @@ public abstract class BukkitPlugin extends JavaPlugin {
         return description;
     }
 
-    public String getName() {
-        return getDescription().getName();
-    }
-
     public String getVersion() {
         return getDescription().getVersion();
     }
@@ -135,15 +139,20 @@ public abstract class BukkitPlugin extends JavaPlugin {
     }
 
     public String getFullMessagePrefix(ChatColor color) {
-        return MessageUtils.colorize(color, "[" + getName() + " " + getVersion() + "] ");
+        return MessageUtils.colorize(color, "[" + getPluginName() + " " + getVersion() + "] ");
     }
 
     public String getMessagePrefix() {
-        return "[" + getName() + "] ";
+        return "[" + getPluginName() + "] ";
     }
 
     public String getMessagePrefix(ChatColor color) {
         return MessageUtils.colorize(color, getMessagePrefix());
+    }
+
+    // wrapped here so plugins can override and test
+    protected String getPluginName() {
+        return getName();
     }
 
     @Override
@@ -170,14 +179,14 @@ public abstract class BukkitPlugin extends JavaPlugin {
 
             enablePlugin();
 
-            if (!getName().equals(BASE_BUKKIT_PLUGIN)) {
+            if (!getPluginName().equals(BASE_BUKKIT_PLUGIN)) {
                 Configuration config = getConfig();
                 if (!config.getBoolean("settings.disable-stats", false)) {
                     postUsage();
                 }
 
                 if (!config.getBoolean("settings.disable-updates", false)) {
-                    File jarFile = new File(getDataFolder().getParentFile(), getName() + ".jar");
+                    File jarFile = new File(getDataFolder().getParentFile(), getPluginName() + ".jar");
                     try {
                         checkAndUpdateJarFile(jarFile, true);
                     } catch (Exception e) {
@@ -204,7 +213,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
 
         values.put("ip", ip);
         values.put("port", String.valueOf(getServer().getPort()));
-        values.put("plugin", getName());
+        values.put("plugin", getPluginName());
         values.put("version", getVersion());
 
         try {
@@ -235,8 +244,8 @@ public abstract class BukkitPlugin extends JavaPlugin {
     private void checkAndUpdateJarFile(File jarFile, boolean isPlugin) throws IOException {
         boolean checkServer = checkTimeStamp(isPlugin);
 
-        String installedVersion = getPluginVersionFromJar(jarFile);
-        if (installedVersion.equals("0")) {
+        Version installedVersion = getPluginVersionFromJar(jarFile);
+        if (installedVersion.equals(new Version())) {
             checkServer = true;
         }
 
@@ -248,9 +257,11 @@ public abstract class BukkitPlugin extends JavaPlugin {
                 log("Automatic updates can be disabled by setting 'settings.disable-updates' to false in config.yml");
             }
 
-            String latestVersion = getLatestVersionFromRepository(name);
+            VersionTuple latestVersion = getLatestVersionFromRepository(name);
 
-            if (!latestVersion.equals(installedVersion)) {
+            if (latestVersion.version.equals(installedVersion)) {
+                log("Latest version installed!");
+            } else if (latestVersion.isLaterVersion(installedVersion) && latestVersion.isBukkitCompatible(currentBukkitVersion)) {
                 log("Latest version " + latestVersion + " is newer than the installed version!");
 
                 // not sure this is necessary, as SimplePluginManager seems to
@@ -261,9 +272,9 @@ public abstract class BukkitPlugin extends JavaPlugin {
                     if (!jarFile.getParentFile().exists()) {
                         jarFile.getParentFile().mkdir();
                     } else {
-                        String updateVersion = getPluginVersionFromJar(jarFile);
-                        if (updateVersion.equals(getVersion())) {
-                            log("The latest version has already been downloaded to " + jarFile.getAbsolutePath());
+                        Version updateVersion = getPluginVersionFromJar(jarFile);
+                        if (!updateVersion.isLaterVersion(new Version(getVersion()))) {
+                            log("The current version " + updateVersion + " is the latest!");
                             return;
                         }
                     }
@@ -275,6 +286,9 @@ public abstract class BukkitPlugin extends JavaPlugin {
                 if (isPlugin) {
                     log("The update will automatically be installed upon the next server restart!");
                 }
+            } else if (!latestVersion.isBukkitCompatible(currentBukkitVersion)) {
+                log("A new version is available but is not compatible with your current server version!");
+                log("Install a bukkit server compatible with " + latestVersion.bukkitVersion + " or later to use the new version!");
             }
 
             if (isPlugin) {
@@ -304,7 +318,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
         if (!timeStamp.exists() && create) {
             try {
                 BufferedWriter out = new BufferedWriter(new FileWriter(timeStamp));
-                out.write("remove this file to force the version checks for BaseBukkitPlugin and " + getName() + "\n");
+                out.write("remove this file to force the version checks for BaseBukkitPlugin and " + getPluginName() + "\n");
                 out.close();
             } catch (IOException e) {
                 log(Level.SEVERE, "Cannot create time stamp", e);
@@ -320,8 +334,8 @@ public abstract class BukkitPlugin extends JavaPlugin {
         return checkServer;
     }
 
-    private String getPluginVersionFromJar(File pluginJarFile) {
-        String pluginVersion = "0";
+    private Version getPluginVersionFromJar(File pluginJarFile) {
+        Version pluginVersion = new Version();
 
         if (pluginJarFile.exists()) {
             try {
@@ -330,7 +344,7 @@ public abstract class BukkitPlugin extends JavaPlugin {
                 InputStream stream = jarFile.getInputStream(entry);
 
                 PluginDescriptionFile desc = new PluginDescriptionFile(stream);
-                pluginVersion = desc.getVersion();
+                pluginVersion = new Version(desc.getVersion());
                 stream.close();
                 jarFile.close();
             } catch (Exception e) {
@@ -341,13 +355,27 @@ public abstract class BukkitPlugin extends JavaPlugin {
         return pluginVersion;
     }
 
-    public static String getLatestVersionFromRepository(String project) throws IOException {
-        URL versionUrl = new URL(getRepository(project) + "version.txt");
-        String latestVersion = DownloadUtils.readURL(versionUrl);
-        return latestVersion.trim();
+    protected VersionTuple getLatestVersionFromRepository() throws IOException {
+        return getLatestVersionFromRepository(getPluginName());
     }
 
-    private static String getRepository(String project) {
+    private VersionTuple getLatestVersionFromRepository(String project) throws IOException {
+        URL versionUrl = new URL(getRepository(project) + "version.txt");
+        String latestVersion = DownloadUtils.readURL(versionUrl);
+        VersionTuple retval = new VersionTuple();
+
+        if (latestVersion.contains("\t")) {
+            String[] fields = latestVersion.split("\\t");
+            latestVersion = fields[0];
+            retval.bukkitVersion = new BukkitVersion(fields[1]);
+        }
+
+        retval.version = new Version(latestVersion.trim());
+
+        return retval;
+    }
+
+    private String getRepository(String project) {
         return REPOSITORY.replace("@project@", project);
     }
 
@@ -404,4 +432,21 @@ public abstract class BukkitPlugin extends JavaPlugin {
      * @throws Exception
      */
     public abstract void enablePlugin() throws Exception;
+
+    protected class VersionTuple {
+        Version version;
+        BukkitVersion bukkitVersion;
+
+        VersionTuple() {
+            bukkitVersion = new BukkitVersion("10000");
+        }
+
+        protected boolean isLaterVersion(Version v) {
+            return version.isLaterVersion(v);
+        }
+
+        protected boolean isBukkitCompatible(BukkitVersion currentBukkitVersion) {
+            return !bukkitVersion.isLaterVersion(currentBukkitVersion);
+        }
+    }
 }
