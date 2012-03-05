@@ -1,4 +1,4 @@
-Armageddon v2.94 build 372.20120304
+Armageddon v2.94 build 373.20120304
 
 INSTALL and UPGRADE
 
