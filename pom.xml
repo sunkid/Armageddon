@@ -8,8 +8,8 @@
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<bukkit.version>1.1-R4-SNAPSHOT</bukkit.version>
-		<compatibility.version>1.1-R4-SNAPSHOT</compatibility.version>
+		<bukkit.version>1.2.3-R0.2-SNAPSHOT</bukkit.version>
+		<compatibility.version>1.1-R5-SNAPSHOT</compatibility.version>
 	</properties>
 	<dependencies>
 		<dependency>

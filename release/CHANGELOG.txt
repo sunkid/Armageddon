@@ -1,19 +1,13 @@
 Listed below are released versions and cumulative changes between them
 
-<<<<<<< HEAD
-2.93
-
-* update for BaseBukkitPlugin 2.6
-=======
 2.94
 
-* better adaptation to new event model
+* update for new event model in bukkit 1.1 R5
 * introduction of WaterTrackerMap and TrackedEntityList to only register chatty events when needed
 
 2.93
 
-* update for new event model in bukkit 1.1 R5
->>>>>>> R5
+* update for BaseBukkitPlugin 2.6
 
 2.92
 
