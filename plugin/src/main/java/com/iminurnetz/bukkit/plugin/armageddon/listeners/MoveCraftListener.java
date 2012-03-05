@@ -25,12 +25,15 @@ package com.iminurnetz.bukkit.plugin.armageddon.listeners;
 
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.Location;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 
 import com.iminurnetz.bukkit.plugin.armageddon.ArmageddonPlugin;
@@ -40,7 +43,7 @@ import com.sycoprime.movecraft.Craft;
 import com.sycoprime.movecraft.events.MoveCraftMoveEvent;
 import com.sycoprime.movecraft.events.MoveCraftTurnEvent;
 
-public class MoveCraftListener extends CustomEventListener {
+public class MoveCraftListener implements Listener {
 
     private final ArmageddonPlugin plugin;
 
@@ -48,6 +51,7 @@ public class MoveCraftListener extends CustomEventListener {
         this.plugin = plugin;
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onCustomEvent(Event event) {
         if (event instanceof Cancellable && ((Cancellable) event).isCancelled()) {
             return;
@@ -61,8 +65,8 @@ public class MoveCraftListener extends CustomEventListener {
             // plugin.log("MoveCraftMoveEvent: " + move + " at " +
             // craft.getLocation());
 
-            Hashtable<BlockLocation, Cannon> cannons = plugin.getCannons();
-            Hashtable<BlockLocation, Cannon> movedCannons = new Hashtable<BlockLocation, Cannon>();
+            Map<BlockLocation, Cannon> cannons = plugin.getCannons();
+            Map<BlockLocation, Cannon> movedCannons = new Hashtable<BlockLocation, Cannon>();
             synchronized (cannons) {
                 Iterator<Entry<BlockLocation, Cannon>> iCannons = cannons.entrySet().iterator();
                 while (iCannons.hasNext()) {

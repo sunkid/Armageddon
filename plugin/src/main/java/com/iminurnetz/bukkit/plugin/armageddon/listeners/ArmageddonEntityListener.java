@@ -30,6 +30,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -37,7 +40,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityInteractEvent;
-import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -47,7 +49,7 @@ import org.bukkit.material.Attachable;
 import com.iminurnetz.bukkit.plugin.armageddon.ArmageddonPlugin;
 import com.iminurnetz.bukkit.util.MaterialUtils;
 
-public class ArmageddonEntityListener extends EntityListener {
+public class ArmageddonEntityListener implements Listener {
 
     private final ArmageddonPlugin plugin;
 
@@ -55,7 +57,7 @@ public class ArmageddonEntityListener extends EntityListener {
         this.plugin = plugin;
     }
 
-    @Override
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent e) {
         if (e instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) e).getCause() == DamageCause.PROJECTILE) {
             EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) e;
@@ -83,7 +85,7 @@ public class ArmageddonEntityListener extends EntityListener {
         }
     }
 
-    @Override
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityExplode(EntityExplodeEvent event) {
         if (event.isCancelled()) {
             return;
@@ -98,7 +100,7 @@ public class ArmageddonEntityListener extends EntityListener {
         }
     }
 
-    @Override
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onProjectileHit(ProjectileHitEvent event) {
         final Projectile projectile = (Projectile) event.getEntity();
         if (plugin.isGrenade(projectile)) {
@@ -131,21 +133,5 @@ public class ArmageddonEntityListener extends EntityListener {
                 }, 1);
             }
         }
-    }
-
-    public void onEntityTarget(EntityTargetEvent event) {
-        plugin.doCancelIfNeccessary(event);
-    }
-
-    public void onCreeperPower(CreeperPowerEvent event) {
-        plugin.doCancelIfNeccessary(event);
-    }
-
-    public void onExplosionPrime(ExplosionPrimeEvent event) {
-        plugin.doCancelIfNeccessary(event);
-    }
-
-    public void onEntityInteract(EntityInteractEvent event) {
-        plugin.doCancelIfNeccessary(event);
     }
 }
