@@ -5,8 +5,11 @@ By sunkid
 
 Armageddon - shoot live TNT from dispensers with configurable angles and velocities
 
-Discussion Forum Link: http://bit.ly/cannons4bukkit
-Source & Latest Release: https://github.com/sunkid/CannonBall
+Dev Bukkit Link: http://dev.bukkit.org/server-mods/armageddon/
+Source & Latest Release: https://github.com/sunkid/Armageddon
+
+I appreciate any contributions, patches, or pull requests. To work on this plugin, you
+need to start at it's super-repository's level: https://github.com/sunkid/Bukkit-Plugins
 
 Functionality:
 --------------
