@@ -38,8 +38,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -65,7 +63,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 import com.iminurnetz.bukkit.plugin.BukkitPlugin;
@@ -76,7 +73,6 @@ import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonBlockFromToLi
 import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonBlockListener;
 import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonEntityListener;
 import com.iminurnetz.bukkit.plugin.armageddon.listeners.ArmageddonPlayerListener;
-import com.iminurnetz.bukkit.plugin.armageddon.listeners.MoveCraftListener;
 import com.iminurnetz.bukkit.plugin.armageddon.listeners.TrackedEntityListener;
 import com.iminurnetz.bukkit.plugin.armageddon.tasks.EntityTracker;
 import com.iminurnetz.bukkit.plugin.armageddon.tasks.SpiderWebTracker;
@@ -130,29 +126,6 @@ public class ArmageddonPlugin extends BukkitPlugin {
         pm.registerEvents(new ArmageddonBlockListener(this), this);
         pm.registerEvents(new ArmageddonPlayerListener(this), this);
         pm.registerEvents(new ArmageddonEntityListener(this), this);
-
-        if (pm.getPlugin("MoveCraft") != null) {
-            Plugin moveCraft = pm.getPlugin("MoveCraft");
-            String version = moveCraft.getDescription().getVersion();
-            Pattern p = Pattern.compile("(\\d+)\\.");
-            Matcher m = p.matcher(version);
-            int major = -1;
-            int minor = -1;
-            while (m.find()) {
-                if (major < 0) {
-                    major = Integer.parseInt(m.group(1));
-                } else if (minor < 0) {
-                    minor = Integer.parseInt(m.group(1));
-                }
-            }
-
-            if (major > 0 || minor > 6) {
-                log("Enabling MoveCraft support!");
-                pm.registerEvents(new MoveCraftListener(this), this);
-            } else {
-                log("MoveCraft version " + version + " (" + major + "." + minor + ") not supported");
-            }
-        }
 
         log("enabled.");
     }
