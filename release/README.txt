@@ -1,4 +1,4 @@
-Armageddon v2.98 build 13.20121114
+Armageddon v2.99 build ${buildNumber}
 
 INSTALL and UPGRADE
 
